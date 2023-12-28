@@ -7,6 +7,34 @@ export default {
   ],
   theme: {
     extend: {
+      animation: {
+        "fade-fr-t": "fade-fr-t 750ms ease-in-out",
+        fade: "fade 300ms ease-in-out",
+      },
+      keyframes: {
+        fade: {
+          "0%": {
+            opacity: 0,
+          },
+          "100%": {
+            opacity: 1,
+          },
+        },
+        "fade-fr-t": {
+          "0%": {
+            opacity: 0,
+            transform: "translate(-50%,-100%)",
+          },
+          "50%": {
+            opacity: 0,
+            transform: "translate(-50%,-100%)",
+          },
+          "100%": {
+            opacity: 1,
+            transform: "translate(-50%,0)",
+          },
+        },
+      },
       colors: {
         main: "#243444",
         secondary: "#0692da",

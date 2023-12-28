@@ -1,99 +1,73 @@
-import PropTypes from "prop-types";
-import { Table, Tabs } from "flowbite-react";
+import { Datepicker, Label, Select, Tabs } from "flowbite-react";
 import Title from "../fragments/Title";
-import { useRef, useState } from "react";
-import { tabTheme } from "../config/themes";
-import { siteData, demographics } from "../config/siteData";
+import { useEffect, useRef, useState } from "react";
+import { datePickerTheme, tabTheme } from "../config/themes";
+import { demographics as list } from "../config/siteData";
 import { Link, Route, Routes } from "react-router-dom";
 import Results from "./Results";
 import classNames from "classnames";
-
+import PlanningList from "../components/PlanningList";
+import PlanningTable from "../components/PlanningTable";
 function Planning() {
-  const [activeTab, setTab] = useState(0);
+  const [, setTab] = useState(0);
   const [profileFilter, setFilter] = useState(null);
   const [selectedAreas, setSelectedArea] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [demographics, setDemographics] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [selectedRegion, setRegion] = useState("");
+
   const tabs = useRef(null);
 
-  const headers = [
-    "area",
-    "# fits profile",
-    "% fits profile",
-    "total impressions",
-  ];
-
-  const handleAddDemographic = (category, subcategory, item) => {
-    // Check if the selected demographic already exists in the state
+  const handleAddDemographic = (item) => {
     if (profileFilter) {
-      const selectedCategory = Object.keys(profileFilter).find(
-        (cat) => cat === category
-      );
-      if (selectedCategory) {
-        const sub = profileFilter[selectedCategory][subcategory];
-        if (sub) {
-          if (!sub.includes(item)) {
-            // Update existing data
-            setFilter((prev) => {
-              return {
-                ...prev,
-                [category]: {
-                  ...prev[category],
-                  [subcategory]: [...sub, item],
-                },
-              };
-            });
-          }
-        } else {
-          // Add new subcategory
-          setFilter((prev) => {
-            return {
-              ...prev,
-              [category]: {
-                ...prev[category],
-                [subcategory]: [item],
-              },
-            };
-          });
-        }
-      } else {
-        // Add new category
-        setFilter((prev) => {
-          return {
-            ...prev,
-            [category]: {
-              [subcategory]: [item],
-            },
-          };
-        });
-      }
+      if (profileFilter.find((filter) => filter === item)) return;
+
+      setFilter((prev) => [...prev, item]);
     } else {
-      // Add entirely new item
-      const newItem = {
-        [category]: {
-          [subcategory]: [item],
-        },
-      };
-      setFilter(newItem);
+      setFilter([item]);
     }
   };
-  const countSitesByArea = (siteData) => {
-    const areaCountMap = {};
 
-    // Iterate through the siteData array
-    siteData.forEach((site) => {
-      const area = site.area;
+  const searchBuyergraphics = (demographics) => {
+    if (!searchQuery) {
+      return demographics;
+    }
 
-      // If the area already exists in the map, increment the count
-      if (areaCountMap[area]) {
-        areaCountMap[area]++;
-      } else {
-        // If the area doesn't exist, initialize the count to 1
-        areaCountMap[area] = 1;
-      }
-    });
+    if (searchQuery.length < 3) {
+      return demographics;
+    }
 
-    return areaCountMap;
+    return demographics.filter((item) =>
+      item.value.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   };
 
+  const regions = [
+    "National Capital Region (NCR)",
+    "Cordillera Administrative Region (CAR)",
+    "Region I (Ilocos Region)",
+    "Region II (Cagayan Valley)",
+    "Region III (Central Luzon)",
+    "Region IV-A (CALABARZON)",
+    "Region IV-B (MIMAROPA)",
+    "Region V (Bicol Region)",
+    "Region VI (Western Visayas)",
+    "Region VII (Central Visayas)",
+    "Region VIII (Eastern Visayas)",
+    "Region IX (Zamboanga Peninsula)",
+    "Region X (Northern Mindanao)",
+    "Region XI (Davao Region)",
+    "Region XII (SOCCSKSARGEN)",
+    "Region XIII (Caraga)",
+    "Autonomous Region in Muslim Mindanao (ARMM)",
+    "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
+  ];
+
+  useEffect(() => {
+    setDemographics(list);
+  }, []);
   return (
     <>
       <Routes>
@@ -113,87 +87,60 @@ function Planning() {
                   onActiveTabChange={(e) => setTab(e)}
                 >
                   <Tabs.Item title="All">
-                    <ul className="flex flex-col gap-2 max-h-[375px]">
-                      {Object.keys(demographics).map((category) => {
-                        return Object.keys(demographics[category]).map(
-                          (subcategory) => {
-                            return demographics[category][subcategory].map(
-                              (item) => {
-                                return (
-                                  <li
-                                    key={item}
-                                    className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
-                                  >
-                                    <p className="font-semibold text-lg">
-                                      {item}
-                                    </p>
-                                    <p className="capitalize">{subcategory}</p>
-                                    <button
-                                      className="transition-all absolute top-1/2 right-10 -translate-y-1/2 opacity-0 group-hover:opacity-100 border-2 border-secondary text-secondary rounded-full px-4 py-2 hover:text-white hover:bg-secondary"
-                                      onClick={() => {
-                                        handleAddDemographic(
-                                          category,
-                                          subcategory,
-                                          item
-                                        );
-                                      }}
-                                    >
-                                      Add
-                                    </button>
-                                  </li>
-                                );
-                              }
-                            );
-                          }
+                    {demographics && (
+                      <PlanningList
+                        handleAddDemographic={handleAddDemographic}
+                        search={setSearchQuery}
+                        searchBuyergraphics={searchBuyergraphics}
+                        profileFilter={profileFilter}
+                      />
+                    )}
+                  </Tabs.Item>
+                  {demographics &&
+                    [...new Set(demographics.map((item) => item.category))].map(
+                      (category, index) => {
+                        return (
+                          <Tabs.Item title={category} key={index}>
+                            <PlanningList
+                              category={category}
+                              handleAddDemographic={handleAddDemographic}
+                              search={setSearchQuery}
+                              searchBuyergraphics={searchBuyergraphics}
+                              profileFilter={profileFilter}
+                            />
+                          </Tabs.Item>
                         );
-                      })}
-                    </ul>
-                  </Tabs.Item>
-                  <Tabs.Item title="Demographics">
-                    <PlanningList
-                      category="basic"
-                      handleAddDemographic={handleAddDemographic}
-                    />
-                  </Tabs.Item>
-                  <Tabs.Item title="Purchase Behavior">
-                    <PlanningList
-                      category="purchase behavior"
-                      handleAddDemographic={handleAddDemographic}
-                    />
-                  </Tabs.Item>
-                  <Tabs.Item title="Media Consumption Behavior">
-                    <PlanningList
-                      category="media consumption"
-                      handleAddDemographic={handleAddDemographic}
-                    />
-                  </Tabs.Item>
+                      }
+                    )}
                 </Tabs>
                 <div className="bg-white w-full shadow p-2 flex flex-col gap-4">
                   <p className="font-semibold text-main">Profile Wishlist</p>
                   {profileFilter && (
                     <>
-                      <ul className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
-                        {Object.keys(profileFilter).map((category) => {
-                          return Object.keys(profileFilter[category]).map(
-                            (subcategory) => {
-                              return profileFilter[category][subcategory].map(
-                                (item) => {
-                                  return (
-                                    <li
-                                      key={item}
-                                      className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
-                                    >
-                                      <p className="font-semibold text-lg">
-                                        {item}
-                                      </p>
-                                      <p className="capitalize">
-                                        {subcategory}
-                                      </p>
-                                    </li>
-                                  );
-                                }
-                              );
-                            }
+                      <ul className="max-h-[380px] overflow-y-auto">
+                        {profileFilter.map((item, index) => {
+                          return (
+                            <li
+                              key={index}
+                              className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
+                            >
+                              <p className="font-semibold text-lg">
+                                {item.value}
+                              </p>
+                              <p className="capitalize">{item.key}</p>
+                              <button
+                                onClick={() => {
+                                  const filters = [...profileFilter];
+
+                                  filters.splice(filters.indexOf(item), 1);
+
+                                  setFilter(filters);
+                                }}
+                                className="transition-all absolute top-1/2 right-10 -translate-y-1/2 opacity-0 group-hover:opacity-100 border-2 border-red-400 text-red-400 rounded-full px-3 py-1 hover:text-white hover:bg-red-400"
+                              >
+                                Remove
+                              </button>
+                            </li>
                           );
                         })}
                       </ul>
@@ -202,53 +149,56 @@ function Planning() {
                 </div>
               </div>
               <div className="grid grid-cols-[70fr_30fr] gap-4">
-                <div>
-                  <Table className="border bg-white rounded-md">
-                    <Table.Head className="shadow-md">
-                      {headers.map((header, index) => {
-                        return (
-                          <Table.HeadCell key={index} className="text-main">
-                            {header}
-                          </Table.HeadCell>
-                        );
-                      })}
-                    </Table.Head>
-                    <Table.Body>
-                      {Object.keys(countSitesByArea(siteData)).map(
-                        (area, index) => {
-                          const count = 100 - (13 * (index + 1)) / 4;
-                          return (
-                            <Table.Row key={area} className="relative group">
-                              <Table.Cell>
-                                <p className="flex flex-col">
-                                  <span>{area}</span>
-                                  <span>
-                                    No. of Sites:{" "}
-                                    {countSitesByArea(siteData)[area]}
-                                  </span>
-                                </p>
-                              </Table.Cell>
-                              <Table.Cell>{count}</Table.Cell>
-                              <Table.Cell>{count}%</Table.Cell>
-                              <Table.Cell>{Math.round(count * 13)}</Table.Cell>
-                              <button
-                                onClick={() => {
-                                  if (!selectedAreas.includes(area)) {
-                                    setSelectedArea((prev) => [...prev, area]);
-                                  }
-                                }}
-                                className="transition-all absolute top-1/2 right-10 -translate-y-1/2 opacity-0 group-hover:opacity-100 border-2 border-secondary text-secondary rounded-full px-4 py-2 hover:text-white hover:bg-secondary"
-                              >
-                                Add
-                              </button>
-                            </Table.Row>
-                          );
-                        }
-                      )}
-                    </Table.Body>
-                  </Table>
+                <div className="flex flex-col gap-2 bg-white p-2 shadow">
+                  <div>
+                    <p className="font-semibold text-main text-lg border-b pb-1">
+                      Area Selection
+                    </p>
+                    <div className="flex flex-row items-center gap-4">
+                      <div>
+                        <Label htmlFor="start_date" value="From: " />
+                        <Datepicker
+                          id="start_date"
+                          theme={datePickerTheme}
+                          onChange={(e) => setStartDate(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="end_date" value="To: " />
+                        <Datepicker
+                          id="end_date"
+                          theme={datePickerTheme}
+                          onChange={(e) => setEndDate(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="regions" value="Filter Region: " />
+                        <Select
+                          id="regions"
+                          onChange={(e) => setRegion(e.target.value)}
+                        >
+                          <option value="" selected={selectedRegion === null}>
+                            Select Region
+                          </option>
+                          {regions.map((region) => {
+                            return (
+                              <option key={region} value={region}>
+                                {region}
+                              </option>
+                            );
+                          })}
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="max-h-[375px] overflow-y-auto">
+                    <PlanningTable
+                      filter={selectedRegion}
+                      selectedAreas={selectedAreas}
+                      setSelectedArea={setSelectedArea}
+                    />
+                  </div>
                 </div>
-
                 <div className="bg-white w-full shadow p-2 flex flex-col gap-4">
                   <p className="font-semibold text-main">Selected Areas</p>
                   {selectedAreas && (
@@ -261,6 +211,20 @@ function Planning() {
                               className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
                             >
                               <p className="font-semibold text-lg">{item}</p>
+                              <button
+                                onClick={() => {
+                                  const updatedAreas = [...selectedAreas];
+                                  updatedAreas.splice(
+                                    selectedAreas.indexOf(item),
+                                    1
+                                  );
+
+                                  setSelectedArea(updatedAreas);
+                                }}
+                                className="transition-all absolute top-1/2 right-10 -translate-y-1/2 opacity-0 group-hover:opacity-100 border-2 border-red-400 text-red-400 rounded-full px-3 py-1 hover:text-white hover:bg-red-400"
+                              >
+                                Remove
+                              </button>
                             </li>
                           );
                         })}
@@ -296,38 +260,5 @@ function Planning() {
     </>
   );
 }
-
-function PlanningList({ category, handleAddDemographic }) {
-  return (
-    <ul className="flex flex-col gap-2 max-h-[375px]">
-      {Object.keys(demographics[category]).map((subcategory) => {
-        return demographics[category][subcategory].map((item) => {
-          return (
-            <li
-              key={item}
-              className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
-            >
-              <p className="font-semibold text-lg">{item}</p>
-              <p className="capitalize">{subcategory}</p>
-              <button
-                onClick={() => {
-                  handleAddDemographic(category, subcategory, item);
-                }}
-                className="transition-all absolute top-1/2 right-10 -translate-y-1/2 opacity-0 group-hover:opacity-100 border-2 border-secondary text-secondary rounded-full px-4 py-2 hover:text-white hover:bg-secondary"
-              >
-                Add
-              </button>
-            </li>
-          );
-        });
-      })}
-    </ul>
-  );
-}
-
-PlanningList.propTypes = {
-  category: PropTypes.string,
-  handleAddDemographic: PropTypes.func,
-};
 
 export default Planning;

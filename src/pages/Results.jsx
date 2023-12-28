@@ -44,12 +44,15 @@ function Results({ profileFilters, selectedAreas }) {
                 const count = 100 - (13 * (index + 1.382)) / 4;
                 return (
                   <Table.Row key={index}>
-                    <Table.Cell>{item.area}</Table.Cell>
+                    <Table.Cell className="text-main">
+                      <p className="font-semibold text-lg ">{item.area}</p>
+                      <p>{item.region}</p>
+                    </Table.Cell>
                     <Table.Cell>
                       <p className="flex flex-col">
                         <span>{item.site}</span>
                         <span>
-                          Total Impressions: {Math.round(count * 2.43)}
+                          Avg Monthly Impressions: {Math.round(count * 2.43)}
                         </span>
                       </p>
                     </Table.Cell>

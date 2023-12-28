@@ -15,3 +15,24 @@ export const tabTheme = {
   },
   tabpanel: "w-full overflow-x-auto rounded-md",
 };
+
+export const datePickerTheme = {
+  popup: {
+    footer: {
+      button: {
+        base: "w-full rounded-lg px-5 py-2 text-center text-sm font-medium focus:ring-4 focus:ring-blue-300",
+        today:
+          "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-500 dark:hover:bg-blue-600",
+      },
+    },
+  },
+  views: {
+    days: {
+      items: {
+        item: {
+          selected: "bg-blue-500 text-white hover:bg-blue-400",
+        },
+      },
+    },
+  },
+};
