@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Table } from "flowbite-react";
-import { siteData } from "../config/siteData";
+import { siteData } from "../../config/siteData";
 import classNames from "classnames";
 import { FaCheck } from "react-icons/fa";
 import { useEffect, useState } from "react";
@@ -80,19 +80,19 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
                     <button
                       onClick={() => {
                         if (!selectedAreas.includes(area)) {
-                          setSelectedArea((prev) => [...prev, area]);
+                          setSelectedArea((prev) => [...prev, siteArea]);
                         }
                       }}
                       className={classNames(
                         "transition-all absolute top-1/2 right-10 -translate-y-1/2  rounded-full px-4 py-2 border-2 hover:text-white",
                         selectedAreas &&
-                          selectedAreas.find((filter) => filter === area)
+                          selectedAreas.find((filter) => filter === siteArea)
                           ? "pointer-events-none border-green-300 bg-green-300 text-white"
                           : "opacity-0 group-hover:opacity-100 border-secondary text-secondary hover:bg-secondary"
                       )}
                     >
                       {selectedAreas &&
-                      selectedAreas.find((filter) => filter === area) ? (
+                      selectedAreas.find((filter) => filter === siteArea) ? (
                         <>
                           <FaCheck className="text-xl" />
                         </>

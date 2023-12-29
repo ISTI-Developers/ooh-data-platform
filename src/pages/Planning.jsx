@@ -6,8 +6,8 @@ import { demographics as list } from "../config/siteData";
 import { Link, Route, Routes } from "react-router-dom";
 import Results from "./Results";
 import classNames from "classnames";
-import PlanningList from "../components/PlanningList";
-import PlanningTable from "../components/PlanningTable";
+import PlanningList from "../components/planning/PlanningList";
+import PlanningTable from "../components/planning/PlanningTable";
 function Planning() {
   const [, setTab] = useState(0);
   const [profileFilter, setFilter] = useState(null);
@@ -114,7 +114,21 @@ function Planning() {
                     )}
                 </Tabs>
                 <div className="bg-white w-full shadow p-2 flex flex-col gap-4">
-                  <p className="font-semibold text-main">Profile Wishlist</p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-main text-lg">
+                      Profile Wishlist
+                    </p>
+                    {profileFilter && (
+                      <>
+                        <button
+                          className="p-1 px-3 bg-gray-400 hover:bg-gray-600 text-white rounded-md"
+                          onClick={() => setFilter(null)}
+                        >
+                          Clear List
+                        </button>
+                      </>
+                    )}
+                  </div>
                   {profileFilter && (
                     <>
                       <ul className="max-h-[380px] overflow-y-auto">
@@ -200,7 +214,21 @@ function Planning() {
                   </div>
                 </div>
                 <div className="bg-white w-full shadow p-2 flex flex-col gap-4">
-                  <p className="font-semibold text-main">Selected Areas</p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-main text-lg">
+                      Selected Areas
+                    </p>
+                    {selectedAreas.length !== 0 && (
+                      <>
+                        <button
+                          className="p-1 px-3 bg-gray-400 hover:bg-gray-600 text-white rounded-md"
+                          onClick={() => setSelectedArea([])}
+                        >
+                          Clear Areas
+                        </button>
+                      </>
+                    )}
+                  </div>
                   {selectedAreas && (
                     <>
                       <ul className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
@@ -210,7 +238,10 @@ function Planning() {
                               key={index}
                               className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
                             >
-                              <p className="font-semibold text-lg">{item}</p>
+                              <p className="font-semibold text-lg ">
+                                {item.area}
+                              </p>
+                              <p>{item.region}</p>
                               <button
                                 onClick={() => {
                                   const updatedAreas = [...selectedAreas];
@@ -235,6 +266,16 @@ function Planning() {
               </div>
               <Link
                 to="/results"
+                onClick={() => {
+                  localStorage.setItem(
+                    "profileFilter",
+                    JSON.stringify(profileFilter)
+                  );
+                  localStorage.setItem(
+                    "selectedAreas",
+                    JSON.stringify(selectedAreas)
+                  );
+                }}
                 className={classNames(
                   "w-[30%] ml-auto p-2 px-4 rounded-full text-white hover:bg-main transition-all text-center",
                   selectedAreas.length === 0 || profileFilter === null

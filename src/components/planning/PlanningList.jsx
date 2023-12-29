@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import { TextInput } from "flowbite-react";
-import { demographics } from "../config/siteData";
+import { demographics } from "../../config/siteData";
 import { FaCheck } from "react-icons/fa";
 function PlanningList({
   category,
