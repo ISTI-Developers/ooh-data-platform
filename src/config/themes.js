@@ -36,3 +36,46 @@ export const datePickerTheme = {
     },
   },
 };
+
+export const defaultTextTheme = {
+  field: {
+    input: {
+      base: "block w-full border disabled:cursor-not-allowed disabled:opacity-50 focus:ring-0 focus:outline-none",
+      withAddon: {
+        on: "rounded-none",
+        off: "rounded-none",
+      },
+      colors: {
+        gray: "border-gray-300 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500",
+      },
+    },
+  },
+};
+export const passwordFieldTheme = {
+  field: {
+    input: {
+      base: "block w-full border-none disabled:cursor-not-allowed disabled:opacity-50 focus:ring-0 focus:outline-none focus:border-none",
+      withAddon: {
+        on: "rounded-none",
+        off: "rounded-none",
+      },
+      colors: {
+        gray: "border-gray-300 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500",
+      },
+    },
+  },
+};
+
+export const mainButtonTheme = {
+  base: "group flex items-stretch items-center justify-center p-0.5 text-center font-medium relative focus:z-10 focus:outline-none",
+  color: {
+    light:
+      "text-gray-900 bg-secondary border border-gray-300 enabled:hover:bg-secondary-hover text-white ring-0 focus:ring-0 focus:ring-none",
+  },
+  label:
+    "ml-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-cyan-200 text-xs font-semibold text-cyan-800",
+  pill: {
+    off: "rounded-none",
+    on: "rounded-full",
+  },
+};

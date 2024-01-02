@@ -628,4 +628,54 @@ export const demographics = [
     key: "entertainment preference",
     value: "Tech and Gaming Enthusiasts",
   },
+  {
+    category: "commuting behavior",
+    key: "transportation preference",
+    value: "Car - Personal",
+  },
+  {
+    category: "commuting behavior",
+    key: "transportation preference",
+    value: "Car - Rental (Grab, Joyride)",
+  },
+  {
+    category: "commuting behavior",
+    key: "transportation preference",
+    value: "Bus",
+  },
+  {
+    category: "commuting behavior",
+    key: "transportation preference",
+    value: "Train",
+  },
+  {
+    category: "commuting behavior",
+    key: "transportation preference",
+    value: "Bicycle",
+  },
+  {
+    category: "commuting behavior",
+    key: "transportation preference",
+    value: "Motorcycle",
+  },
+  {
+    category: "commuting behavior",
+    key: "commuting frequency",
+    value: "Daily",
+  },
+  {
+    category: "commuting behavior",
+    key: "commuting frequency",
+    value: "Weekly",
+  },
+  {
+    category: "commuting behavior",
+    key: "commuting frequency",
+    value: "Occasional",
+  },
+  {
+    category: "commuting behavior",
+    key: "commuting frequency",
+    value: "Seldom",
+  },
 ];
