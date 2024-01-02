@@ -84,7 +84,7 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
                         }
                       }}
                       className={classNames(
-                        "transition-all absolute top-1/2 right-10 -translate-y-1/2  rounded-full px-4 py-2 border-2 hover:text-white",
+                        "bg-slate-200 transition-all absolute top-1/2 right-10 -translate-y-1/2  rounded-full px-4 py-2 border-2 hover:text-white",
                         selectedAreas &&
                           selectedAreas.find((filter) => filter === siteArea)
                           ? "pointer-events-none border-green-300 bg-green-300 text-white"
