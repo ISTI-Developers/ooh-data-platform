@@ -1,7 +1,5 @@
-import useUser from "../config/userStore";
 import { Button } from "flowbite-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { mainButtonTheme } from "../config/themes";
 import PasswordField from "../fragments/PasswordField";
 import TextField from "../fragments/TextField";
@@ -9,6 +7,7 @@ function Register() {
   const [user, setUser] = useState({
     first_name: "",
     last_name: "",
+    username: "",
     email_address: "",
     password: "",
     confirm_password: "",
@@ -52,6 +51,9 @@ function Register() {
                 />
               </div>
             </div>
+            <div>
+              <TextField id="username" item={user} onChange={onFieldUpdate} />
+            </div>
             {Object.keys(user).map((item) => {
               return !item.includes("password") ? (
                 <>
@@ -75,23 +77,11 @@ function Register() {
                 />
               );
             })}
-            <Link
-              to="/login"
-              className="text-sm font-semibold text-secondary w-fit"
-            >
-              Forgot Password?
-            </Link>
             <Button type="submit" color="light" theme={mainButtonTheme}>
-              Log in
+              Register
             </Button>
           </form>
         </main>
-        <div className="text-sm">
-          Need an account?{" "}
-          <Link to="/login" className="text-secondary">
-            Register Now!
-          </Link>
-        </div>
       </div>
     </div>
   );

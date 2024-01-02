@@ -16,8 +16,22 @@ export function AuthProvider({ children }) {
       const userData = new FormData();
 
       userData.append("action", "login");
-       userData.append("username", username);
+      userData.append("username", username);
       userData.append("password", password);
+      const response = await axios.post(url.auth, userData);
+
+      if (response.status === 200) {
+        return response.data;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const registerUser = async () => {
+    try {
+      const userData = new FormData();
+
+      userData.append("action", "login");
       const response = await axios.post(url.auth, userData, {
         headers: {
           "Content-Type": "application/json",
@@ -31,6 +45,7 @@ export function AuthProvider({ children }) {
   };
   const value = {
     signInUser,
+    registerUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

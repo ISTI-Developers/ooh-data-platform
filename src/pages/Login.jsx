@@ -2,30 +2,35 @@ import useUser from "../config/userStore";
 import { Button, TextInput } from "flowbite-react";
 import { useRef, useState } from "react";
 import classNames from "classnames";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   defaultTextTheme,
   mainButtonTheme,
   passwordFieldTheme,
 } from "../config/themes";
+import { useAuth } from "../config/authContext";
 
 function Login() {
   const loginUser = useUser((state) => state.setUser);
+  const { signInUser } = useAuth();
+  const navigate = useNavigate();
 
   const [show, toggleShow] = useState(false);
   const [isFocus, toggleFocus] = useState(false);
   const username = useRef(null);
   const password = useRef(null);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     const uname = username.current.value;
     const pass = password.current.value;
 
-    console.log("logging in");
-    const response = loginUser({ username: uname, password: pass });
-    console.log(response);
+    const response = await signInUser(uname, pass);
+    if (typeof response === "object") {
+      loginUser(response);
+      navigate("/");
+    }
   };
 
   return (

@@ -2,10 +2,13 @@ import classNames from "classnames";
 import { Navbar } from "flowbite-react";
 import { Link, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
+import useUser from "../config/userStore";
 
 function Header() {
   const location = useLocation();
-  const user = localStorage.getItem("user");
+  const user = useUser((state) => state.user);
+  const logoutUser = useUser((state) => state.clearUser);
+
   return (
     <header className="bg-white shadow-xl ">
       <Navbar>
@@ -35,7 +38,7 @@ function Header() {
           {user ? (
             <button
               className="capitalize font-semibold text-lg text-main hover:text-secondary"
-              onClick={() => localStorage.clear()}
+              onClick={() => logoutUser()}
             >
               Logout
             </button>
