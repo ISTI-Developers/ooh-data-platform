@@ -38,6 +38,7 @@ export default {
       colors: {
         main: "#243444",
         secondary: "#0692da",
+        "secondary-hover": "#0474ae",
       },
     },
   },
