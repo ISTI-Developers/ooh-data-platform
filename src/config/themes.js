@@ -37,6 +37,30 @@ export const datePickerTheme = {
   },
 };
 
+export const inlineDatePickerTheme = {
+  popup: {
+    root: {
+      inner: "shadow-none px-4",
+    },
+    footer: {
+      button: {
+        base: "w-full rounded-lg px-5 py-2 text-center text-sm font-medium focus:ring-4 focus:ring-blue-300",
+        today:
+          "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-500 dark:hover:bg-blue-600",
+      },
+    },
+  },
+  views: {
+    days: {
+      items: {
+        item: {
+          selected: "bg-blue-500 text-white hover:bg-blue-400",
+        },
+      },
+    },
+  },
+};
+
 export const defaultTextTheme = {
   field: {
     input: {
@@ -76,6 +100,20 @@ export const mainButtonTheme = {
     "ml-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-cyan-200 text-xs font-semibold text-cyan-800",
   pill: {
     off: "rounded-none",
+    on: "rounded-full",
+  },
+};
+
+export const lightButtonTheme = {
+  base: "group flex items-stretch items-center justify-center p-0.5 text-center font-medium relative focus:z-10 focus:outline-none",
+  color: {
+    light:
+      "text-gray-900 bg-secondary border border-gray-300 enabled:hover:bg-secondary-hover text-white ring-0 focus:ring-0 focus:ring-none",
+  },
+  label:
+    "ml-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-cyan-200 text-xs font-semibold text-cyan-800",
+  pill: {
+    off: "rounded-lg",
     on: "rounded-full",
   },
 };
