@@ -8,6 +8,7 @@ import Results from "./Results";
 import classNames from "classnames";
 import PlanningList from "../components/planning/PlanningList";
 import PlanningTable from "../components/planning/PlanningTable";
+import { MdChecklist } from "react-icons/md";
 function Planning() {
   const [, setTab] = useState(0);
   const [profileFilter, setFilter] = useState(null);
@@ -76,7 +77,16 @@ function Planning() {
           path="/"
           element={
             <>
-              <Title name="Site Planning" />
+              <Title
+                name={
+                  <>
+                    Site Planning
+                    <span className="text-blue-500">
+                      <MdChecklist />
+                    </span>
+                  </>
+                }
+              />
 
               <div className="grid grid-cols-[70fr_30fr] gap-4">
                 <Tabs
@@ -168,6 +178,7 @@ function Planning() {
                     <p className="font-semibold text-main text-lg border-b pb-1">
                       Area Selection
                     </p>
+                    {console.log(startDate)}
                     <div className="flex flex-row items-center gap-4">
                       <div>
                         <Label htmlFor="start_date" value="From: " />

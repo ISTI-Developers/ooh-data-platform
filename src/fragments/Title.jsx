@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 function Title({ name, className }) {
   return (
-    <div className={classNames("font-semibold text-2xl text-main", className)}>
+    <div className={classNames("font-bold text-xl text-main flex items-center gap-1", className)}>
       {name}
     </div>
   );
