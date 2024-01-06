@@ -32,7 +32,7 @@ function AppRoutes() {
   return (
     <div
       className={classNames(
-        "bg-[#f3f5ff] h-full min-h-[calc(100vh_-_75px)] p-4 xl:px-48 flex flex-col gap-4",
+        "bg-default h-full min-h-[calc(100vh_-_75px)] p-4 xl:px-20 2xl:px-40 flex flex-col gap-4",
         ["/login", "/register"].includes(location.pathname)
           ? "justify-center"
           : ""

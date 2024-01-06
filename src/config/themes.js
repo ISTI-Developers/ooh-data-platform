@@ -1,7 +1,9 @@
 export const tabTheme = {
+  base: "flex flex-col gap-4",
   tablist: {
+    base: "relative flex w-full h-full max-h-[2.75rem] transition-all duration-500 ease-in-out overflow-hidden hover:max-h-[100rem] md:max-h-[unset] 2xl:h-fit",
     tabitem: {
-      base: "flex items-center justify-center p-2 px-3 text-xs text-main uppercase font-bold disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 border-r-2 border-default last:border-none",
+      base: "transition-all flex items-center justify-center p-2 px-3 text-xs text-main hover:text-secondary-500 uppercase font-bold disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 border-r-2 border-default last:border-none",
       styles: {
         default: {
           base: "rounded-none",
@@ -115,5 +117,17 @@ export const lightButtonTheme = {
   pill: {
     off: "rounded-lg",
     on: "rounded-full",
+  },
+};
+export const navbarTheme = {
+  root: {
+    base: "bg-white p-4 pb-2 md:pb-4 dark:border-gray-700 dark:bg-gray-800 sm:px-4 shadow-md",
+  },
+  collapse: {
+    base: "w-full md:block md:w-auto animate-fade",
+  },
+
+  toggle: {
+    base: "inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-transparent hover:outline-none focus:outline-none focus:ring-0 focus:ring-none md:hidden",
   },
 };

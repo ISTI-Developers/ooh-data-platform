@@ -1,32 +1,21 @@
 import classNames from "classnames";
 import { Navbar } from "flowbite-react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import logo from "../assets/unai.png";
 import PropTypes from "prop-types";
 import useUser from "../config/userStore";
+import { navbarTheme } from "../config/themes";
 
 function Header() {
   const location = useLocation();
+
+  //Initialization of Zustand properties
   const user = useUser((state) => state.user);
   const logoutUser = useUser((state) => state.clearUser);
 
   return (
     <>
-      <Navbar
-        theme={{
-          root: {
-            base: "bg-white p-4 pb-2 dark:border-gray-700 dark:bg-gray-800 sm:px-4 shadow-md",
-          },
-          collapse: {
-            base: "w-full md:block md:w-auto animate-fade",
-          },
-
-          toggle: {
-            base: "inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-transparent hover:outline-none focus:outline-none focus:ring-0 focus:ring-none md:hidden",
-          },
-        }}
-        border
-      >
+      <Navbar theme={navbarTheme} border>
         <Navbar.Brand>
           <img
             src={logo}
@@ -36,6 +25,7 @@ function Header() {
         </Navbar.Brand>
         <Navbar.Toggle />
         <Navbar.Collapse>
+          {/* Mapping of links for navigation bar */}
           {["", "map", "audience"].map((item, index) => {
             return (
               <Navbar.Link
@@ -43,15 +33,18 @@ function Header() {
                 key={index}
                 className={classNames(
                   "capitalize font-semibold text-lg hover:text-secondary",
+                  //check if same pathname to the item for showing the active link
                   location.pathname == `/${item}`
                     ? "text-secondary"
                     : "text-main"
                 )}
               >
+                {/* planning page is the home of the system so it checks if the item == "" */}
                 {item === "" ? "planning" : item}
               </Navbar.Link>
             );
           })}
+          {/* conditional rendering if user has logged in or not */}
           {user ? (
             <button
               className="capitalize font-semibold text-lg text-main hover:text-secondary pl-3 pt-2 md:p-0"
@@ -61,20 +54,11 @@ function Header() {
             </button>
           ) : (
             <>
+              {/* conditional rendering for when the user is in login or register pages */}
               {location.pathname !== "/login" ? (
-                <Link
-                  to="/login"
-                  className="capitalize font-semibold text-lg text-main hover:text-secondary pl-3 pt-2 md:p-0"
-                >
-                  Login
-                </Link>
+                <UserAccessLink to="login" />
               ) : (
-                <Link
-                  to="/register"
-                  className="capitalize font-semibold text-lg text-main hover:text-secondary pl-3 pt-2 md:p-0"
-                >
-                  Register
-                </Link>
+                <UserAccessLink to="register" />
               )}
             </>
           )}
@@ -83,7 +67,21 @@ function Header() {
     </>
   );
 }
+// component used to render the login and register links
+const UserAccessLink = ({ to }) => {
+  return (
+    <a
+      href={`/${to}`}
+      className="capitalize font-semibold text-lg text-main hover:text-secondary pl-3 pt-2 md:p-0"
+    >
+      {to}
+    </a>
+  );
+};
 
+UserAccessLink.propTypes = {
+  to: PropTypes.string,
+};
 Header.propTypes = {
   user: PropTypes.object,
   setUser: PropTypes.func,
