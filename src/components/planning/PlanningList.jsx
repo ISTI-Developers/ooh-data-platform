@@ -1,69 +1,98 @@
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import { TextInput } from "flowbite-react";
 import { demographics } from "../../config/siteData";
-import { FaCheck } from "react-icons/fa";
 function PlanningList({
   category,
-  handleAddDemographic,
+  toggleProfile,
   search,
   searchBuyergraphics,
-  profileFilter,
 }) {
-  const filteredDemographics = category
-    ? demographics.filter((item) => item.category === category)
-    : demographics;
+  const [filteredDemographics, filterDemographics] = useState(null);
+  useEffect(() => {
+    if (category !== null) {
+      filterDemographics(
+        demographics.filter((item) => item.category === category)
+      );
+    } else {
+      filterDemographics(demographics);
+    }
+  }, [category]);
+
   return (
-    <>
-      <div className="py-1">
-        <TextInput
-          type="search"
-          placeholder="Search here"
-          onChange={(e) => search(e.target.value)}
-        />
-      </div>
-      <ul className="flex flex-col gap-2 max-h-[325px] overflow-y-auto">
-        {searchBuyergraphics(filteredDemographics).map((item, index) => {
-          return (
-            <li
-              key={index}
-              className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
-            >
-              <p className="font-semibold text-lg">{item.value}</p>
-              <p className="capitalize">{item.key}</p>
-              <button
-                className={classNames(
-                  "transition-all absolute top-1/2 right-10 -translate-y-1/2  rounded-full px-4 py-2 border-2 hover:text-white",
-                  profileFilter &&
-                    profileFilter.find((filter) => filter === item)
-                    ? "pointer-events-none border-green-300 bg-green-300 text-white"
-                    : "opacity-0 group-hover:opacity-100 border-secondary text-secondary hover:bg-secondary"
-                )}
+    filteredDemographics && (
+      <>
+        <div className="py-1">
+          <TextInput
+            type="search"
+            placeholder="Search here"
+            onChange={(e) => search(e.target.value)}
+          />
+        </div>
+        <ul className="flex flex-col gap-2 max-h-[325px] overflow-y-auto">
+          {[
+            ...new Set(
+              searchBuyergraphics(filteredDemographics).map((item) => item.key)
+            ),
+          ].map((item, index) => {
+            return (
+              <li
+                key={index}
+                className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100 cursor-pointer"
                 onClick={() => {
-                  handleAddDemographic(item);
+                  toggleProfile({
+                    key: item,
+                    data: filteredDemographics.filter((it) => it.key === item),
+                  });
                 }}
               >
-                {profileFilter &&
-                profileFilter.find((filter) => filter === item) ? (
-                  <>
-                    <FaCheck className="text-xl" />
-                  </>
-                ) : (
-                  "Add"
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </>
+                <p className="text-lg font-semibold text-main capitalize">
+                  {item}
+                </p>
+                <div className="text-xs text-slate-400">
+                  {filteredDemographics
+                    .filter((it) => it.key === item)
+                    .splice(0, 3)
+                    .map((profile, index) => (
+                      <>
+                        <span key={index} className="pl-1 first:pl-0">
+                          {profile.value},
+                        </span>
+                      </>
+                    ))}
+                  ...
+                </div>
+                <div className="absolute top-0 right-0 h-full w-1/4 flex items-center justify-end bg-gradient-to-l from-white from-60% to-[#ffffff00] transition-all ">
+                  <button
+                    className={classNames(
+                      "mr-4 p-1 px-2.5 text-sm border-2 border-secondary-500 text-secondary-hover hover:text-white hover:bg-secondary-500 rounded-md",
+                      "transition-all"
+                    )}
+                    onClick={() => {
+                      toggleProfile({
+                        key: item,
+                        data: filteredDemographics.filter(
+                          (it) => it.key === item
+                        ),
+                      });
+                    }}
+                  >
+                    Add
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </>
+    )
   );
 }
 
 PlanningList.propTypes = {
   category: PropTypes.string,
-  profileFilter: PropTypes.array,
-  handleAddDemographic: PropTypes.func,
+  toggleProfile: PropTypes.func,
   search: PropTypes.func,
   searchBuyergraphics: PropTypes.func,
 };

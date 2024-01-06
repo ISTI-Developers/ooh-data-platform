@@ -26,6 +26,12 @@ function AudienceOptions({ dates, setDates, location, setLocation }) {
           </p>
           <PiCaretDownBold className="text-gray-500 font-bold" />
         </div>
+        {onSelectDate && (
+          <div
+            className="fixed top-0 left-0 w-screen h-screen bg-[#00000000] z-[1] pointer-events-auto"
+            onClick={() => toggleDateButton(false)}
+          />
+        )}
         <DatePickerModal
           show={onSelectDate}
           onClose={() => toggleDateButton(false)}

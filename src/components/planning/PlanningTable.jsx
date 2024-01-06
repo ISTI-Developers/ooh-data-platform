@@ -13,6 +13,7 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
     "# fits profile",
     "% fits profile",
     "avg monthly impressions",
+    "action",
   ];
   const countSitesByArea = (siteData) => {
     const areaCountMap = {};
@@ -50,7 +51,7 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
               return (
                 <Table.HeadCell
                   key={index}
-                  className="text-main sticky top-0 z-10"
+                  className="text-main sticky top-0 z-10 whitespace-nowrap last:sticky last:right-0"
                 >
                   {header}
                 </Table.HeadCell>
@@ -68,38 +69,47 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
                     className="relative group hover:bg-slate-100"
                   >
                     <Table.Cell>
-                      <p className="flex flex-col">
+                      <p className="flex flex-col whitespace-nowrap">
                         <span>{area}</span>
                         <span>No. of Sites: {sites[area]}</span>
                       </p>
                     </Table.Cell>
-                    <Table.Cell>{siteArea.region}</Table.Cell>
-                    <Table.Cell>{Math.round(count * 1.1)}</Table.Cell>
-                    <Table.Cell>{count}%</Table.Cell>
-                    <Table.Cell>{Math.round(count * 13)}</Table.Cell>
-                    <button
-                      onClick={() => {
-                        if (!selectedAreas.includes(area)) {
-                          setSelectedArea((prev) => [...prev, siteArea]);
-                        }
-                      }}
-                      className={classNames(
-                        "bg-slate-200 transition-all absolute top-1/2 right-10 -translate-y-1/2  rounded-full px-4 py-2 border-2 hover:text-white",
-                        selectedAreas &&
-                          selectedAreas.find((filter) => filter === siteArea)
-                          ? "pointer-events-none border-green-300 bg-green-300 text-white"
-                          : "opacity-0 group-hover:opacity-100 border-secondary text-secondary hover:bg-secondary"
-                      )}
-                    >
-                      {selectedAreas &&
-                      selectedAreas.find((filter) => filter === siteArea) ? (
-                        <>
-                          <FaCheck className="text-xl" />
-                        </>
-                      ) : (
-                        "Add"
-                      )}
-                    </button>
+                    <Table.Cell className="min-w-[32ch]">
+                      {siteArea.region}
+                    </Table.Cell>
+                    <Table.Cell align="center">
+                      {Math.round(count * 1.1)}
+                    </Table.Cell>
+                    <Table.Cell align="center">{count}%</Table.Cell>
+                    <Table.Cell align="center">
+                      {Math.round(count * 13)}
+                    </Table.Cell>
+                    <Table.Cell align="center" className="sticky right-0 bg-gradient-to-l from-white from-80% to-[#ffffff00]">
+                      <button
+                        className={classNames(
+                          "p-1 text-sm border-2 rounded-md outline-none",
+                          "transition-all",
+                          selectedAreas &&
+                            selectedAreas.find((filter) => filter === siteArea)
+                            ? "px-3 ointer-events-none border-green-300 bg-green-300 text-white"
+                            : "px-2.5 border-secondary-500 text-secondary-hover hover:bg-secondary-500"
+                        )}
+                        onClick={() => {
+                          if (!selectedAreas.includes(area)) {
+                            setSelectedArea((prev) => [...prev, siteArea]);
+                          }
+                        }}
+                      >
+                        {selectedAreas &&
+                        selectedAreas.find((filter) => filter === siteArea) ? (
+                          <>
+                            <FaCheck className="text-xl" />
+                          </>
+                        ) : (
+                          "Add"
+                        )}
+                      </button>
+                    </Table.Cell>
                   </Table.Row>
                 );
               })

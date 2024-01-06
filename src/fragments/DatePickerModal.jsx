@@ -1,13 +1,11 @@
 import { Button, Label } from "flowbite-react";
-import DatePicker from "tailwind-datepicker-react";
+import { Datepicker } from "flowbite-react";
 import PropTypes from "prop-types";
 import { inlineDatePickerTheme, lightButtonTheme } from "../config/themes";
 import { useState } from "react";
-import { endOfDay, startOfDay, subDays } from "date-fns";
+import { endOfDay, format, startOfDay, subDays } from "date-fns";
 
 function DatePickerModal({ show, onClose, setDate }) {
-  const [showFrom, toggleFrom] = useState(false);
-  const [showTo, toggleTo] = useState(false);
   const [selectedDate, setDates] = useState({
     to: new Date(),
     from: new Date(),
@@ -35,7 +33,7 @@ function DatePickerModal({ show, onClose, setDate }) {
   };
   return (
     show && (
-      <div className="absolute top-full min-w-[200px] bg-white shadow p-4 mt-4 border animate-fade flex flex-col gap-2 rounded-lg">
+      <div className="absolute top-full min-w-[200px] bg-white shadow p-4 mt-4 border animate-fade flex flex-col gap-2 rounded-lg z-[2]">
         <div className="flex items-center gap-2">
           {[7, 15, 30].map((len) => {
             return (
@@ -51,24 +49,32 @@ function DatePickerModal({ show, onClose, setDate }) {
         </div>
         <p className="pt-4 font-semibold text-main">Custom Date Range</p>
         <div className="flex gap-4">
-          <div>
-            <Label htmlFor="from">From:</Label>
-            <DatePicker
+          <div className="bg-default rounded-md p-2">
+            <Label htmlFor="from" className="text-lg">From:</Label>
+            <Datepicker
               id="from"
-              show={showFrom}
-              value={selectedDate.from}
-              setShow={() => toggleFrom((prev) => !prev)}
-              onChange={(e) => onChangeDate({ value: e, id: "from" })}
+              inline
+              theme={inlineDatePickerTheme}
+              value={format(new Date(selectedDate.from), "yyyy-MM-dd")}
+              onSelectedDateChanged={(date) =>
+                onChangeDate({ value: date, id: "from" })
+              }
+              showTodayButton={false}
+              showClearButton={false}
             />
           </div>
-          <div>
-            <Label htmlFor="to">To:</Label>
-            <DatePicker
+          <div className="bg-default rounded-md p-2">
+            <Label htmlFor="to" className="text-lg">To:</Label>
+            <Datepicker
               id="to"
-              show={showTo}
-              value={selectedDate.to}
-              setShow={() => toggleTo((prev) => !prev)}
-              onChange={(e) => onChangeDate({ value: e, id: "to" })}
+              inline
+              theme={inlineDatePickerTheme}
+              value={format(new Date(selectedDate.to), "yyyy-MM-dd")}
+              onSelectedDateChanged={(date) =>
+                onChangeDate({ value: date, id: "to" })
+              }
+              showTodayButton={false}
+              showClearButton={false}
             />
           </div>
         </div>

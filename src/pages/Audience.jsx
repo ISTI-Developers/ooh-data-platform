@@ -28,7 +28,7 @@ function Audience() {
         <section
           className={classNames(
             "min-h-[60vh] flex w-full",
-            !siteLocation && "bg-slate-300 items-center justify-center"
+            !siteLocation && "bg-slate-300 items-center justify-center rounded-lg"
           )}
         >
           {siteLocation ? (
