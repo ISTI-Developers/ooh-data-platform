@@ -32,16 +32,16 @@ function AppRoutes() {
   return (
     <div
       className={classNames(
-        "bg-default h-full min-h-[calc(100vh_-_75px)] p-4 xl:px-20 2xl:px-40 flex flex-col gap-4",
+        "bg-default h-full min-h-[calc(100vh_-_75px)] p-4 xl:px-20 2xl:px-40 flex flex-col gap-4 relative",
         ["/login", "/register"].includes(location.pathname)
           ? "justify-center"
           : ""
       )}
     >
       <Routes>
-        <Route exact path="/*" element={<Planning />} />
+        <Route exact path="/" element={<Planning />} />
         <Route path="/map" element={<Map />} />
-        <Route exact path="/audience" element={<Audience />} />
+        <Route exact path="/audience/*" element={<Audience />} />
         {!user && (
           <>
             <Route exact path="/login" element={<Login />} />
