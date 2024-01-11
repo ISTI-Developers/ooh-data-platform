@@ -1,6 +1,5 @@
 import { FaMapMarkerAlt } from "react-icons/fa";
 import MapLocation from "../components/map/MapLocation";
-import BillboardPie from "../components/map/BillboardPie";
 import BillboardGraph from "../components/map/BillboardGraph";
 function Map() {
   const billboardDistribution = [
