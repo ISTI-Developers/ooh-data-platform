@@ -66,7 +66,7 @@ export const siteData = [
     },
   },
   {
-    site: "Poblacion District",
+    site: "Davao LED",
     area: "Davao City",
     region: "Region XI (Davao Region)",
     demographics: {
@@ -99,7 +99,7 @@ export const siteData = [
     },
   },
   {
-    site: "EDSA Guada",
+    site: "EDSA Guada LED",
     area: "Mandaluyong City",
     region: "National Capital Region (NCR)",
     demographics: {
@@ -132,7 +132,7 @@ export const siteData = [
     },
   },
   {
-    site: "Commerce - Daang Hari",
+    site: "Las Pinas LED (Commerce - Daang Hari)",
     area: "Las Pinas City",
     region: "National Capital Region (NCR)",
     demographics: {
@@ -165,7 +165,7 @@ export const siteData = [
     },
   },
   {
-    site: "Central Square",
+    site: "Central Square 3D LED BGC",
     area: "Bonifacio Global City",
     region: "National Capital Region (NCR)",
     demographics: {
@@ -198,7 +198,7 @@ export const siteData = [
     },
   },
   {
-    site: "One Bonifacio High Street",
+    site: "One Bonifacio High Street LED",
     area: "Bonifacio Global City",
     region: "National Capital Region (NCR)",
     demographics: {
@@ -264,7 +264,7 @@ export const siteData = [
     },
   },
   {
-    site: "ELS 1 Camp Aguinaldo Gate 4",
+    site: "ELS 1 (CAMP AGUINALDO GATE 4)",
     area: "Quezon City",
     region: "National Capital Region (NCR)",
     demographics: {
@@ -297,7 +297,7 @@ export const siteData = [
     },
   },
   {
-    site: "Paseo De Magallanes",
+    site: "Paseo De Magallanes LED",
     area: "Makati City",
     region: "National Capital Region (NCR)",
     demographics: {
@@ -326,72 +326,6 @@ export const siteData = [
         [`preferred ad platform`]: "Online and Print",
         [`ad blocking usage`]: "Moderate Ad-Blocker Usage",
         [`online ad engagement`]: "Moderate Click-through Rates",
-      },
-    },
-  },
-  {
-    site: "Lawton",
-    area: "Manila City",
-    region: "National Capital Region (NCR)",
-    demographics: {
-      basic: {
-        age: "35-44",
-        gender: "Male",
-        race: "White",
-        religion: "Christianity",
-      },
-      ["purchase behavior"]: {
-        ["shopping frequency"]: "Regular Shoppers",
-        ["online vs offline"]: "In-Store Shoppers",
-        ["brand loyalty"]: "Switchable Consumers",
-      },
-      ["media consumption"]: {
-        ["television habits"]: "Online TV Viewers",
-        ["social media usage"]: "Heavy Social Media Users",
-        ["podcast listenership"]: "Occasional Podcast Listeners",
-      },
-      [`pasyal-ing behavior`]: {
-        [`shopping behavior`]: "Selective Shoppers",
-        [`dining habits`]: "Quality-Conscious Diners",
-        [`entertainment preference`]: "Cultural Events Attendees",
-      },
-      [`ad consumption`]: {
-        [`preferred ad platform`]: "Online and Print",
-        [`ad blocking usage`]: "Moderate Ad-Blocker Usage",
-        [`online ad engagement`]: "Moderate Click-through Rates",
-      },
-    },
-  },
-  {
-    site: "Escario Central Mall",
-    area: "Cebu City",
-    region: "Region VII (Central Visayas)",
-    demographics: {
-      basic: {
-        age: "25-34",
-        gender: "Male",
-        race: "Asian",
-        religion: "Christianity",
-      },
-      ["purchase behavior"]: {
-        ["shopping frequency"]: "Regular Shoppers",
-        ["online vs offline"]: "In-Store Shoppers",
-        ["brand loyalty"]: "Switchable Consumers",
-      },
-      ["media consumption"]: {
-        ["television habits"]: "Online TV Viewers",
-        ["social media usage"]: "Heavy Social Media Users",
-        ["podcast listenership"]: "Regular Podcast Listeners",
-      },
-      [`pasyal-ing behavior`]: {
-        [`shopping behavior`]: "Exploratory Shoppers",
-        [`dining habits`]: "Adventurous Diners",
-        [`entertainment preference`]: "Outdoor Enthusiasts",
-      },
-      [`ad consumption`]: {
-        [`preferred ad platform`]: "Online and Outdoor",
-        [`ad blocking usage`]: "High Ad-Blocker Usage",
-        [`online ad engagement`]: "Low Click-through Rates",
       },
     },
   },
@@ -727,9 +661,190 @@ export const billboardData = [
   },
   {
     location: "One Bonifacio High Street LED",
+    area: "BGC, Taguig",
+    region: "National Capital Region (NCR)",
+    site_owner: "United Neon Sign Services",
+    type: "Digital",
     latitude: 14.551399,
     longitude: 121.047685,
-    type: "Digital",
+    category: "N/A",
+    venue_type: ["office/buildings", "outdoor", "billboards"],
+    availability: false,
+    board_facing: "N/A",
+    facing: "N/A",
+    access_type: "public",
+    //other site information if ever
+    analytics: {
+      //default date range is last month or past 30 days NOTE: for impressions and audiences data only
+      date_from: "2023-12-1",
+      date_to: "2024-1-1",
+      //summary of impressions NOTE: this is based on the overall impressions of the site and will not be affected by the date changes.
+      average_daily_impressions: 48,
+      average_weekly_impressions: 92,
+      average_monthly_impressions: 127,
+      highest_monthly_impression: 229, //number of the month with the highest impressions
+      impressions: {
+        //to be used for the line charts
+        daily: [
+          {
+            date: "2023-12-1",
+            impressions: 30,
+          },
+          {
+            date: "2023-12-2",
+            impressions: 63,
+          },
+          //...continue based from the date range
+        ],
+        weekly: [
+          // same data format as daily but with weekly interval: 2023-12-3 -> 2023-12-10
+        ],
+        monthly: [
+          // same data format as daily but with monthly interval: 2023-12-1 -> 2024-1-1
+        ],
+      },
+      audiences: [
+        //to be used for graphs/charts
+        {
+          category: "basic",
+          question: "gender",
+          responses: [
+            {
+              choice: "male",
+              count: 31,
+            },
+            {
+              choice: "female",
+              count: 29,
+            },
+          ],
+        },
+        {
+          category: "basic",
+          question: "age group",
+          responses: [
+            {
+              choice: "13 to 17 years old",
+              count: 8,
+            },
+            {
+              choice: "18 to 19 years old",
+              count: 12,
+            },
+            {
+              choice: "20 to 29 years old",
+              count: 34,
+            },
+            {
+              choice: "30 to 39 years old",
+              count: 6,
+            },
+          ],
+        },
+        {
+          category: "basic",
+          question: "civil status",
+          responses: [
+            {
+              choice: "single",
+              count: 18,
+            },
+            {
+              choice: "married",
+              count: 4,
+            },
+            {
+              choice: "separated/divorced",
+              count: 2,
+            },
+            {
+              choice: "widow/widower",
+              count: 0,
+            },
+            {
+              choice: "living together",
+              count: 6,
+            },
+          ],
+        },
+        {
+          category: "commuting behavior",
+          question: "Which day do you ride the MRT?",
+          responses: [
+            {
+              choice: "None",
+              count: 8,
+            },
+            {
+              choice: "Monday",
+              count: 1,
+            },
+            {
+              choice: "Tuesday",
+              count: 7,
+            },
+            {
+              choice: "Wednesday",
+              count: 5,
+            },
+            {
+              choice: "Thursday",
+              count: 3,
+            },
+            {
+              choice: "Friday",
+              count: 2,
+            },
+            {
+              choice: "Saturday",
+              count: 0,
+            },
+            {
+              choice: "Sunday",
+              count: 5,
+            },
+          ],
+        },
+        {
+          category: "commuting behavior",
+          question: "Which day do pass through EDSA?",
+          responses: [
+            {
+              choice: "None",
+              count: 3,
+            },
+            {
+              choice: "Monday",
+              count: 5,
+            },
+            {
+              choice: "Tuesday",
+              count: 3,
+            },
+            {
+              choice: "Wednesday",
+              count: 4,
+            },
+            {
+              choice: "Thursday",
+              count: 2,
+            },
+            {
+              choice: "Friday",
+              count: 7,
+            },
+            {
+              choice: "Saturday",
+              count: 0,
+            },
+            {
+              choice: "Sunday",
+              count: 6,
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     location: "EDSA Belson",
@@ -749,96 +864,25 @@ export const billboardData = [
     longitude: 121.017272,
     type: "Classic",
   },
-  {
-    location: "COMMEX BLDG., EDSA COR. ARELLANO ST., CALOOCAN CITY/1",
-    latitude: 14.65739,
-    longitude: 120.9929,
-    type: "Classic",
-  },
-  {
-    location:
-      "LOL REALTY BLDG., EDSA COR ASUNCION ST., BRGY. 83, ZONE 8, MONUMENTO, CALOOCAN/1",
-    latitude: 14.65732,
-    longitude: 120.987,
-    type: "Classic",
-  },
-  {
-    location:
-      "VV SOLIVEN SHOPPING COMPLEX BLDG. I, EDSA, BRGY. NORTH EAST GREENHILLS, SAN JUAN/2",
-    latitude: 14.6059,
-    longitude: 121.0571,
-    type: "Classic",
-  },
-  {
-    location:
-      "VV SOLIVEN SHOPPING COMPLEX BLDG. I, EDSA, BRGY. NORTH EAST GREENHILLS, SAN JUAN/1",
-    latitude: 14.60495,
-    longitude: 121.0575,
-    type: "Classic",
-  },
-  {
-    location:
-      "GENESIS BUS STATION EDSA COR. NEW YORK ST. BRGY. E. RODRIGUEZ, QUEZON CITY/2",
-    latitude: 14.62496,
-    longitude: 121.0486,
-    type: "Classic",
-  },
-  {
-    location:
-      "GENESIS BUS STATION EDSA COR. NEW YORK ST. BRGY. E. RODRIGUEZ, QUEZON CITY/1",
-    latitude: 14.62608,
-    longitude: 121.0481,
-    type: "Classic",
-  },
-  {
-    location: "EVEREST LUMBER BLDG. #663 EDSA, CUBAO, QC/3",
-    latitude: 14.62328,
-    longitude: 121.0491,
-    type: "Classic",
-  },
-  {
-    location: "EVEREST LUMBER BLDG. #663 EDSA, CUBAO, QC/2",
-    latitude: 14.62191,
-    longitude: 121.0501,
-    type: "Classic",
-  },
-  {
-    location: "EVEREST LUMBER BLDG. #663 EDSA, CUBAO, QC/1",
-    latitude: 14.6232,
-    longitude: 121.0491,
-    type: "Classic",
-  },
-  {
-    location:
-      "EDSA CENTRUM BLDG #817 EDSA COR. KAMUNING RD., BRGY. KAMUNING, QC (Inner Structure)/2",
-    latitude: 14.62937,
-    longitude: 121.0464,
-    type: "Classic",
-  },
-  {
-    location:
-      "TRINITY LUTHERAN CHURCH #835 EDSA COR. TIMOG AVE., BRGY. SACRED HEART, QC (Road Side)/2",
-    latitude: 14.63163,
-    longitude: 121.0453,
-    type: "Classic",
-  },
-  {
-    location:
-      "PANAY BLDG. #160 PANAY AVE. COR. EDSA, BRGY. SOUTH TRIANGLE, QC (Road-Side)/2",
-    latitude: 14.64346,
-    longitude: 121.0377,
-    type: "Classic",
-  },
 ];
 
-const billboard = [
-  {
-    id: 0,
-    site: "",
-    area: "",
-    region: "",
-    fits_no: 0,
-    fits_rate: 0.0,
-    avg_monthly_impressions: 0,
-  },
+export const regions = [
+  "National Capital Region (NCR)",
+  "Cordillera Administrative Region (CAR)",
+  "Region I (Ilocos Region)",
+  "Region II (Cagayan Valley)",
+  "Region III (Central Luzon)",
+  "Region IV-A (CALABARZON)",
+  "Region IV-B (MIMAROPA)",
+  "Region V (Bicol Region)",
+  "Region VI (Western Visayas)",
+  "Region VII (Central Visayas)",
+  "Region VIII (Eastern Visayas)",
+  "Region IX (Zamboanga Peninsula)",
+  "Region X (Northern Mindanao)",
+  "Region XI (Davao Region)",
+  "Region XII (SOCCSKSARGEN)",
+  "Region XIII (Caraga)",
+  "Autonomous Region in Muslim Mindanao (ARMM)",
+  "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
 ];
