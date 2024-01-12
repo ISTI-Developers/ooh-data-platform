@@ -1,23 +1,32 @@
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
-import { useState } from "react";
-import { billboardData } from "../../config/siteData";
+import { useEffect, useState } from "react";
 import Markers from "./Markers";
 import { Accordion } from "flowbite-react";
 import digital from "../../assets/digital.png";
 import classic from "../../assets/classic.png";
 import classNames from "classnames";
 import { IoMdMenu } from "react-icons/io";
+import { useService } from "../../config/services";
 function MapLocation() {
+  const { retrieveSites } = useService();
   const [center, setCenter] = useState({ lat: 12.8797, lng: 121.774 });
   const [zoom, setZoom] = useState(6);
   const [showLocations, toggleLocations] = useState(false);
+  const [billboards, setBillboards] = useState(null);
 
   const updateMapCenter = (coords, zoom) => {
     setZoom(() => zoom);
     setCenter(() => coords);
   };
 
-  return (
+  useEffect(() => {
+    const setup = async () => {
+      const data = await retrieveSites();
+      setBillboards(data);
+    };
+    setup();
+  }, []);
+  return billboards ? (
     <div className="relative flex flex-row bg-white shadow p-4 gap-4 overflow-hidden">
       <div
         className={classNames(
@@ -28,12 +37,12 @@ function MapLocation() {
         )}
       >
         <Accordion flush>
-          {[...new Set(billboardData.map((item) => item.type))].map((type) => (
+          {[...new Set(billboards.map((item) => item.type))].map((type) => (
             <Accordion.Panel key={type}>
               <Accordion.Title>{type}</Accordion.Title>
               <Accordion.Content>
                 <ul className="flex flex-col max-h-[375px] overflow-y-auto">
-                  {billboardData
+                  {billboards
                     .filter((item) => item.type === type)
                     .map(({ location, latitude, longitude }, index) => {
                       return (
@@ -87,7 +96,6 @@ function MapLocation() {
         <IoMdMenu className="text-xl text-slate-700" />
       </button>
       <APIProvider apiKey="AIzaSyCA8e__QnDK_Hc0p4QgLyePl3ONN8IpNKU">
-        {/* AIzaSyBgdBRaOqyGeoc4E4cWlP8N_wlILEFdgtQ */}
         <div className="h-[550px] w-full lg:w-3/4">
           <Map
             zoom={zoom}
@@ -98,7 +106,7 @@ function MapLocation() {
             fullscreenControl={false}
           >
             <Markers
-              list={billboardData}
+              list={billboards}
               center={center}
               setCenter={setCenter}
               setZoom={setZoom}
@@ -107,91 +115,9 @@ function MapLocation() {
         </div>
       </APIProvider>
     </div>
+  ) : (
+    <></>
   );
 }
 
-const sampleData = {
-  site: "One Bonifacio High Street LED",
-  area: "BGC, Taguig",
-  region: "National Capital Region (NCR)",
-  site_owner: "United Neon Sign Services",
-  type: "digital",
-  latitude: 14.551399,
-  longitude: 121.047685,
-  category: "N/A",
-  venue_type: ["office/buildings", "outdoor", "billboards"],
-  availability: false,
-  board_facing: "N/A",
-  facing: "N/A",
-  access_type: "public",
-  //other site information if ever
-  analytics: {
-    //default date range is last month or past 30 days NOTE: for impressions and audiences data only
-    date_from: "2023-12-1",
-    date_to: "2024-1-1",
-    //summary of impressions NOTE: this is based on the overall impressions of the site and will not be affected by the date changes.
-    average_daily_impressions: 48,
-    average_weekly_impressions: 92,
-    average_monthly_impressions: 127,
-    highest_monthly_impression: 229, //number of the month with the highest impressions
-    impressions: {
-      //to be used for the line charts
-      daily: [
-        {
-          date: "2023-12-1",
-          impressions: 30,
-        },
-        {
-          date: "2023-12-2",
-          impressions: 63,
-        },
-        //...continue based from the date range
-      ],
-      weekly: [
-        // same data format as daily but with weekly interval: 2023-12-3 -> 2023-12-10
-      ],
-      monthly: [
-        // same data format as daily but with monthly interval: 2023-12-1 -> 2024-1-1
-      ],
-    },
-    audiences: [
-      {
-        category: "basic",
-        question: "gender",
-        responses: [
-          {
-            choice: "male",
-            count: 31,
-          },
-          {
-            choice: "female",
-            count: 29,
-          },
-        ],
-      },
-      {
-        category: "basic",
-        question: "age group",
-        responses: [
-          {
-            choice: "13 to 17 years old",
-            count: 8,
-          },
-          {
-            choice: "18 to 19 years old",
-            count: 12,
-          },
-          {
-            choice: "20 to 29 years old",
-            count: 34,
-          },
-          {
-            choice: "30 to 39 years old",
-            count: 6,
-          },
-        ],
-      },
-    ],
-  },
-};
 export default MapLocation;
