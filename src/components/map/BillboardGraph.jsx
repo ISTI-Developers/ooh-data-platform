@@ -31,7 +31,7 @@ function BillboardGraph({ data, title }) {
               <Tooltip />
               <Legend />
               <Bar dataKey="digital" fill="#183145" />
-              <Bar dataKey="static" fill="#0692da" />
+              <Bar dataKey="classic" fill="#0692da" />
             </BarChart>
           </ResponsiveContainer>
         </div>
