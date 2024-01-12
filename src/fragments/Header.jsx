@@ -3,20 +3,16 @@ import { Navbar } from "flowbite-react";
 import { useLocation } from "react-router-dom";
 import logo from "../assets/unai.png";
 import PropTypes from "prop-types";
-import useUser from "../config/userStore";
 import { navbarTheme } from "../config/themes";
+import { useAuth } from "../config/authContext";
 
 function Header() {
   const location = useLocation();
-
-  //Initialization of Zustand properties
-  const user = useUser((state) => state.user);
-  const logoutUser = useUser((state) => state.clearUser);
-
+  const { user, logoutUser } = useAuth();
   return (
     <>
       <Navbar theme={navbarTheme} border>
-        <Navbar.Brand>
+        <Navbar.Brand href="/">
           <img
             src={logo}
             alt="United Neon Advertising Inc."
@@ -26,24 +22,25 @@ function Header() {
         <Navbar.Toggle />
         <Navbar.Collapse>
           {/* Mapping of links for navigation bar */}
-          {["", "map", "audience"].map((item, index) => {
-            return (
-              <Navbar.Link
-                href={`/${item}`}
-                key={index}
-                className={classNames(
-                  "capitalize font-semibold text-lg hover:text-secondary",
-                  //check if same pathname to the item for showing the active link
-                  location.pathname == `/${item}`
-                    ? "text-secondary"
-                    : "text-main"
-                )}
-              >
-                {/* planning page is the home of the system so it checks if the item == "" */}
-                {item === "" ? "planning" : item}
-              </Navbar.Link>
-            );
-          })}
+          {user &&
+            ["", "map", "audience"].map((item, index) => {
+              return (
+                <Navbar.Link
+                  href={`/${item}`}
+                  key={index}
+                  className={classNames(
+                    "capitalize font-semibold text-lg hover:text-secondary",
+                    //check if same pathname to the item for showing the active link
+                    location.pathname == `/${item}`
+                      ? "text-secondary"
+                      : "text-main"
+                  )}
+                >
+                  {/* planning page is the home of the system so it checks if the item == "" */}
+                  {item === "" ? "planning" : item}
+                </Navbar.Link>
+              );
+            })}
           {/* conditional rendering if user has logged in or not */}
           {user ? (
             <button

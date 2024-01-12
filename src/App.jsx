@@ -10,8 +10,7 @@ import Map from "./pages/Map";
 import Login from "./pages/Login";
 import classNames from "classnames";
 import Register from "./pages/Register";
-import { AuthProvider } from "./config/authContext";
-import useUser from "./config/userStore";
+import { AuthProvider, useAuth } from "./config/authContext";
 import Audience from "./pages/Audience";
 function App() {
   return (
@@ -27,8 +26,7 @@ function App() {
 }
 function AppRoutes() {
   const location = useLocation();
-  const user = useUser((state) => state.user);
-
+  const { user } = useAuth();
   return (
     <div
       className={classNames(
@@ -39,15 +37,15 @@ function AppRoutes() {
       )}
     >
       <Routes>
-        <Route exact path="/" element={<Planning />} />
-        <Route path="/map" element={<Map />} />
-        <Route exact path="/audience/*" element={<Audience />} />
-        {!user && (
+        {user && (
           <>
-            <Route exact path="/login" element={<Login />} />
-            <Route exact path="/register" element={<Register />} />
+            <Route exact path="/" element={<Planning />} />
+            <Route path="/map" element={<Map />} />
+            <Route exact path="/audience/*" element={<Audience />} />
           </>
         )}
+        <Route exact path="/login" element={<Login />} />
+        <Route exact path="/register" element={<Register />} />
       </Routes>
     </div>
   );
