@@ -7,8 +7,8 @@ import { endOfDay, format, startOfDay, subDays } from "date-fns";
 
 function DatePickerModal({ show, onClose, setDate }) {
   const [selectedDate, setDates] = useState({
+    from: new Date().setDate(new Date().getDate() - 30),
     to: new Date(),
-    from: new Date(),
   });
 
   const onChangeDate = (e) => {
@@ -33,7 +33,7 @@ function DatePickerModal({ show, onClose, setDate }) {
   };
   return (
     show && (
-      <div className="absolute top-full min-w-[200px] bg-white shadow p-4 mt-4 border animate-fade flex flex-col gap-2 rounded-lg z-[2]">
+      <div className="absolute top-full min-w-[200px] bg-white shadow p-4 mt-4 border animate-fade flex flex-col gap-2 rounded-lg z-[3]">
         <div className="flex items-center gap-2">
           {[7, 15, 30].map((len) => {
             return (
@@ -50,12 +50,14 @@ function DatePickerModal({ show, onClose, setDate }) {
         <p className="pt-4 font-semibold text-main">Custom Date Range</p>
         <div className="flex gap-4">
           <div className="bg-default rounded-md p-2">
-            <Label htmlFor="from" className="text-lg">From:</Label>
+            <Label htmlFor="from" className="text-lg">
+              From:
+            </Label>
             <Datepicker
               id="from"
               inline
               theme={inlineDatePickerTheme}
-              value={format(new Date(selectedDate.from), "yyyy-MM-dd")}
+              defaultDate={new Date(selectedDate.from)}
               onSelectedDateChanged={(date) =>
                 onChangeDate({ value: date, id: "from" })
               }
@@ -64,12 +66,14 @@ function DatePickerModal({ show, onClose, setDate }) {
             />
           </div>
           <div className="bg-default rounded-md p-2">
-            <Label htmlFor="to" className="text-lg">To:</Label>
+            <Label htmlFor="to" className="text-lg">
+              To:
+            </Label>
             <Datepicker
               id="to"
               inline
               theme={inlineDatePickerTheme}
-              value={format(new Date(selectedDate.to), "yyyy-MM-dd")}
+              defaultDate={new Date(selectedDate.to)}
               onSelectedDateChanged={(date) =>
                 onChangeDate({ value: date, id: "to" })
               }
