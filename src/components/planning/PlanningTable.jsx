@@ -9,7 +9,6 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
   const [sites, setSites] = useState([]);
   const headers = [
     "area",
-    "region",
     "# fits profile",
     "% fits profile",
     "avg monthly impressions",
@@ -45,13 +44,14 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
   return (
     sites && (
       <>
-        <Table className="bg-white rounded-md">
+        <Table className="bg-white rounded-md ">
           <Table.Head className="shadow-md">
             {headers.map((header, index) => {
               return (
                 <Table.HeadCell
                   key={index}
-                  className="text-main sticky top-0 z-10 whitespace-nowrap last:sticky last:right-0"
+                  className="text-main sticky top-0 z-10 text-center whitespace-nowrap last:sticky last:right-0"
+                  onClick={(e) => console.log(e.target.innerHTML)}
                 >
                   {header}
                 </Table.HeadCell>
@@ -71,11 +71,11 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
                     <Table.Cell>
                       <p className="flex flex-col whitespace-nowrap">
                         <span>{area}</span>
-                        <span>No. of Sites: {sites[area]}</span>
+                        <span className="text-xs">{siteArea.region}</span>
+                        <span className="text-xs">
+                          No. of Sites: {sites[area]}
+                        </span>
                       </p>
-                    </Table.Cell>
-                    <Table.Cell className="min-w-[32ch]">
-                      {siteArea.region}
                     </Table.Cell>
                     <Table.Cell align="center">
                       {Math.round(count * 1.1)}
@@ -84,19 +84,37 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
                     <Table.Cell align="center">
                       {Math.round(count * 13)}
                     </Table.Cell>
-                    <Table.Cell align="center" className="sticky right-0 bg-gradient-to-l from-white from-80% to-[#ffffff00]">
+                    <Table.Cell
+                      align="center"
+                      className="sticky right-0 bg-gradient-to-l from-white from-80% to-[#ffffff00]"
+                    >
                       <button
                         className={classNames(
                           "p-1 text-sm border-2 rounded-md outline-none",
                           "transition-all",
                           selectedAreas &&
                             selectedAreas.find((filter) => filter === siteArea)
-                            ? "px-3 ointer-events-none border-green-300 bg-green-300 text-white"
+                            ? "px-3 border-green-300 bg-green-300 text-white"
                             : "px-2.5 border-secondary-500 text-secondary-hover hover:bg-secondary-500"
                         )}
                         onClick={() => {
-                          if (!selectedAreas.includes(area)) {
+                          if (
+                            !(
+                              selectedAreas &&
+                              selectedAreas.find(
+                                (filter) => filter === siteArea
+                              )
+                            )
+                          ) {
                             setSelectedArea((prev) => [...prev, siteArea]);
+                          } else {
+                            const updatedAreas = [...selectedAreas];
+                            updatedAreas.splice(
+                              selectedAreas.indexOf(siteArea),
+                              1
+                            );
+
+                            setSelectedArea(updatedAreas);
                           }
                         }}
                       >

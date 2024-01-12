@@ -1,13 +1,12 @@
 import PropTypes from "prop-types";
 import { Table } from "flowbite-react";
 import { siteData } from "../config/siteData";
-import Title from "../fragments/Title";
-import { IoMdArrowRoundBack } from "react-icons/io";
-import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Results({ profileFilters, selectedAreas }) {
   const [sites, setSites] = useState(null);
+  const navigate = useNavigate();
   const headers = [
     "area",
     "site",
@@ -16,14 +15,22 @@ function Results({ profileFilters, selectedAreas }) {
     "company",
   ];
   useEffect(() => {
-    const filter =
-      JSON.parse(localStorage.getItem("profileFilter")) || profileFilters || [];
-    const areas =
-      JSON.parse(localStorage.getItem("selectedAreas")) || selectedAreas;
+    const filter = profileFilters || [];
+    const areas = selectedAreas || [];
 
+    if (filter.length === 0 && areas.length === 0) {
+      setSites([]);
+      return;
+    }
     setSites(
       siteData
-        .filter((data) => areas.find((result) => result.area === data.area))
+        .filter((data) => {
+          if (areas.length > 0) {
+            return areas.find((result) => result.area === data.area);
+          } else {
+            return data;
+          }
+        })
         .filter((data) => {
           return (
             filter.length === 0 ||
@@ -42,64 +49,58 @@ function Results({ profileFilters, selectedAreas }) {
 
   return (
     sites && (
-      <>
-        <div>
-          <Title name="Site Results" />
-          <Link
-            to="/"
-            className="underline text-gray-600 flex items-center gap-2"
-          >
-            <IoMdArrowRoundBack />
-            <span>Back to Site Planning</span>
-          </Link>
-        </div>
-        <div className="overflow-x-auto">
-          <Table className="border bg-white rounded-md w-full">
-            <Table.Head className="shadow-md">
-              {headers.map((header, index) => {
+      <div className="overflow-x-auto">
+        <Table className="border bg-white rounded-md w-full">
+          <Table.Head className="shadow-md">
+            {headers.map((header, index) => {
+              return (
+                <Table.HeadCell key={index} className="text-main">
+                  {header}
+                </Table.HeadCell>
+              );
+            })}
+          </Table.Head>
+          <Table.Body>
+            {sites.length !== 0 ? (
+              sites.map((item, index) => {
+                const count = 100 - (13 * (index + 1.382)) / 4;
                 return (
-                  <Table.HeadCell key={index} className="text-main">
-                    {header}
-                  </Table.HeadCell>
+                  <Table.Row
+                    key={index}
+                    className="hover:bg-slate-200 transition-all cursor-pointer"
+                    onClick={() => {
+                      localStorage.setItem("location", item.site);
+                      navigate(`/audience/${item.site}`);
+                    }}
+                  >
+                    <Table.Cell className="text-main whitespace-nowrap">
+                      <p className="font-semibold text-lg ">{item.area}</p>
+                      <p>{item.region}</p>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <p className="flex flex-col whitespace-nowrap">
+                        <span>{item.site}</span>
+                        <span>
+                          Avg Monthly Impressions: {Math.round(count * 2.43)}
+                        </span>
+                      </p>
+                    </Table.Cell>
+                    <Table.Cell>{Math.round(count * 2.12)}</Table.Cell>
+                    <Table.Cell>{Math.round(count)}%</Table.Cell>
+                    <Table.Cell>UNAI</Table.Cell>
+                  </Table.Row>
                 );
-              })}
-            </Table.Head>
-            {console.log(sites)}
-            <Table.Body>
-              {sites.length !== 0 ? (
-                sites.map((item, index) => {
-                  const count = 100 - (13 * (index + 1.382)) / 4;
-                  return (
-                    <Table.Row key={index}>
-                      <Table.Cell className="text-main whitespace-nowrap">
-                        <p className="font-semibold text-lg ">{item.area}</p>
-                        <p>{item.region}</p>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <p className="flex flex-col whitespace-nowrap">
-                          <span>{item.site}</span>
-                          <span>
-                            Avg Monthly Impressions: {Math.round(count * 2.43)}
-                          </span>
-                        </p>
-                      </Table.Cell>
-                      <Table.Cell>{Math.round(count * 2.12)}</Table.Cell>
-                      <Table.Cell>{Math.round(count)}%</Table.Cell>
-                      <Table.Cell>UNAI</Table.Cell>
-                    </Table.Row>
-                  );
-                })
-              ) : (
-                <Table.Row>
-                  <Table.Cell colSpan={headers.length} align="center">
-                    Results not available
-                  </Table.Cell>
-                </Table.Row>
-              )}
-            </Table.Body>
-          </Table>
-        </div>
-      </>
+              })
+            ) : (
+              <Table.Row>
+                <Table.Cell colSpan={headers.length} align="center">
+                  Results not available
+                </Table.Cell>
+              </Table.Row>
+            )}
+          </Table.Body>
+        </Table>
+      </div>
     )
   );
 }
