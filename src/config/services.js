@@ -19,6 +19,25 @@ const retrievePlanning = async (get, options = null) => {
   }
 };
 
+const retrieveSite = async (id) => {
+  try {
+    const response = await axios.get(url.sites, {
+      params: {
+        id: id,
+        // options: options,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.data) {
+      return response.data[0];
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 const retrieveSites = async (type = null) => {
   try {
     const response = await axios.get(url.sites, {
@@ -54,5 +73,5 @@ const retrieveSitesCount = async () => {
   }
 };
 export const useService = () => {
-  return { retrievePlanning, retrieveSites, retrieveSitesCount };
+  return { retrievePlanning, retrieveSite, retrieveSites, retrieveSitesCount };
 };

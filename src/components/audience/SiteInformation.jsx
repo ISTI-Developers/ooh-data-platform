@@ -1,34 +1,32 @@
 /* eslint-disable react/prop-types */
 import PropTypes from "prop-types";
-import { billboardData } from "../../config/siteData";
-import classic from "../../assets/classic.png";
+import classic from "~assets/classic.png";
 import {
   TbBook,
   TbChartArrowsVertical,
   TbWindowMaximize,
   TbWorld,
 } from "react-icons/tb";
-import digital from "../../assets/digital.png";
+import digital from "~assets/digital.png";
 import SiteGraph from "./SiteGraph";
 import { addMonths, format, getMonth, getWeek, startOfMonth } from "date-fns";
 import { Badge } from "flowbite-react";
-import { useState } from "react";
-import { DateRangePicker } from "../../fragments/AudienceOptions";
+import { useEffect, useState } from "react";
+import { DateRangePicker } from "~fragments/AudienceOptions";
 import Behaviorals from "./Behaviorals";
 import { useParams } from "react-router-dom";
-import { useFunction } from "../../config/functions";
-function SiteInformation({ location }) {
+import { useFunction } from "~config/functions";
+import { useService } from "~config/services";
+function SiteInformation() {
   const { id } = useParams();
   const { toSpaced } = useFunction();
-  const site = toSpaced(id);
+  const { retrieveSite } = useService();
 
   const [dates, setDateRange] = useState({
     from: new Date().setDate(new Date().getDate() - 30),
     to: new Date(),
   });
-  const info = billboardData.find(
-    (data) => data.location.toLowerCase() === site.toLowerCase()
-  );
+  const [siteData, setSiteData] = useState(null);
   const impressions = [
     {
       date: "2023-12-01",
@@ -278,95 +276,114 @@ function SiteInformation({ location }) {
   const areDatesInSameMonth = (date1, date2) => {
     return getMonth(date1) === getMonth(date2);
   };
+
+  useEffect(() => {
+    const setup = async () => {
+      const data = await retrieveSite(toSpaced(id));
+      setSiteData(data);
+    };
+    setSiteData(null);
+    setup();
+  }, [id, retrieveSite, toSpaced]);
   return (
-    <div className="w-full flex flex-col gap-4">
-      <div className="flex gap-4 w-full">
-        <div className="w-2/6 bg-white p-4 flex flex-col gap-4 shadow">
-          <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
-            {toSpaced(id)}
-          </header>
-          <img
-            src={info.type === "Classic" ? classic : digital}
-            className="w-full"
+    siteData && (
+      <div className="w-full flex flex-col gap-4">
+        <div className="flex gap-4 w-full">
+          <div className="w-2/6 bg-white p-4 flex flex-col gap-4 shadow">
+            <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
+              {toSpaced(id)}
+            </header>
+            <img
+              src={
+                siteData.type.toLowerCase() === "classic" ? classic : digital
+              }
+              className="w-full"
+            />
+            <div className="font-semibold text-xl">
+              <p>Type: {siteData.type}</p>
+              <p>{`Philippines`}</p>
+            </div>
+          </div>
+          <div className="w-4/6 bg-white p-4 flex flex-col gap-4 shadow">
+            <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
+              Site Details
+            </header>
+            <div className="flex">
+              <div className="w-1/2 flex flex-col gap-4">
+                <Detail
+                  title="Site Owner"
+                  value={siteData.site_owner || "United Neon Sign Services"}
+                />
+                <Detail title="Latitude" value={siteData.latitude} />
+                <Detail title="Longitude" value={siteData.longitude} />
+                <Detail title="Category" value={siteData.category || "N/A"} />
+                <Detail
+                  title="Venue Type"
+                  value={siteData.venue_type || "billboard"}
+                />
+                <Detail
+                  title="Availability"
+                  value={siteData.availability || "No"}
+                />
+              </div>
+              <div className="w-1/2 flex flex-col gap-4">
+                <Detail
+                  title="Board Facing"
+                  value={siteData.board_facing || "N/A"}
+                />
+                <Detail title="Facing" value={siteData.facing || "N/A"} />
+                <Detail
+                  title="Access Type"
+                  value={siteData.access_type || "public"}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex w-full gap-4 justify-evenly bg-white p-4 shadow">
+          <Card
+            title="Average Daily Impression"
+            count={(Math.random() * 100).toFixed(2)}
+            logo={<TbWindowMaximize className="text-7xl text-secondary" />}
           />
-          <div className="font-semibold text-xl">
-            <p>Type: {info.type}</p>
-            <p>{`Philippines`}</p>
-          </div>
+          <Card
+            title="Average Weekly Impression"
+            count={(Math.random() + 0.7 * 100).toFixed(2)}
+            logo={<TbWorld className="text-7xl text-secondary" />}
+          />
+          <Card
+            title="Average Monthly Impression"
+            count={(Math.random() + 1.3 * 100).toFixed(2)}
+            logo={<TbBook className="text-7xl text-secondary" />}
+          />
+          <Card
+            title="Highest Monthly Impression"
+            count={(Math.random() + 1.3 * 100).toFixed(2)}
+            logo={<TbChartArrowsVertical className="text-7xl text-secondary" />}
+          />
         </div>
-        <div className="w-4/6 bg-white p-4 flex flex-col gap-4 shadow">
-          <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
-            Site Details
-          </header>
-          <div className="flex">
-            <div className="w-1/2 flex flex-col gap-4">
-              <Detail
-                title="Site Owner"
-                value={info.site_owner || "United Neon Sign Services"}
-              />
-              <Detail title="Latitude" value={info.latitude} />
-              <Detail title="Longitude" value={info.longitude} />
-              <Detail title="Category" value={info.category || "N/A"} />
-              <Detail
-                title="Venue Type"
-                value={info.venue_type || "billboard"}
-              />
-              <Detail title="Availability" value={info.availability || "No"} />
-            </div>
-            <div className="w-1/2 flex flex-col gap-4">
-              <Detail title="Board Facing" value={info.board_facing || "N/A"} />
-              <Detail title="Facing" value={info.facing || "N/A"} />
-              <Detail
-                title="Access Type"
-                value={info.access_type || "public"}
-              />
-            </div>
-          </div>
+        <DateRangePicker setDates={setDateRange} dates={dates} />
+        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          <SiteGraph
+            title="Average Daily Impressions"
+            data={impressions}
+            className="lg:col-[1/3] xl:col-[1/2]"
+          />
+          <SiteGraph
+            title="Average Weekly Impressions"
+            data={getWeeklyImpressions(impressions)}
+          />
+          <SiteGraph
+            title="Average Monthly Impressions"
+            data={getMonthlyImpressions(impressions)}
+          />
+        </div>
+        <div className="bg-white p-4 w-full shadow flex flex-col gap-4">
+          <p className="font-semibold text-main">Audience Behavior</p>
+          <Behaviorals audienceData={siteData.analytics?.audiences} />
         </div>
       </div>
-      <div className="flex w-full gap-4 justify-evenly bg-white p-4 shadow">
-        <Card
-          title="Average Daily Impression"
-          count={(Math.random() * 100).toFixed(2)}
-          logo={<TbWindowMaximize className="text-7xl text-secondary" />}
-        />
-        <Card
-          title="Average Weekly Impression"
-          count={(Math.random() + 0.7 * 100).toFixed(2)}
-          logo={<TbWorld className="text-7xl text-secondary" />}
-        />
-        <Card
-          title="Average Monthly Impression"
-          count={(Math.random() + 1.3 * 100).toFixed(2)}
-          logo={<TbBook className="text-7xl text-secondary" />}
-        />
-        <Card
-          title="Highest Monthly Impression"
-          count={(Math.random() + 1.3 * 100).toFixed(2)}
-          logo={<TbChartArrowsVertical className="text-7xl text-secondary" />}
-        />
-      </div>
-      <DateRangePicker setDates={setDateRange} dates={dates} />
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        <SiteGraph
-          title="Average Daily Impressions"
-          data={impressions}
-          className="lg:col-[1/3] xl:col-[1/2]"
-        />
-        <SiteGraph
-          title="Average Weekly Impressions"
-          data={getWeeklyImpressions(impressions)}
-        />
-        <SiteGraph
-          title="Average Monthly Impressions"
-          data={getMonthlyImpressions(impressions)}
-        />
-      </div>
-      <div className="bg-white p-4 w-full shadow flex flex-col gap-4">
-        <p className="font-semibold text-main">Audience Behavior</p>
-        <Behaviorals audienceData={info.analytics?.audiences} />
-      </div>
-    </div>
+    )
   );
 }
 

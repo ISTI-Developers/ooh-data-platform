@@ -2,54 +2,60 @@ import { format } from "date-fns";
 import PropTypes from "prop-types";
 import { PiCaretDownBold } from "react-icons/pi";
 import { MdCalendarMonth } from "react-icons/md";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePickerModal from "./DatePickerModal";
 import { Label, Select } from "flowbite-react";
-import { billboardData } from "../config/siteData";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useFunction } from "../config/functions";
+import { useService } from "../config/services";
 
-function AudienceOptions({ location, setLocation }) {
+function AudienceOptions({ setLocation }) {
+  const url = useLocation();
   const navigate = useNavigate();
   const { toUnderscored } = useFunction();
-  const siteNames = [...new Set(billboardData.map((site) => site.location))];
+  const { retrieveSites } = useService();
+
+  const [siteNames, setSiteNames] = useState(null);
+  const selectedLocation = url.pathname.split("/")[2];
+
+  useEffect(() => {
+    const setup = async () => {
+      const data = await retrieveSites();
+      setSiteNames([...new Set(data.map((site) => site.location))]);
+    };
+    setup();
+  }, []);
   return (
-    <div className="flex flex-row items-center gap-4">
-      <div>
-        <Label htmlFor="regions" value="Select Site: " />
-        <Select
-          id="regions"
-          onChange={(e) => {
-            console.log(e.target.value);
-            navigate(`./${toUnderscored(e.target.value)}`);
-            setLocation(e.target.value);
-            localStorage.setItem("location", e.target.value);
-          }}
-        >
-          <option
-            value=""
-            disabled
-            selected={location === null || !localStorage.getItem("location")}
+    siteNames && (
+      <div className="flex flex-row items-center gap-4">
+        <div>
+          <Label htmlFor="regions" value="Select Site: " />
+          <Select
+            id="regions"
+            onChange={(e) => {
+              navigate(`./${toUnderscored(e.target.value)}`);
+              setLocation(e.target.value);
+              localStorage.setItem("location", e.target.value);
+            }}
           >
-            Site Locations
-          </option>
-          {siteNames.map((region) => {
-            return (
-              <option
-                key={region}
-                value={region}
-                selected={
-                  localStorage.getItem("location") &&
-                  localStorage.getItem("location") === region
-                }
-              >
-                {region}
-              </option>
-            );
-          })}
-        </Select>
+            <option value="" disabled selected={!selectedLocation}>
+              Site Locations
+            </option>
+            {siteNames.map((region) => {
+              return (
+                <option
+                  key={region}
+                  value={region}
+                  selected={selectedLocation && selectedLocation === region}
+                >
+                  {region}
+                </option>
+              );
+            })}
+          </Select>
+        </div>
       </div>
-    </div>
+    )
   );
 }
 
