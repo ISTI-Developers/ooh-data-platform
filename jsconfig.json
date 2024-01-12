@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~assets/*": [
+        "src/assets/*"
+      ],
+      "~components/*": [
+        "src/components/*"
+      ],
+      "~mapComponents/*": [
+        "src/components/map/*"
+      ],
+      "~config/*": [
+        "src/config/*"
+      ],
+      "~fragments/*": [
+        "src/fragments/*"
+      ],
+      "~pages/*": [
+        "src/pages/*"
+      ],
+      "~/*": [
+        "src/*"
+      ]
+    }
+  }
+}
