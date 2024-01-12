@@ -3,12 +3,9 @@ import { useState } from "react";
 import AudienceOptions from "../fragments/AudienceOptions";
 import classNames from "classnames";
 import SiteInformation from "../components/audience/SiteInformation";
+import { Route, Routes } from "react-router-dom";
 
 function Audience() {
-  const [dates, setDateRange] = useState({
-    from: new Date(),
-    to: new Date(),
-  });
   const [siteLocation, setSiteLocation] = useState(null);
   return (
     <div className="w-full">
@@ -20,25 +17,33 @@ function Audience() {
       </p>
       <div className="flex flex-col gap-4 w-full">
         <AudienceOptions
-          dates={dates}
-          setDates={setDateRange}
           location={siteLocation}
           setLocation={setSiteLocation}
         />
-        <section
-          className={classNames(
-            "min-h-[60vh] flex w-full",
-            !siteLocation && "bg-slate-300 items-center justify-center rounded-lg"
-          )}
-        >
-          {siteLocation ? (
-            <SiteInformation site={siteLocation} />
-          ) : (
-            <p className="text-slate-600 font-semibold">
-              Select a site to show its information.
-            </p>
-          )}
-        </section>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <section
+                className={classNames(
+                  "min-h-[60vh] flex w-full bg-slate-300 items-center justify-center rounded-lg"
+                )}
+              >
+                <p className="text-slate-600 font-semibold">
+                  Select a site to show its information.
+                </p>
+              </section>
+            }
+          />
+          <Route
+            path="/:id"
+            element={
+              <section className="flex w-full min-h-[60vh]">
+                <SiteInformation location={siteLocation} />
+              </section>
+            }
+          />
+        </Routes>
       </div>
     </div>
   );
