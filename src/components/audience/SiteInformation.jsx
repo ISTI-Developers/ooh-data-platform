@@ -17,11 +17,11 @@ import Behaviorals from "./Behaviorals";
 import { useParams } from "react-router-dom";
 import { useFunction } from "~config/functions";
 import { useService } from "~config/services";
+import Loader from "~fragments/Loader";
 function SiteInformation() {
   const { id } = useParams();
   const { toSpaced } = useFunction();
   const { retrieveSite } = useService();
-
   const [dates, setDateRange] = useState({
     from: new Date().setDate(new Date().getDate() - 30),
     to: new Date(),
@@ -280,110 +280,243 @@ function SiteInformation() {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSite(toSpaced(id));
-      setSiteData(data);
+    setSiteData(data);
     };
     setSiteData(null);
     setup();
   }, [id, retrieveSite, toSpaced]);
-  return (
-    siteData && (
-      <div className="w-full flex flex-col gap-4">
-        <div className="flex gap-4 w-full">
-          <div className="w-2/6 bg-white p-4 flex flex-col gap-4 shadow">
-            <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
-              {toSpaced(id)}
-            </header>
-            <img
-              src={
-                siteData.type.toLowerCase() === "classic" ? classic : digital
-              }
-              className="w-full"
-            />
-            <div className="font-semibold text-xl">
-              <p>Type: {siteData.type}</p>
-              <p>{`Philippines`}</p>
-            </div>
-          </div>
-          <div className="w-4/6 bg-white p-4 flex flex-col gap-4 shadow">
-            <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
-              Site Details
-            </header>
-            <div className="flex">
-              <div className="w-1/2 flex flex-col gap-4">
-                <Detail
-                  title="Site Owner"
-                  value={siteData.site_owner || "United Neon Sign Services"}
-                />
-                <Detail title="Latitude" value={siteData.latitude} />
-                <Detail title="Longitude" value={siteData.longitude} />
-                <Detail title="Category" value={siteData.category || "N/A"} />
-                <Detail
-                  title="Venue Type"
-                  value={siteData.venue_type || "billboard"}
-                />
-                <Detail
-                  title="Availability"
-                  value={siteData.availability || "No"}
-                />
-              </div>
-              <div className="w-1/2 flex flex-col gap-4">
-                <Detail
-                  title="Board Facing"
-                  value={siteData.board_facing || "N/A"}
-                />
-                <Detail title="Facing" value={siteData.facing || "N/A"} />
-                <Detail
-                  title="Access Type"
-                  value={siteData.access_type || "public"}
-                />
-              </div>
-            </div>
+  return siteData ? (
+    <div className="w-full flex flex-col gap-4">
+      <div className="flex gap-4 w-full">
+        <div className="w-2/6 bg-white p-4 flex flex-col gap-4 shadow">
+          <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
+            {toSpaced(id)}
+          </header>
+          <img
+            src={siteData.type.toLowerCase() === "classic" ? classic : digital}
+            className="w-full"
+          />
+          <div className="font-semibold text-xl">
+            <p>Type: {siteData.type}</p>
+            <p>{`Philippines`}</p>
           </div>
         </div>
-        <div className="flex w-full gap-4 justify-evenly bg-white p-4 shadow">
-          <Card
-            title="Average Daily Impression"
-            count={(Math.random() * 100).toFixed(2)}
-            logo={<TbWindowMaximize className="text-7xl text-secondary" />}
-          />
-          <Card
-            title="Average Weekly Impression"
-            count={(Math.random() + 0.7 * 100).toFixed(2)}
-            logo={<TbWorld className="text-7xl text-secondary" />}
-          />
-          <Card
-            title="Average Monthly Impression"
-            count={(Math.random() + 1.3 * 100).toFixed(2)}
-            logo={<TbBook className="text-7xl text-secondary" />}
-          />
-          <Card
-            title="Highest Monthly Impression"
-            count={(Math.random() + 1.3 * 100).toFixed(2)}
-            logo={<TbChartArrowsVertical className="text-7xl text-secondary" />}
-          />
-        </div>
-        <DateRangePicker setDates={setDateRange} dates={dates} />
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-          <SiteGraph
-            title="Average Daily Impressions"
-            data={impressions}
-            className="lg:col-[1/3] xl:col-[1/2]"
-          />
-          <SiteGraph
-            title="Average Weekly Impressions"
-            data={getWeeklyImpressions(impressions)}
-          />
-          <SiteGraph
-            title="Average Monthly Impressions"
-            data={getMonthlyImpressions(impressions)}
-          />
-        </div>
-        <div className="bg-white p-4 w-full shadow flex flex-col gap-4">
-          <p className="font-semibold text-main">Audience Behavior</p>
-          <Behaviorals audienceData={siteData.analytics?.audiences} />
+        <div className="w-4/6 bg-white p-4 flex flex-col gap-4 shadow">
+          <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
+            Site Details
+          </header>
+          <div className="flex">
+            <div className="w-1/2 flex flex-col gap-4">
+              <Detail
+                title="Site Owner"
+                value={siteData.site_owner || "United Neon Sign Services"}
+              />
+              <Detail title="Latitude" value={siteData.latitude} />
+              <Detail title="Longitude" value={siteData.longitude} />
+              <Detail title="Category" value={siteData.category || "N/A"} />
+              <Detail
+                title="Venue Type"
+                value={siteData.venue_type || "billboard"}
+              />
+              <Detail
+                title="Availability"
+                value={siteData.availability || "No"}
+              />
+            </div>
+            <div className="w-1/2 flex flex-col gap-4">
+              <Detail
+                title="Board Facing"
+                value={siteData.board_facing || "N/A"}
+              />
+              <Detail title="Facing" value={siteData.facing || "N/A"} />
+              <Detail
+                title="Access Type"
+                value={siteData.access_type || "public"}
+              />
+            </div>
+          </div>
         </div>
       </div>
-    )
+      <div className="flex w-full gap-4 justify-evenly bg-white p-4 shadow">
+        <Card
+          title="Average Daily Impression"
+          count={(Math.random() * 100).toFixed(2)}
+          logo={<TbWindowMaximize className="text-7xl text-secondary" />}
+        />
+        <Card
+          title="Average Weekly Impression"
+          count={(Math.random() + 0.7 * 100).toFixed(2)}
+          logo={<TbWorld className="text-7xl text-secondary" />}
+        />
+        <Card
+          title="Average Monthly Impression"
+          count={(Math.random() + 1.3 * 100).toFixed(2)}
+          logo={<TbBook className="text-7xl text-secondary" />}
+        />
+        <Card
+          title="Highest Monthly Impression"
+          count={(Math.random() + 1.3 * 100).toFixed(2)}
+          logo={<TbChartArrowsVertical className="text-7xl text-secondary" />}
+        />
+      </div>
+      <DateRangePicker setDates={setDateRange} dates={dates} />
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <SiteGraph
+          title="Average Daily Impressions"
+          data={impressions}
+          className="lg:col-[1/3] xl:col-[1/2]"
+        />
+        <SiteGraph
+          title="Average Weekly Impressions"
+          data={getWeeklyImpressions(impressions)}
+        />
+        <SiteGraph
+          title="Average Monthly Impressions"
+          data={getMonthlyImpressions(impressions)}
+        />
+      </div>
+      <div className="bg-white p-4 w-full shadow flex flex-col gap-4">
+        <p className="font-semibold text-main">Audience Behavior</p>
+        <Behaviorals audienceData={siteData.analytics?.audiences} />
+      </div>
+    </div>
+  ) : (
+    <>
+      <div className="w-full flex flex-col gap-4">
+        <div className="flex gap-4 w-full h-[37.5rem]">
+          <div className="bg-white w-2/6 h-full shadow p-2 flex flex-col gap-2">
+            <Loader height="3rem" />
+            <Loader height="1rem" />
+            <Loader height="28rem" />
+            <Loader height="3rem" />
+          </div>
+          <div className="bg-white w-4/6 h-full shadow p-2 flex flex-col gap-2">
+            <Loader height="3.5rem" />
+            <Loader height="1rem" />
+            <div className="flex flex-row gap-4 h-full">
+              <div className="flex flex-col gap-4 w-1/2">
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4 w-1/2">
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <Loader height="1rem" />
+                  </div>
+                  <div className="w-2/3">
+                    <Loader height="1rem" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex h-[14rem] gap-4 bg-white p-4 shadow">
+          <div className="w-full lg:w-1/4">
+            <Loader height="12rem" />
+          </div>
+          <div className="w-full lg:w-1/4">
+            <Loader height="12rem" />
+          </div>
+          <div className="w-full lg:w-1/4">
+            <Loader height="12rem" />
+          </div>
+          <div className="w-full lg:w-1/4">
+            <Loader height="12rem" />
+          </div>
+        </div>
+        <div className="w-1/4">
+          <Loader />
+        </div>
+        <div className="flex h-[15rem] gap-4">
+          <div className="w-full lg:w-1/3">
+            <Loader height="15rem" />
+          </div>
+          <div className="w-full lg:w-1/3">
+            <Loader height="15rem" />
+          </div>
+          <div className="w-full lg:w-1/3">
+            <Loader height="15rem" />
+          </div>
+        </div>
+        <div className="w-1/4">
+          <Loader />
+        </div>
+        <div className="h-[15rem]  bg-white p-4 shadow">
+          <Loader height="13rem" />
+        </div>
+      </div>
+    </>
   );
 }
 

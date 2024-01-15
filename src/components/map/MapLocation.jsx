@@ -2,11 +2,12 @@ import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";
 import Markers from "./Markers";
 import { Accordion } from "flowbite-react";
-import digital from "../../assets/digital.png";
-import classic from "../../assets/classic.png";
+import digital from "~assets/digital.png";
+import classic from "~assets/classic.png";
 import classNames from "classnames";
 import { IoMdMenu } from "react-icons/io";
-import { useService } from "../../config/services";
+import { useService } from "~config/services";
+import Loader from "~fragments/Loader";
 function MapLocation() {
   const { retrieveSites } = useService();
   const [center, setCenter] = useState({ lat: 12.8797, lng: 121.774 });
@@ -22,7 +23,14 @@ function MapLocation() {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      setBillboards(data);
+      console.log(data);
+      setBillboards(
+        data.map((item) => ({
+          ...item,
+          longitude: parseFloat(item.longitude),
+          latitude: parseFloat(item.latitude),
+        }))
+      );
     };
     setup();
   }, []);
@@ -44,10 +52,10 @@ function MapLocation() {
                 <ul className="flex flex-col max-h-[375px] overflow-y-auto">
                   {billboards
                     .filter((item) => item.type === type)
-                    .map(({ location, latitude, longitude }, index) => {
+                    .map(({ site, latitude, longitude }, index) => {
                       return (
                         <li
-                          key={location + index}
+                          key={site + index}
                           className="flex gap-2 transition-all cursor-pointer p-2 hover:bg-gray-300"
                           onClick={() => {
                             toggleLocations(false);
@@ -68,7 +76,7 @@ function MapLocation() {
                                 type === "Classic" ? "text-xs" : "text-sm"
                               )}
                             >
-                              {location}
+                              {site}
                             </p>
                             <p className="text-[0.6rem] text-gray-500">
                               {[latitude, longitude].join(",")}
@@ -116,7 +124,18 @@ function MapLocation() {
       </APIProvider>
     </div>
   ) : (
-    <></>
+    <div className="relative flex flex-row bg-white shadow p-4 gap-4 h-[37.5rem]">
+      <div className="w-full lg:w-1/4 flex flex-col gap-2">
+        {Array(8)
+          .fill(0)
+          .map((idx) => {
+            return <Loader key={idx} height="4rem" />;
+          })}
+      </div>
+      <div className="w-full lg:w-3/4">
+        <Loader height="35.5rem" />
+      </div>
+    </div>
   );
 }
 
