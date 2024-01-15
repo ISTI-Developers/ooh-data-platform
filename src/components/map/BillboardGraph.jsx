@@ -17,15 +17,13 @@ function BillboardGraph({ data, title }) {
       <div className="flex gap-2 overflow-x-auto">
         <div className=" min-w-[768px] w-full">
           <ResponsiveContainer width={"100%"} height={500}>
-            <BarChart data={data} margin={{ bottom: 100 }}>
+            <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="region"
                 interval={0}
                 height={60}
-                angle={-40}
-                fontSize={12}
-                textAnchor="end"
+                tick={<CustomizedAxisTick />}
               />
               <YAxis />
               <Tooltip />
@@ -40,11 +38,32 @@ function BillboardGraph({ data, title }) {
   );
 }
 
+const CustomizedAxisTick = ({ x, y, payload }) => {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={16}
+        textAnchor="end"
+        fill="#666"
+        transform="rotate(-40)"
+        fontSize={12}
+      >
+        {payload.value.split("(")[1].split(")")[0]}
+      </text>
+    </g>
+  );
+};
 BillboardGraph.propTypes = {
   title: PropTypes.string,
   data: PropTypes.array,
 };
 
-BillboardGraph.propTypes = {};
+CustomizedAxisTick.propTypes = {
+  x: PropTypes.number,
+  y: PropTypes.number,
+  payload: PropTypes.object,
+};
 
 export default BillboardGraph;
