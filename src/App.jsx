@@ -3,6 +3,8 @@ import {
   Routes,
   Route,
   useLocation,
+  Outlet,
+  Navigate,
 } from "react-router-dom";
 import classNames from "classnames";
 import Header from "~fragments/Header";
@@ -12,6 +14,7 @@ import Planning from "~pages/Planning";
 import Register from "~pages/Register";
 import Audience from "~pages/Audience";
 import { AuthProvider } from "~config/authContext";
+import Cookies from "js-cookie";
 function App() {
   return (
     <>
@@ -36,14 +39,22 @@ function AppRoutes() {
       )}
     >
       <Routes>
-        <Route path="/" element={<Planning />} />
-        <Route path="/map" element={<Map />} />
-        <Route path="/audience/*" element={<Audience />} />
+        <Route element={<ProtectedRoutes />}>
+          <Route exact path="/" element={<Planning />} />
+          <Route path="/map" element={<Map />} />
+          <Route path="/audience/*" element={<Audience />} />
+        </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
     </div>
   );
+}
+
+function ProtectedRoutes() {
+  const isAuthenticated = Cookies.get("user");
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 }
 
 export default App;
