@@ -33,7 +33,7 @@ function SiteGraph({ title, data, className }) {
         {title}
       </header>
       <ResponsiveContainer width={"100%"} height={200}>
-        <LineChart width={"100%"} data={newImpressions}>
+        <LineChart width={"100%"} data={newImpressions} margin={{left: 20}}>
           <CartesianGrid strokeDasharray="3 6" />
           <XAxis dataKey={keys[0]} tick={<CustomLabel />} />
           <YAxis />
@@ -78,8 +78,10 @@ function CustomToolTip({ label, payload }) {
         <p>{format(new Date(label), "MMMM d, yyy")}</p>
         <p className="capitalize">{`${payload[0]?.dataKey}: ${Math.round(
           payload[0]?.value
-        )}`}</p>
-        <p className="capitalize">{`${payload[1]?.dataKey}: ${payload[1]?.value}`}</p>
+        ).toLocaleString()}`}</p>
+        <p className="capitalize">{`${
+          payload[1]?.dataKey
+        }: ${payload[1]?.value.toLocaleString()}`}</p>
       </div>
     )
   );

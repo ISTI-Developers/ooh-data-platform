@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import PropTypes from "prop-types";
 import { useFunction } from "../../config/functions";
 import {
@@ -15,7 +16,7 @@ import {
 } from "recharts";
 import { useEffect, useState } from "react";
 function BehavioralInformation({ audiences = [] }) {
-  const { capitalize, toSentenceCase, colors } = useFunction();
+  const { capitalize, toSentenceCase, toSpaced, colors } = useFunction();
   const [audienceResponse, setAudienceResponse] = useState(null);
   const [audienceActivity, setAudienceActivity] = useState(null);
 
@@ -98,20 +99,24 @@ function BehavioralInformation({ audiences = [] }) {
       <div className="flex flex-col gap-4 lg:flex-row">
         {audienceResponse &&
           audienceResponse.map((res, index) => {
-            const { question, responses } = res;
-
+            const { question } = res;
+            let rawResponses = res.responses;
+            let responses = rawResponses.map((response) => ({
+              ...response,
+              count: parseInt(response.count),
+            }));
             return (
               <div key={index} className="w-full">
                 <p className="text-main font-semibold border-b pb-1">
-                  {toSentenceCase(question)}
+                  {toSentenceCase(toSpaced(question))}
                 </p>
                 <ResponsiveContainer
                   width={"100%"}
                   height={350}
                   className="w-full"
                 >
-                  {res.category === "basic" ? (
-                    <PieChart className="outline-none">
+                  {responses.length <= 6 ? (
+                    <PieChart className="outline-none" margin={{top: 7}}>
                       <Pie
                         data={responses}
                         dataKey="count"
@@ -162,7 +167,6 @@ function BehavioralInformation({ audiences = [] }) {
           })}
         {audienceActivity && (
           <div className="w-full">
-            {console.log(audienceActivity)}
             <ResponsiveContainer width={"100%"} height={350} className="w-full">
               <BarChart
                 data={audienceActivity}
