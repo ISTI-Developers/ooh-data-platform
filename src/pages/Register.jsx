@@ -3,7 +3,9 @@ import { useState } from "react";
 import { mainButtonTheme } from "../config/themes";
 import PasswordField from "../fragments/PasswordField";
 import TextField from "../fragments/TextField";
+import { useAuth } from "~config/AuthContext";
 function Register() {
+  const { registerUser } = useAuth();
   const [user, setUser] = useState({
     first_name: "",
     last_name: "",
@@ -13,10 +15,17 @@ function Register() {
     confirm_password: "",
   });
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    console.log("registering");
+    console.log(user);
+    if (user.password !== user.confirm_password) {
+      console.log("error");
+    } else {
+      delete user.confirm_password;
+      const response = await registerUser(user);
+      console.log(response);
+    }
   };
   const onFieldUpdate = (e) => {
     setUser((user) => ({ ...user, [e.target.id]: e.target.value }));

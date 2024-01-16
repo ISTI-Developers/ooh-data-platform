@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Label, Select } from "flowbite-react";
 import PlanningTable from "./PlanningTable";
-import { regions } from "../../config/siteData";
+import { useFunction } from "~config/functions";
 
 function AreaSelectionList({
   setStartDate,
@@ -11,6 +11,7 @@ function AreaSelectionList({
   selectedAreas,
   setSelectedArea,
 }) {
+  const { regions } = useFunction();
   return (
     <div className="bg-white p-2 overflow-x-auto overflow-y-visible w-full">
       <div className="w-full">
