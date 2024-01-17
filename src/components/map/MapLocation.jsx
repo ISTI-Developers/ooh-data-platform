@@ -23,7 +23,6 @@ function MapLocation() {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      console.log(data);
       setBillboards(
         data.map((item) => ({
           ...item,
