@@ -16,6 +16,11 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState(null);
+  const [alert, setAlert] = useState({
+    isOn: false,
+    type: "info",
+    message: "Sample only",
+  });
 
   const signInUser = async (username, password) => {
     try {
@@ -33,7 +38,7 @@ export function AuthProvider({ children }) {
         }
       }
     } catch (e) {
-      console.log(e);
+      return e.response.data;
     }
   };
   const registerUser = async (user) => {
@@ -57,6 +62,8 @@ export function AuthProvider({ children }) {
   };
   const value = {
     user,
+    alert,
+    setAlert,
     signInUser,
     registerUser,
     logoutUser,
