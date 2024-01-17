@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Navbar } from "flowbite-react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/unai.png";
 import PropTypes from "prop-types";
 import { navbarTheme } from "../config/themes";
@@ -25,8 +25,8 @@ function Header() {
           {user &&
             ["", "map", "audience"].map((item, index) => {
               return (
-                <Navbar.Link
-                  href={`/${item}`}
+                <Link
+                  to={`/${item}`}
                   key={index}
                   className={classNames(
                     "capitalize font-semibold text-lg hover:text-secondary",
@@ -38,7 +38,7 @@ function Header() {
                 >
                   {/* planning page is the home of the system so it checks if the item == "" */}
                   {item === "" ? "planning" : item}
-                </Navbar.Link>
+                </Link>
               );
             })}
           {/* conditional rendering if user has logged in or not */}

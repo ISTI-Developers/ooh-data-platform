@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import DatePickerModal from "./DatePickerModal";
 import { Label, Select } from "flowbite-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useFunction } from "../config/functions";
-import { useService } from "../config/services";
+import { useFunction } from "~config/functions";
+import { useService } from "~config/services";
 
 function AudienceOptions({ setLocation }) {
   const url = useLocation();
@@ -21,41 +21,53 @@ function AudienceOptions({ setLocation }) {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      setSiteNames([...new Set(data.map((site) => site.location))]);
+      setSiteNames(
+        data.map((item) => ({
+          site_id: item.site_id,
+          site: item.site,
+          type: item.type,
+        }))
+      );
     };
     setup();
   }, []);
   return (
-    siteNames && (
-      <div className="flex flex-row items-center gap-4">
-        <div>
-          <Label htmlFor="regions" value="Select Site: " />
-          <Select
-            id="regions"
-            onChange={(e) => {
-              navigate(`./${toUnderscored(e.target.value)}`);
-              setLocation(e.target.value);
-              localStorage.setItem("location", e.target.value);
-            }}
-          >
-            <option value="" disabled selected={!selectedLocation}>
-              Site Locations
+    <div className="flex flex-row items-center gap-4">
+      <div>
+        <Label htmlFor="regions" value="Select Site: " />
+        <Select
+          id="regions"
+          onChange={(e) => {
+            navigate(`./${toUnderscored(e.target.value)}`);
+            setLocation(e.target.value);
+          }}
+        >
+          {!siteNames ? (
+            <option value="" selected={!selectedLocation} defaultChecked>
+              Loading options...
             </option>
-            {siteNames.map((region) => {
-              return (
-                <option
-                  key={region}
-                  value={region}
-                  selected={selectedLocation && selectedLocation === region}
-                >
-                  {region}
-                </option>
-              );
-            })}
-          </Select>
-        </div>
+          ) : (
+            <>
+              <option
+                value=""
+                disabled
+                selected={!selectedLocation}
+                defaultChecked
+              >
+                Site Locations
+              </option>
+              {siteNames.map((region) => {
+                return (
+                  <option key={region.site_id} value={region.site}>
+                    {region.site}
+                  </option>
+                );
+              })}
+            </>
+          )}
+        </Select>
       </div>
-    )
+    </div>
   );
 }
 

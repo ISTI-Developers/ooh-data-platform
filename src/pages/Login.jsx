@@ -102,7 +102,7 @@ function Login() {
           </main>
           <div className="text-sm">
             Need an account?{" "}
-            <Link to="/login" className="text-secondary">
+            <Link to="/register" className="text-secondary">
               Register Now!
             </Link>
           </div>

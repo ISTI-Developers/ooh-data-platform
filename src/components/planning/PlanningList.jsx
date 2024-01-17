@@ -11,7 +11,7 @@ function PlanningList({
   data,
 }) {
   const [demographics, setDemographics] = useState(null);
-  const { capitalize } = useFunction();
+  const { capitalize, toSpaced } = useFunction();
   useEffect(() => {
     if (category !== "all") {
       setDemographics(data.filter((item) => item.category === category));
@@ -48,7 +48,7 @@ function PlanningList({
                 }}
               >
                 <p className="text-lg font-semibold text-main">
-                  {capitalize(item)}
+                  {capitalize(toSpaced(item))}
                 </p>
                 <div className="text-xs text-slate-400">
                   {demographics

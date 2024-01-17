@@ -10,7 +10,7 @@ import ProfileFilterList from "../components/planning/ProfileFilterList";
 import Results from "./Results";
 import { useFunction } from "../config/functions";
 function Planning() {
-  const { capitalize } = useFunction();
+  const { capitalize, toSpaced } = useFunction();
   const [profileFilter, setFilter] = useState(null);
   const [selectedAreas, setSelectedArea] = useState([]);
   const [searchQuery, setSearchQuery] = useState(null);
@@ -139,7 +139,7 @@ function Planning() {
   const ProfileHeader = () => {
     return (
       <p className="font-semibold text-main text-lg flex gap-2">
-        {capitalize(profile.key)}
+        {capitalize(toSpaced(profile.key))}
       </p>
     );
   };

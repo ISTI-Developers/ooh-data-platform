@@ -30,6 +30,27 @@ const colors = [
   "#c1ebc6",
   "#27402a",
 ];
+const regions = [
+  "National Capital Region (NCR)",
+  "Cordillera Administrative Region (CAR)",
+  "Region I (Ilocos Region)",
+  "Region II (Cagayan Valley)",
+  "Region III (Central Luzon)",
+  "Region IV-A (CALABARZON)",
+  "Region IV-B (MIMAROPA)",
+  "Region V (Bicol Region)",
+  "Region VI (Western Visayas)",
+  "Region VII (Central Visayas)",
+  "Region VIII (Eastern Visayas)",
+  "Region IX (Zamboanga Peninsula)",
+  "Region X (Northern Mindanao)",
+  "Region XI (Davao Region)",
+  "Region XII (SOCCSKSARGEN)",
+  "Region XIII (Caraga)",
+  "Autonomous Region in Muslim Mindanao (ARMM)",
+  "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
+];
+
 const toUnderscored = (text) => {
   return text.split(" ").join("_");
 };
@@ -59,6 +80,7 @@ const toSentenceCase = (str) => {
 export const useFunction = () => {
   return {
     colors,
+    regions,
     toUnderscored,
     toSpaced,
     capitalize,

@@ -34,7 +34,7 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
         })}
         <button
           className={classNames(
-            "absolute top-[24px] left-0 h-full -translate-y-1/2 transition-all opacity-0 group-hover:opacity-100 bg-gradient-to-r from-white from-50% to-transparent px-2 outline-none"
+            "absolute top-[24px] left-0 h-full -translate-y-1/2 transition-all bg-gradient-to-r from-white from-50% to-transparent px-2 outline-none"
           )}
           onClick={() => {
             if (tabList.current) {
@@ -46,7 +46,7 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
         </button>
         <button
           className={classNames(
-            "absolute top-[24px] right-0 -translate-y-1/2 transition-all opacity-0 group-hover:opacity-100 bg-gradient-to-l from-white from-50% to-transparent px-2 outline-none"
+            "absolute top-[24px] right-0 -translate-y-1/2 transition-all bg-gradient-to-l from-white from-50% to-transparent px-2 outline-none"
           )}
           onClick={() => {
             if (tabList.current) {
