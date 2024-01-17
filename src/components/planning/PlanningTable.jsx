@@ -1,12 +1,20 @@
 import PropTypes from "prop-types";
 import { Table } from "flowbite-react";
-import { siteData } from "../../config/siteData";
 import classNames from "classnames";
 import { FaCheck } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import { useService } from "~config/services";
+import { format } from "date-fns";
 
-function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
+function PlanningTable({
+  dates,
+  profileFilters,
+  selectedAreas,
+  setSelectedArea,
+  filter,
+}) {
   const [sites, setSites] = useState([]);
+  const { retrievePlanning } = useService();
   const headers = [
     "area",
     "# fits profile",
@@ -15,32 +23,71 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
     "action",
   ];
   const countSitesByArea = (siteData) => {
-    const areaCountMap = {};
-
-    // Iterate through the siteData array
-    siteData.forEach((site) => {
-      const area = site.area;
-
-      // If the area already exists in the map, increment the count
-      if (areaCountMap[area]) {
-        areaCountMap[area]++;
-      } else {
-        // If the area doesn't exist, initialize the count to 1
-        areaCountMap[area] = 1;
+    const groupedData = siteData.reduce((result, current) => {
+      const areaKey = current.area;
+      if (!result[areaKey]) {
+        result[areaKey] = {
+          area: areaKey,
+          siteCount: 0,
+          region: current.region,
+          fits_no: 0,
+          fits_rate: 0,
+          avg_monthly_impressions: 0,
+        };
       }
-    });
 
-    return areaCountMap;
+      // Summing up values
+      result[areaKey].siteCount++;
+      result[areaKey].fits_no += current.fits_no;
+      result[areaKey].fits_rate += current.fits_rate;
+      result[areaKey].avg_monthly_impressions +=
+        current.avg_monthly_impressions;
+
+      return result;
+    }, {});
+
+    return Object.values(groupedData);
+  };
+  const groupFilters = () => {
+    if (!profileFilters) return;
+    const groupedData = profileFilters.reduce((result, current) => {
+      const question = current.question;
+
+      if (!result[question]) {
+        result[question] = [];
+      }
+
+      result[question].push(current.key);
+
+      return result;
+    }, {});
+    return groupedData;
   };
   useEffect(() => {
-    if (filter !== "") {
-      setSites(
-        countSitesByArea(siteData.filter((site) => site.region === filter))
-      );
-    } else {
-      setSites(countSitesByArea(siteData));
-    }
-  }, [filter]);
+    const setup = async () => {
+      const options = {
+        ...groupFilters(),
+        dates: {
+          from: format(new Date(dates.start), "MM-dd-yyyy"),
+          to: format(new Date(dates.end), "MM-dd-yyyy"),
+        },
+      };
+      const data = await retrievePlanning("areas", options);
+      if (data) {
+        const siteData = Object.values(data);
+
+        setSites(
+          filter !== "all"
+            ? countSitesByArea(
+                siteData.filter((site) => site.region === filter)
+              )
+            : countSitesByArea(siteData)
+        );
+      }
+    };
+    setup();
+  }, [filter, dates, profileFilters, selectedAreas]);
+
   return (
     sites && (
       <>
@@ -59,30 +106,29 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
             })}
           </Table.Head>
           <Table.Body>
-            {Object.keys(sites).length !== 0 ? (
-              Object.keys(sites).map((area, index) => {
-                const count = 100 - (13 * (index + 1)) / 4;
-                const siteArea = siteData.find((site) => site.area == area);
+            {sites.length > 0 ? (
+              sites.map((areaData, index) => {
+                const { area, region, siteCount } = areaData;
                 return (
                   <Table.Row
-                    key={area}
+                    key={area + "_" + index}
                     className="relative group hover:bg-slate-100"
                   >
                     <Table.Cell>
                       <p className="flex flex-col whitespace-nowrap">
                         <span>{area}</span>
-                        <span className="text-xs">{siteArea.region}</span>
+                        <span className="text-xs">{region}</span>
                         <span className="text-xs">
-                          No. of Sites: {sites[area]}
+                          No. of Sites: {siteCount}
                         </span>
                       </p>
                     </Table.Cell>
+                    <Table.Cell align="center">{areaData.fits_no}</Table.Cell>
                     <Table.Cell align="center">
-                      {Math.round(count * 1.1)}
+                      {areaData.fits_rate}%
                     </Table.Cell>
-                    <Table.Cell align="center">{count}%</Table.Cell>
                     <Table.Cell align="center">
-                      {Math.round(count * 13)}
+                      {areaData.avg_monthly_impressions}
                     </Table.Cell>
                     <Table.Cell
                       align="center"
@@ -92,37 +138,35 @@ function PlanningTable({ selectedAreas, setSelectedArea, filter }) {
                         className={classNames(
                           "p-1 text-sm border-2 rounded-md outline-none",
                           "transition-all",
-                          selectedAreas &&
-                            selectedAreas.find((filter) => filter === siteArea)
+                          selectedAreas.find(
+                            (area) => area.area === areaData.area
+                          )
                             ? "px-3 border-green-300 bg-green-300 text-white"
                             : "px-2.5 border-secondary-500 text-secondary-hover hover:bg-secondary-500"
                         )}
                         onClick={() => {
-                          if (
-                            !(
-                              selectedAreas &&
-                              selectedAreas.find(
-                                (filter) => filter === siteArea
-                              )
-                            )
-                          ) {
-                            setSelectedArea((prev) => [...prev, siteArea]);
+                          if (selectedAreas.length === 0) {
+                            setSelectedArea([areaData]);
                           } else {
-                            const updatedAreas = [...selectedAreas];
-                            updatedAreas.splice(
-                              selectedAreas.indexOf(siteArea),
-                              1
-                            );
-
-                            setSelectedArea(updatedAreas);
+                            if (
+                              !selectedAreas.find(
+                                (area) => area.area === areaData.area
+                              )
+                            ) {
+                              setSelectedArea((prev) => [...prev, areaData]);
+                            } else {
+                              const updatedAreas = selectedAreas.filter(
+                                (area) => area.area !== areaData.area
+                              );
+                              setSelectedArea(updatedAreas);
+                            }
                           }
                         }}
                       >
-                        {selectedAreas &&
-                        selectedAreas.find((filter) => filter === siteArea) ? (
-                          <>
-                            <FaCheck className="text-xl" />
-                          </>
+                        {selectedAreas.find(
+                          (area) => area.area === areaData.area
+                        ) ? (
+                          <FaCheck className="text-xl" />
                         ) : (
                           "Add"
                         )}
@@ -149,6 +193,8 @@ PlanningTable.propTypes = {
   selectedAreas: PropTypes.array,
   setSelectedArea: PropTypes.func,
   filter: PropTypes.string,
+  dates: PropTypes.object,
+  profileFilters: PropTypes.array,
 };
 
 export default PlanningTable;
