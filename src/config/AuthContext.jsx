@@ -19,16 +19,14 @@ export function AuthProvider({ children }) {
 
   const signInUser = async (username, password) => {
     try {
-      const userData = new FormData();
-
-      userData.append("action", "login");
-      userData.append("username", username);
-      userData.append("password", password);
-      const response = await axios.post(url.auth, userData);
+      const response = await axios.post(url.login, {
+        username: username,
+        password: password,
+      });
 
       console.log(response.data);
       if (response.status === 200) {
-        if (response.data.ID) {
+        if (response.data.id) {
           Cookies.set("user", JSON.stringify(response.data));
           setUser(response.data);
           return { acknowledged: true };
@@ -38,12 +36,9 @@ export function AuthProvider({ children }) {
       console.log(e);
     }
   };
-  const registerUser = async () => {
+  const registerUser = async (user) => {
     try {
-      const userData = new FormData();
-
-      userData.append("action", "login");
-      const response = await axios.post(url.auth, userData, {
+      const response = await axios.post(url.register, user, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -55,7 +50,10 @@ export function AuthProvider({ children }) {
     }
   };
   const logoutUser = () => {
-    Cookies.remove("user");
+    const cookies = Cookies.get(); // Get all cookies
+    for (const cookie in cookies) {
+      Cookies.remove(cookie); // Remove each cookie
+    }
     setUser(null);
     navigate("/login");
   };
