@@ -11,8 +11,9 @@ import {
 } from "recharts";
 import { format } from "date-fns";
 import classNames from "classnames";
+import Loader from "~fragments/Loader";
 
-function SiteGraph({ title, data, className }) {
+function SiteGraph({ title, data, className, isFetching }) {
   if (!data) return;
   const avgImpressions =
     data.reduce((sum, current) => sum + current.impressions, 0) / data.length;
@@ -22,10 +23,17 @@ function SiteGraph({ title, data, className }) {
   }));
   const keys = Object.keys(newImpressions[0]);
 
+  if (isFetching) {
+    return (
+      <div>
+        <Loader height="17.75rem" />
+      </div>
+    );
+  }
   return (
     <div
       className={classNames(
-        "bg-white p-4 shadow flex flex-col gap-4",
+        "bg-white p-4 shadow flex flex-col gap-4 animate-fade",
         className
       )}
     >
@@ -33,7 +41,7 @@ function SiteGraph({ title, data, className }) {
         {title}
       </header>
       <ResponsiveContainer width={"100%"} height={200}>
-        <LineChart width={"100%"} data={newImpressions} margin={{left: 20}}>
+        <LineChart width={"100%"} data={newImpressions} margin={{ left: 20 }}>
           <CartesianGrid strokeDasharray="3 6" />
           <XAxis dataKey={keys[0]} tick={<CustomLabel />} />
           <YAxis />
@@ -99,6 +107,7 @@ SiteGraph.propTypes = {
   title: PropTypes.string,
   data: PropTypes.array,
   className: PropTypes.string,
+  isFetching: PropTypes.bool,
 };
 
 export default SiteGraph;

@@ -20,6 +20,7 @@ function SiteInformation() {
     to: new Date(),
   });
   const [siteData, setSiteData] = useState(null);
+  const [onFetching, toggleFetching] = useState(false);
   const siteKeys = [
     "area",
     "region",
@@ -81,11 +82,19 @@ function SiteInformation() {
 
   useEffect(() => {
     const setup = async () => {
-      const data = await retrieveSite("GUADALED");
-      setSiteData(data);
+      console.log("fetching...");
+
+      const data = await retrieveSite("GUADALED", dates);
+      if (data) {
+        console.log("site information loaded :)");
+        setSiteData(data);
+        toggleFetching(false);
+      } else {
+        console.log("No data found.");
+      }
     };
     setup();
-  }, [id, retrieveSite, toSpaced]);
+  }, [id, dates, retrieveSite]);
   return siteData ? (
     <div className="w-full flex flex-col gap-4">
       <div className="flex gap-4 w-full">
@@ -126,30 +135,38 @@ function SiteInformation() {
           return (
             <Card
               key={key}
-              count={siteData[key]}
+              count={siteData.analytics[key]}
               title={capitalize(key, "_")}
             />
           );
         })}
       </div>
-      <DateRangePicker setDates={setDateRange} dates={dates} />
+      <DateRangePicker
+        setDates={setDateRange}
+        dates={dates}
+        showLoader={toggleFetching}
+      />
       <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        {Object.keys(siteData.impressions).map((impression) => {
+        {Object.keys(siteData.analytics.impressions).map((impression) => {
           return (
             <SiteGraph
               key={impression + "_graph"}
               title="Average Daily Impressions"
-              data={siteData.impressions[impression]}
+              data={siteData.analytics.impressions[impression]}
               className={
                 impression === "daily" ? "lg:col-[1/3] xl:col-[1/2]" : ""
               }
+              isFetching={onFetching}
             />
           );
         })}
       </div>
       <div className="bg-white p-4 w-full shadow flex flex-col gap-4">
         <p className="font-semibold text-main">Audience Behavior</p>
-        <Behaviorals audienceData={siteData.audience} />
+        <Behaviorals
+          audienceData={siteData.analytics.audiences}
+          isFetching={onFetching}
+        />
       </div>
     </div>
   ) : (

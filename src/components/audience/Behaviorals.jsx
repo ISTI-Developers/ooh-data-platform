@@ -2,9 +2,17 @@ import { Tabs } from "flowbite-react";
 import PropTypes from "prop-types";
 import { tabTheme } from "../../config/themes";
 import BehavioralInformation from "./BehavioralInformation";
+import Loader from "~fragments/Loader";
 
-function Behaviorals({ audienceData }) {
-  if (!audienceData) {
+function Behaviorals({ audienceData, isFetching }) {
+  if (isFetching) {
+    return (
+      <div>
+        <Loader height="33rem" />
+      </div>
+    );
+  }
+  if (!audienceData || audienceData?.length === 0) {
     return (
       <div className="w-full bg-slate-300 p-8 flex items-center justify-center rounded">
         <p className="text-slate-600 font-semibold">No information found.</p>
@@ -15,7 +23,7 @@ function Behaviorals({ audienceData }) {
   return (
     <Tabs
       style="default"
-      className="w-full bg-white p-2 border-b-2 border-default"
+      className="w-full bg-white p-2 border-b-2 border-default animate-fade"
       theme={tabTheme}
     >
       {categories.map((category) => {
@@ -33,6 +41,7 @@ function Behaviorals({ audienceData }) {
 }
 
 Behaviorals.propTypes = {
+  isFetching: PropTypes.bool,
   audienceData: PropTypes.array,
 };
 
