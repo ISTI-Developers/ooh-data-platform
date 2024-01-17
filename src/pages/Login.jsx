@@ -10,23 +10,31 @@ import {
 import { useAuth } from "../config/authContext";
 
 function Login() {
-  const { user, signInUser } = useAuth();
+  const { user, signInUser, setAlert } = useAuth();
   const navigate = useNavigate();
 
   const [show, toggleShow] = useState(false);
   const [isFocus, toggleFocus] = useState(false);
+  const [isSending, toggleSending] = useState(false);
   const username = useRef(null);
   const password = useRef(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+    toggleSending((prev) => !prev);
     const uname = username.current.value;
     const pass = password.current.value;
 
     const response = await signInUser(uname, pass);
-    if (response.acknowledged) {
+    if (response?.acknowledged) {
       navigate("/");
+    } else {
+      setAlert({
+        isOn: true,
+        type: "failure",
+        message: response.message,
+      });
+      toggleSending((prev) => !prev);
     }
   };
 
@@ -95,7 +103,12 @@ function Login() {
               >
                 Forgot Password?
               </Link>
-              <Button type="submit" color="light" theme={mainButtonTheme}>
+              <Button
+                type="submit"
+                color="light"
+                theme={mainButtonTheme}
+                disabled={isSending}
+              >
                 Log in
               </Button>
             </form>
