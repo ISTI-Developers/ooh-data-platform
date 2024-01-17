@@ -14,9 +14,11 @@ function Planning() {
   const [profileFilter, setFilter] = useState(null);
   const [selectedAreas, setSelectedArea] = useState([]);
   const [searchQuery, setSearchQuery] = useState(null);
-  const [startDate, setStartDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(
+    new Date().setDate(new Date().getDate() - 30)
+  );
   const [endDate, setEndDate] = useState(new Date());
-  const [selectedRegion, setRegion] = useState("");
+
   const [onProfileFilters, toggleProfileFilters] = useState(false);
   const [profile, toggleProfile] = useState(null);
   const [onAreasSelected, toggleAreasSelected] = useState(false);
@@ -82,8 +84,8 @@ function Planning() {
                 (head, index) => {
                   return (
                     <li key={index} className="border-b-2">
-                      <header className="text-sm font-semibold capitalize">
-                        {head}
+                      <header className="text-sm font-semibold">
+                        {capitalize(head,"_")}
                       </header>
                       <ul className="flex flex-col gap-2">
                         {profileFilter
@@ -94,7 +96,7 @@ function Planning() {
                               className="relative group flex transition-all flex-col p-2 px-4 hover:bg-slate-100"
                             >
                               <p className="font-semibold text-sm text-slate-600">
-                                {item.key}
+                                {capitalize(item.key)}
                               </p>
                               <div className="absolute top-0 right-0 h-full w-1/4 flex items-center justify-end bg-gradient-to-l from-white from-55% to-[#ffffff00] transition-all ">
                                 <button
@@ -321,10 +323,10 @@ function Planning() {
                     <AreaSelectionList
                       setEndDate={setEndDate}
                       setStartDate={setStartDate}
-                      setRegion={setRegion}
+                      dates={{ start: startDate, end: endDate }}
                       setSelectedArea={setSelectedArea}
                       selectedAreas={selectedAreas}
-                      selectedRegion={selectedRegion}
+                      selectedFilters={profileFilter}
                     />
                   </Accordion.Content>
                 </Accordion.Panel>
@@ -360,6 +362,7 @@ function Planning() {
             <Results
               profileFilters={profileFilter}
               selectedAreas={selectedAreas}
+              dates={{ start: startDate, end: endDate }}
             />
           </>
         ) : (
@@ -378,10 +381,10 @@ function Planning() {
                     <AreaSelectionList
                       setEndDate={setEndDate}
                       setStartDate={setStartDate}
-                      setRegion={setRegion}
+                      dates={{ start: startDate, end: endDate }}
                       setSelectedArea={setSelectedArea}
                       selectedAreas={selectedAreas}
-                      selectedRegion={selectedRegion}
+                      selectedFilters={profileFilter}
                     />
                   </div>
                 </div>
@@ -389,6 +392,7 @@ function Planning() {
                 <Results
                   profileFilters={profileFilter}
                   selectedAreas={selectedAreas}
+                  dates={{ start: startDate, end: endDate }}
                 />
               </div>
               <div className="w-[25%] h-full flex flex-col gap-4 sticky top-4">
