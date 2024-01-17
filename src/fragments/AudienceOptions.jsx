@@ -16,23 +16,52 @@ function AudienceOptions({ setLocation }) {
   const { retrieveSites } = useService();
 
   const [siteNames, setSiteNames] = useState(null);
-  const selectedLocation = url.pathname.split("/")[2];
+  const [filter, setFilter] = useState("all");
 
+  const selectedLocation = url.pathname.split("/")[2];
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      setSiteNames(
-        data.map((item) => ({
-          site_id: item.site_id,
-          site: item.site,
-          type: item.type,
-        }))
-      );
+      if (filter !== "all") {
+        setSiteNames(
+          data
+            .filter((item) => item.type === filter)
+            .map((item) => ({
+              site_id: item.site_id,
+              site: item.site,
+              type: item.type,
+            }))
+        );
+      } else {
+        setSiteNames(
+          data.map((item) => ({
+            site_id: item.site_id,
+            site: item.site,
+            type: item.type,
+          }))
+        );
+      }
     };
     setup();
-  }, []);
+  }, [filter]);
   return (
     <div className="flex flex-row items-center gap-4">
+      <div>
+        <Label htmlFor="regions" value="Filter Site: " />
+        <Select
+          id="regions"
+          onChange={(e) => {
+            setSiteNames(null);
+            setFilter(e.target.value);
+          }}
+        >
+          <option value="all" selected={!filter} defaultChecked>
+            All
+          </option>
+          <option value="classic">Classic</option>
+          <option value="digital">Digital</option>
+        </Select>
+      </div>
       <div>
         <Label htmlFor="regions" value="Select Site: " />
         <Select
@@ -46,6 +75,10 @@ function AudienceOptions({ setLocation }) {
             <option value="" selected={!selectedLocation} defaultChecked>
               Loading options...
             </option>
+          ) : siteNames.length === 0 ? (
+            <option value="" selected={!selectedLocation} defaultChecked>
+              No sites available
+            </option>
           ) : (
             <>
               <option
@@ -54,11 +87,15 @@ function AudienceOptions({ setLocation }) {
                 selected={!selectedLocation}
                 defaultChecked
               >
-                Site Locations
+                --Select--
               </option>
               {siteNames.map((region) => {
                 return (
-                  <option key={region.site_id} value={region.site}>
+                  <option
+                    key={region.site_id}
+                    value={region.site}
+                    selected={selectedLocation === region.site}
+                  >
                     {region.site}
                   </option>
                 );
@@ -76,7 +113,7 @@ AudienceOptions.propTypes = {
   setLocation: PropTypes.func,
 };
 
-export function DateRangePicker({ dates, setDates }) {
+export function DateRangePicker({ dates, setDates, showLoader }) {
   const [onSelectDate, toggleDateButton] = useState(false);
 
   return (
@@ -104,6 +141,8 @@ export function DateRangePicker({ dates, setDates }) {
         show={onSelectDate}
         onClose={() => toggleDateButton(false)}
         setDate={setDates}
+        showLoader={showLoader}
+        currentDates={dates}
       />
     </div>
   );
@@ -111,5 +150,6 @@ export function DateRangePicker({ dates, setDates }) {
 DateRangePicker.propTypes = {
   dates: PropTypes.object,
   setDates: PropTypes.func,
+  showLoader: PropTypes.func,
 };
 export default AudienceOptions;

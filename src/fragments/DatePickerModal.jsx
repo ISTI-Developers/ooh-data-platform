@@ -3,9 +3,9 @@ import { Datepicker } from "flowbite-react";
 import PropTypes from "prop-types";
 import { inlineDatePickerTheme, lightButtonTheme } from "../config/themes";
 import { useState } from "react";
-import { endOfDay, format, startOfDay, subDays } from "date-fns";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 
-function DatePickerModal({ show, onClose, setDate }) {
+function DatePickerModal({ show, onClose, setDate, showLoader, currentDates }) {
   const [selectedDate, setDates] = useState({
     from: new Date().setDate(new Date().getDate() - 30),
     to: new Date(),
@@ -14,7 +14,6 @@ function DatePickerModal({ show, onClose, setDate }) {
   const onChangeDate = (e) => {
     const date = e.value;
     const id = e.id;
-    console.log(e);
     setDates((prev) => ({ ...prev, [id]: new Date(date) }));
   };
   const onSelectPreset = (length) => {
@@ -28,6 +27,12 @@ function DatePickerModal({ show, onClose, setDate }) {
   };
 
   const onSubmit = () => {
+    if (currentDates === selectedDate) {
+      onClose();
+      return;
+    }
+
+    showLoader(true);
     setDate(selectedDate);
     onClose();
   };
@@ -107,8 +112,10 @@ function DatePickerModal({ show, onClose, setDate }) {
 
 DatePickerModal.propTypes = {
   show: PropTypes.bool,
+  currentDates: PropTypes.object,
   onClose: PropTypes.func,
   setDate: PropTypes.func,
+  showLoader: PropTypes.func,
 };
 
 export default DatePickerModal;
