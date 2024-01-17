@@ -50,10 +50,8 @@ export function AuthProvider({ children }) {
     }
   };
   const logoutUser = () => {
-    const cookies = Cookies.get(); // Get all cookies
-    for (const cookie in cookies) {
-      Cookies.remove(cookie); // Remove each cookie
-    }
+    Cookies.remove("user");
+    Cookies.remove("siteCache");
     setUser(null);
     navigate("/login");
   };

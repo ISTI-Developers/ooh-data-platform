@@ -1,13 +1,14 @@
 import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
 import Cookies from "js-cookie";
+import { format } from "date-fns";
 
 const retrievePlanning = async (get, options = null) => {
   try {
     const response = await axios.get(url.planning, {
       params: {
         get: get,
-        options: options,
+        options: get === "areas" ? JSON.stringify(options) : null,
       },
       headers: {
         "Content-Type": "application/json",
@@ -20,20 +21,21 @@ const retrievePlanning = async (get, options = null) => {
   }
 };
 
-const retrieveSite = async (id) => {
+const retrieveSite = async (id, options) => {
   try {
-    console.log("fetching...");
-    const siteCache = Cookies.get("siteCache");
-    if (siteCache) {
-      const siteInformation = JSON.parse(siteCache);
-      if (siteInformation.site_code === id) {
-        return siteInformation;
-      } else {
-        await fetchSiteInformation(id);
-      }
-    } else {
-      return await fetchSiteInformation(id);
-    }
+    // const siteCache = Cookies.get("siteCache");
+    // const analyticsDate = Cookies.get("analyticsDate");
+    // if (siteCache && analyticsDate) {
+    //   const siteInformation = JSON.parse(siteCache);
+    //   const dates = JSON.parse(analyticsDate);
+    //   if (siteInformation.id === id && dates === options) {
+    //     return siteInformation;
+    //   } else {
+    //     await fetchSiteInformation(id, options);
+    //   }
+    // } else {
+    return await fetchSiteInformation(id, options);
+    // }
   } catch (e) {
     console.log(e);
   }
@@ -73,11 +75,12 @@ const retrieveSitesCount = async () => {
   }
 };
 
-const fetchSiteInformation = async (id) => {
+const fetchSiteInformation = async (id, options) => {
   const response = await axios.get(url.sites, {
     params: {
       id: id,
-      // options: options,
+      from: format(new Date(options.from), "MM-dd-yyyy"),
+      to: format(new Date(options.to), "MM-dd-yyyy"),
     },
     headers: {
       "Content-Type": "application/json",
@@ -85,7 +88,8 @@ const fetchSiteInformation = async (id) => {
   });
 
   if (response.data) {
-    Cookies.set("siteCache", JSON.stringify(response.data));
+    // Cookies.set("siteCache", JSON.stringify(response.data));
+    // Cookies.set("analyticsDate", JSON.stringify(options));
     return response.data;
   }
 };
