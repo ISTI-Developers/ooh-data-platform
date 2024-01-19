@@ -16,16 +16,18 @@ function BillboardGraph({ data, title }) {
       <header className="text-xl font-bold text-main">{title}</header>
       <div className="flex gap-2 overflow-x-auto">
         <div className=" min-w-[768px] w-full">
-          <ResponsiveContainer width={"100%"} height={500}>
-            <BarChart data={data}>
+          <ResponsiveContainer width={"100%"} height={120 + (data.length * 30)}>
+            <BarChart data={data} layout="vertical" margin={{ left: 50 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
+              <YAxis
                 dataKey="region"
+                type="category"
                 interval={0}
-                height={60}
+                fontSize={12}
+                textAnchor="end"
                 tick={<CustomizedAxisTick />}
               />
-              <YAxis />
+              <XAxis type="number" domain={[0, "max"]} />
               <Tooltip />
               <Legend />
               <Bar dataKey="digital" fill="#183145" />
@@ -41,15 +43,7 @@ function BillboardGraph({ data, title }) {
 const CustomizedAxisTick = ({ x, y, payload }) => {
   return (
     <g transform={`translate(${x},${y})`}>
-      <text
-        x={0}
-        y={0}
-        dy={16}
-        textAnchor="end"
-        fill="#666"
-        transform="rotate(-40)"
-        fontSize={12}
-      >
+      <text x={0} y={0} dy={6} textAnchor="end" fill="#666" fontSize={12}>
         {payload.value.split("(")[1].split(")")[0]}
       </text>
     </g>

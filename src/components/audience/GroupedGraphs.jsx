@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Bar,
@@ -19,7 +20,11 @@ function GroupedGraphs({ data, CustomYAxisTick }) {
     return (
       <ul className="flex items-center justify-center capitalize gap-4">
         {payload.map((entry, index) => (
-          <li key={`legend-${index}`} className="flex gap-1 items-center" style={{ color: entry.color }}>
+          <li
+            key={`legend-${index}`}
+            className="flex gap-1 items-center"
+            style={{ color: entry.color }}
+          >
             <span
               className="block w-4 h-4"
               style={{ backgroundColor: entry.color }}
