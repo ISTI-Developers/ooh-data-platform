@@ -1,4 +1,4 @@
-const server = "http://ec2-3-110-165-7.ap-south-1.compute.amazonaws.com:20601";
+const server = "https://oohplatformapi.retailgate.tech:20601";
 
 export const devEndpoints = {
   login: server + "/user/login",
