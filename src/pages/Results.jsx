@@ -5,9 +5,16 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useService } from "~config/services";
 import Loader from "~fragments/Loader";
+import {
+  MdOutlineKeyboardArrowDown,
+  MdOutlineKeyboardArrowUp,
+} from "react-icons/md";
+import classNames from "classnames";
 
 function Results({ profileFilters, selectedAreas, dates }) {
   const [sites, setSites] = useState(null);
+  const [sort, setSort] = useState("# fits profile");
+  const [order, setOrder] = useState(false);
   const { retrievePlanning } = useService();
   const navigate = useNavigate();
   const headers = [
@@ -18,38 +25,6 @@ function Results({ profileFilters, selectedAreas, dates }) {
     "company",
   ];
 
-  // useEffect(() => {
-  //   const filter = profileFilters || [];
-  //   const areas = selectedAreas || [];
-
-  //   if (filter.length === 0 && areas.length === 0) {
-  //     setSites([]);
-  //     return;
-  //   }
-  //   // setSites(
-  //   //   siteData
-  //   //     .filter((data) => {
-  //   //       if (areas.length > 0) {
-  //   //         return areas.find((result) => result.area === data.area);
-  //   //       } else {
-  //   //         return data;
-  //   //       }
-  //   //     })
-  //   //     .filter((data) => {
-  //   //       return (
-  //   //         filter.length === 0 ||
-  //   //         filter.some((filter) => {
-  //   //           const category = filter.category;
-  //   //           const key = filter.key;
-  //   //           const value = filter.value;
-  //   //           const demographics = data.demographics;
-
-  //   //           return value === demographics[category][key];
-  //   //         })
-  //   //       );
-  //   //     })
-  //   // );
-  // }, [profileFilters, selectedAreas]);
   useEffect(() => {
     const groupFilters = () => {
       if (!profileFilters) return null;
@@ -63,7 +38,10 @@ function Results({ profileFilters, selectedAreas, dates }) {
     };
 
     const setup = async () => {
-      if (profileFilters === null && selectedAreas.length === 0) {
+      if (
+        (profileFilters === null || profileFilters?.length === 0) &&
+        selectedAreas.length === 0
+      ) {
         setSites([]);
         return;
       }
@@ -82,17 +60,39 @@ function Results({ profileFilters, selectedAreas, dates }) {
         const siteData = Object.values(data);
 
         setSites(
-          siteData.filter((data) =>
-            selectedAreas.length > 0
-              ? selectedAreas.some((result) => result.area === data.area)
-              : true
-          )
+          siteData
+            .filter((data) =>
+              selectedAreas.length > 0
+                ? selectedAreas.some((result) => result.area === data.area)
+                : true
+            )
+            .sort((area1, area2) => {
+              const sortOption =
+                sort === "# fits profile"
+                  ? "fits_no"
+                  : sort === "% fits profile"
+                  ? "fits_rate"
+                  : sort;
+              const value1 = area1[sortOption];
+              const value2 = area2[sortOption];
+
+              // Determine sorting order based on the 'order' variable
+              const sortOrder = order ? 1 : -1;
+
+              // Check if the values are numbers
+              if (typeof value1 === "number" && typeof value2 === "number") {
+                return (value1 - value2) * sortOrder; // Adjust order for numbers
+              }
+
+              // Use localeCompare for strings
+              return String(value1).localeCompare(String(value2)) * sortOrder;
+            })
         );
       }
     };
 
     setup();
-  }, [selectedAreas, dates, profileFilters]);
+  }, [selectedAreas, dates, profileFilters, sort, order]);
 
   return sites !== null ? (
     <div className="overflow-x-auto">
@@ -100,8 +100,43 @@ function Results({ profileFilters, selectedAreas, dates }) {
         <Table.Head className="shadow-md">
           {headers.map((header, index) => {
             return (
-              <Table.HeadCell key={index} className="text-main">
-                {header}
+              <Table.HeadCell
+                key={index}
+                className="text-main select-none cursor-pointer"
+                onClick={() => {
+                  setSort(header);
+                  setOrder((prev) => {
+                    if (sort === header) {
+                      return !prev;
+                    } else {
+                      return prev;
+                    }
+                  });
+                }}
+              >
+                <div className="flex items-center gap-1">
+                  <span>{header}</span>
+                  <div>
+                    <MdOutlineKeyboardArrowUp
+                      className={classNames(
+                        header === sort && !order
+                          ? "text-slate-400"
+                          : header === sort && order
+                          ? "text-slate-600"
+                          : "text-slate-300"
+                      )}
+                    />
+                    <MdOutlineKeyboardArrowDown
+                      className={classNames(
+                        header === sort && order
+                          ? "text-slate-400"
+                          : header === sort && !order
+                          ? "text-slate-600"
+                          : "text-slate-300"
+                      )}
+                    />
+                  </div>
+                </div>
               </Table.HeadCell>
             );
           })}
