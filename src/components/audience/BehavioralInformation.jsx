@@ -15,49 +15,73 @@ import {
   YAxis,
 } from "recharts";
 import { useEffect, useState } from "react";
+import GroupedGraphs from "./GroupedGraphs";
 function BehavioralInformation({ audiences = [] }) {
   const { capitalize, toSentenceCase, toSpaced, colors } = useFunction();
   const [audienceResponse, setAudienceResponse] = useState(null);
   const [audienceActivity, setAudienceActivity] = useState(null);
 
   useEffect(() => {
-    const expectedChoices = ["weekends", "weekdays", "yes", "no"];
+    const yesNoChoices = ["yes", "no"];
+    const weekChoices = ["weekends", "weekdays"];
     let transformedData = [];
-    const groupedResponses = audiences.filter((item) =>
-      item.responses.every((response) =>
-        expectedChoices.includes(response.choice)
-      )
+    const groupedYesNo = audiences.filter((item) =>
+      item.responses.every((response) => yesNoChoices.includes(response.choice))
+    );
+    const groupedWeek = audiences.filter((item) =>
+      item.responses.every((response) => weekChoices.includes(response.choice))
     );
 
     const updatedAudience = audiences.filter(
       (item) =>
-        !item.responses.every((response) =>
-          expectedChoices.includes(response.choice)
+        !item.responses.every(
+          (response) =>
+            yesNoChoices.includes(response.choice) ||
+            weekChoices.includes(response.choice)
         )
     );
 
-    if (groupedResponses.length !== 0) {
-      let choices = groupedResponses[0];
-      console.log(choices);
-      choices = [...new Set(choices.responses.map((res) => res.choice))];
-      transformedData = groupedResponses.map((item) => {
+    if (groupedYesNo.length !== 0) {
+      transformedData = groupedYesNo.map((item) => {
         const transformedItem = { question: item.question };
 
         // Initialize counts for each choice
-        choices.forEach((choice) => {
+        yesNoChoices.forEach((choice) => {
           transformedItem[choice] = 0;
         });
 
         // Update counts based on responses
         item.responses.forEach((response) => {
           const choice = response.choice;
-          if (choices.includes(choice)) {
+          if (yesNoChoices.includes(choice)) {
             transformedItem[choice] += response.count;
           }
         });
 
         return transformedItem;
       });
+    }
+    if (groupedWeek.length !== 0) {
+      transformedData.push(
+        ...groupedWeek.map((item) => {
+          const transformedItem = { question: item.question };
+
+          // Initialize counts for each choice
+          weekChoices.forEach((choice) => {
+            transformedItem[choice] = 0;
+          });
+
+          // Update counts based on responses
+          item.responses.forEach((response) => {
+            const choice = response.choice;
+            if (weekChoices.includes(choice)) {
+              transformedItem[choice] += response.count;
+            }
+          });
+
+          return transformedItem;
+        })
+      );
     }
 
     setAudienceResponse(updatedAudience.length !== 0 ? updatedAudience : null);
@@ -96,7 +120,7 @@ function BehavioralInformation({ audiences = [] }) {
   };
   return audienceActivity || audienceResponse ? (
     <>
-      <div className="flex flex-col gap-4 lg:flex-row">
+      <div className="w-full max-h-[80vh] snap-y snap-mandatory overflow-y-auto flex flex-wrap gap-4 scrollbar-thin scrollbar-thumb-secondary-500 scrollbar-thumb-rounded-full">
         {audienceResponse &&
           audienceResponse.map((res, index) => {
             const { question } = res;
@@ -106,7 +130,10 @@ function BehavioralInformation({ audiences = [] }) {
               count: parseInt(response.count),
             }));
             return (
-              <div key={index} className="w-full">
+              <div
+                key={index}
+                className="w-full snap-start flex-[1_50%] md:flex-[1_40%] lg:flex-[1_30%] p-2 bg-slate-100 rounded transition-all duration-200 shadow-sm hover:bg-slate-200 hover:shadow-lg"
+              >
                 <p className="text-main font-semibold border-b pb-1">
                   {toSentenceCase(toSpaced(question))}
                 </p>
@@ -116,7 +143,7 @@ function BehavioralInformation({ audiences = [] }) {
                   className="w-full"
                 >
                   {responses.length <= 6 ? (
-                    <PieChart className="outline-none" margin={{top: 7}}>
+                    <PieChart className="outline-none" margin={{ top: 7 }}>
                       <Pie
                         data={responses}
                         dataKey="count"
@@ -166,30 +193,10 @@ function BehavioralInformation({ audiences = [] }) {
             );
           })}
         {audienceActivity && (
-          <div className="w-full">
-            <ResponsiveContainer width={"100%"} height={350} className="w-full">
-              <BarChart
-                data={audienceActivity}
-                layout="vertical"
-                margin={{ left: 200 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <YAxis
-                  dataKey="question"
-                  type="category"
-                  interval={0}
-                  fontSize={12}
-                  textAnchor="end"
-                  tick={<CustomYAxisTick />}
-                />
-                <XAxis type="number" domain={[0, "max"]} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="weekends" fill="#84b6d8" stackId="week" />
-                <Bar dataKey="weekdays" fill="#5f5c97" stackId="week" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <GroupedGraphs
+            CustomYAxisTick={CustomYAxisTick}
+            data={audienceActivity}
+          />
         )}
       </div>
     </>
