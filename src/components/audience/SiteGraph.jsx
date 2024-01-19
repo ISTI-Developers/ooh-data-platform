@@ -21,8 +21,6 @@ function SiteGraph({ title, data, className, isFetching }) {
     ...item,
     average: avgImpressions,
   }));
-  const keys = Object.keys(newImpressions[0]);
-
   if (isFetching) {
     return (
       <div>
@@ -30,6 +28,22 @@ function SiteGraph({ title, data, className, isFetching }) {
       </div>
     );
   }
+  if (newImpressions.length === 0) {
+    return (
+      <div
+        className={classNames(
+          "bg-white p-4 shadow flex flex-col gap-4 animate-fade h-[17.75rem]",
+          className
+        )}
+      >
+        <p className="bg-slate-200 text-slate-500 font-semibold h-full flex items-center justify-center rounded">
+          No impressions found
+        </p>
+      </div>
+    );
+  }
+  const keys = Object.keys(newImpressions[0]);
+
   return (
     <div
       className={classNames(
