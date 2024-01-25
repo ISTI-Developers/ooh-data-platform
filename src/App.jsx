@@ -18,6 +18,7 @@ import Cookies from "js-cookie";
 import { Alert } from "flowbite-react";
 import { RiInformationFill } from "react-icons/ri";
 import { useEffect } from "react";
+import Posts from "~pages/Posts";
 function App() {
   return (
     <>
@@ -78,6 +79,7 @@ function AppRoutes() {
             <Route exact path="/" element={<Planning />} />
             <Route path="/map" element={<Map />} />
             <Route path="/audience/*" element={<Audience />} />
+            <Route path="/test/*" element={<Posts />} />
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
