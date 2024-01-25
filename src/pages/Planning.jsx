@@ -85,7 +85,7 @@ function Planning() {
                   return (
                     <li key={index} className="border-b-2">
                       <header className="text-sm font-semibold">
-                        {capitalize(head,"_")}
+                        {capitalize(head, "_")}
                       </header>
                       <ul className="flex flex-col gap-2">
                         {profileFilter
@@ -180,7 +180,7 @@ function Planning() {
                     "cursor-pointer peer-checked:border-green-300 peer-checked:bg-green-200 peer-checked:text-green-500"
                   )}
                 >
-                  {dmg.key}
+                  {capitalize(dmg.key)}
                 </label>
               </div>
             );
@@ -415,6 +415,7 @@ function Planning() {
         header={<ProfileHeader />}
         body={<ProfileBody />}
         footer={<ProfileFooter />}
+        size="xl"
       />
       <PlanningModal
         trigger={onAreasSelected}

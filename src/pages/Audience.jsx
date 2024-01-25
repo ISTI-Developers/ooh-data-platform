@@ -6,7 +6,6 @@ import SiteInformation from "../components/audience/SiteInformation";
 import { Route, Routes } from "react-router-dom";
 
 function Audience() {
-  const [siteLocation, setSiteLocation] = useState(null);
   return (
     <div className="w-full">
       <p className="text-xl font-bold text-main flex items-center gap-2">
@@ -16,10 +15,7 @@ function Audience() {
         </span>
       </p>
       <div className="flex flex-col gap-4 w-full">
-        <AudienceOptions
-          location={siteLocation}
-          setLocation={setSiteLocation}
-        />
+        <AudienceOptions />
         <Routes>
           <Route
             path="/"
@@ -39,7 +35,7 @@ function Audience() {
             path="/:id"
             element={
               <section className="flex w-full min-h-[60vh]">
-                <SiteInformation location={siteLocation} />
+                <SiteInformation />
               </section>
             }
           />

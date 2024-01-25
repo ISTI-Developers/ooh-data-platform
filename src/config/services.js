@@ -1,6 +1,6 @@
 import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 import { format } from "date-fns";
 
 const retrievePlanning = async (get, options = null) => {
