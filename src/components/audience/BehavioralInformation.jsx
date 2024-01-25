@@ -26,21 +26,28 @@ function BehavioralInformation({ audiences = [] }) {
     const weekChoices = ["weekends", "weekdays"];
     let transformedData = [];
     const groupedYesNo = audiences.filter((item) =>
-      item.responses.every((response) => yesNoChoices.includes(response.choice))
+      item.responses.every((response) =>
+        yesNoChoices.includes(response.choice.toLowerCase())
+      )
     );
     const groupedWeek = audiences.filter((item) =>
-      item.responses.every((response) => weekChoices.includes(response.choice))
+      item.responses.every((response) =>
+        weekChoices.includes(response.choice.toLowerCase())
+      )
     );
 
     const updatedAudience = audiences.filter(
       (item) =>
         !item.responses.every(
           (response) =>
-            yesNoChoices.includes(response.choice) ||
-            weekChoices.includes(response.choice)
+            yesNoChoices.includes(response.choice.toLowerCase()) ||
+            weekChoices.includes(response.choice.toLowerCase())
         )
     );
-
+    if (groupedYesNo.length === 1) {
+      updatedAudience.push(...groupedYesNo);
+      groupedYesNo.splice(0, 1);
+    }
     if (groupedYesNo.length !== 0) {
       transformedData = groupedYesNo.map((item) => {
         const transformedItem = { question: item.question };
@@ -52,7 +59,7 @@ function BehavioralInformation({ audiences = [] }) {
 
         // Update counts based on responses
         item.responses.forEach((response) => {
-          const choice = response.choice;
+          const choice = response.choice.toLowerCase();
           if (yesNoChoices.includes(choice)) {
             transformedItem[choice] += response.count;
           }
@@ -73,7 +80,7 @@ function BehavioralInformation({ audiences = [] }) {
 
           // Update counts based on responses
           item.responses.forEach((response) => {
-            const choice = response.choice;
+            const choice = response.choice.toLowerCase();
             if (weekChoices.includes(choice)) {
               transformedItem[choice] += response.count;
             }
@@ -108,13 +115,42 @@ function BehavioralInformation({ audiences = [] }) {
   };
   const CustomYAxisTick = ({ x, y, payload }) => {
     // Customize the appearance of the ticks here
-    const textStyle = { fontSize: 12, fontWeight: "bold", fill: "#4f4f4f" };
+    const maxWordsPerLine = 30;
+    const textStyle = { fontSize: 12, fill: "#4f4f4f", fontWeight: "bold" };
+
+    // Split the text into multiple lines
+    let text = toSentenceCase(toSpaced(payload.value));
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = "";
+
+    for (let i = 0; i < words.length; i++) {
+      if (
+        (currentLine + words[i]).length <= maxWordsPerLine ||
+        currentLine === ""
+      ) {
+        currentLine += (currentLine === "" ? "" : " ") + words[i];
+      } else {
+        lines.push(currentLine);
+        currentLine = words[i];
+      }
+    }
+    lines.push(currentLine);
 
     return (
       <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={2} textAnchor="end" style={textStyle}>
-          {payload.value}
-        </text>
+        {lines.map((line, index) => (
+          <text
+            key={index}
+            x={0}
+            y={index * 12} // Adjust spacing between lines
+            dy={index === 0 ? 0 : 1.2}
+            textAnchor="end"
+            style={textStyle}
+          >
+            {line}
+          </text>
+        ))}
       </g>
     );
   };
