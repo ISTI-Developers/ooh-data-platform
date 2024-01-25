@@ -5,17 +5,20 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useService } from "~config/services";
 import Loader from "~fragments/Loader";
+import sampleSites from "~config/sites.json";
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
 import classNames from "classnames";
+import { useFunction } from "~config/functions";
 
 function Results({ profileFilters, selectedAreas, dates }) {
   const [sites, setSites] = useState(null);
   const [sort, setSort] = useState("# fits profile");
   const [order, setOrder] = useState(false);
   const { retrievePlanning } = useService();
+  const { toUnderscored } = useFunction();
   const navigate = useNavigate();
   const headers = [
     "area",
@@ -36,7 +39,6 @@ function Results({ profileFilters, selectedAreas, dates }) {
         return result;
       }, {});
     };
-
     const setup = async () => {
       if (
         (profileFilters === null || profileFilters?.length === 0) &&
@@ -45,6 +47,57 @@ function Results({ profileFilters, selectedAreas, dates }) {
         setSites([]);
         return;
       }
+      const filterSites = () => {
+        const filters = groupFilters();
+        if (!filters)
+          return sampleSites.map((site, index) => {
+            return {
+              id: index + 1,
+              site: site.site,
+              area: site.area,
+              region: site.region,
+              fits_no: 65,
+              fits_rate: 100,
+              avg_monthly_impressions: 65,
+            };
+          });
+
+        const profiles = Object.keys(filters);
+
+        const audiences = sampleSites.map((site) => site.analytics.audiences);
+
+        const fits = audiences.map((response) => {
+          const fits = [];
+          return profiles.map((profile) => {
+            let question = response.find(
+              (response) =>
+                toUnderscored(response.question.toLowerCase()) === profile
+            );
+            question = question.responses;
+            const sum = question
+              .filter((q) => filters[profile].includes(q.choice))
+              ?.reduce((sum, item) => (sum += item.count), 0);
+            fits.push(sum);
+
+            return fits.reduce((sum, total) => (sum += total), 0);
+          });
+        });
+
+        const data = sampleSites.map((site, index) => {
+          return {
+            id: index + 1,
+            site: site.site,
+            area: site.area,
+            region: site.region,
+            fits_no: fits[index].reduce((sum, total) => (sum += total), 0),
+            fits_rate:
+              (fits[index].reduce((sum, total) => (sum += total), 0) / 65) *
+              100,
+            avg_monthly_impressions: 65,
+          };
+        });
+        return data;
+      };
 
       const options = {
         ...groupFilters(),
@@ -59,8 +112,8 @@ function Results({ profileFilters, selectedAreas, dates }) {
       if (data) {
         const siteData = Object.values(data);
 
-        setSites(
-          siteData
+        setSites([
+          ...siteData
             .filter((data) =>
               selectedAreas.length > 0
                 ? selectedAreas.some((result) => result.area === data.area)
@@ -86,8 +139,13 @@ function Results({ profileFilters, selectedAreas, dates }) {
 
               // Use localeCompare for strings
               return String(value1).localeCompare(String(value2)) * sortOrder;
-            })
-        );
+            }),
+          ...filterSites().filter((data) =>
+            selectedAreas.length > 0
+              ? selectedAreas.some((result) => result.area === data.area)
+              : true
+          ),
+        ]);
       }
     };
 
@@ -150,7 +208,7 @@ function Results({ profileFilters, selectedAreas, dates }) {
                   className="hover:bg-slate-200 transition-all cursor-pointer"
                   onClick={() => {
                     localStorage.setItem("location", item.site);
-                    navigate(`/audience/${item.site}`);
+                    navigate(`/audience/${toUnderscored(item.site)}`);
                   }}
                 >
                   <Table.Cell className="text-main whitespace-nowrap">
@@ -166,7 +224,7 @@ function Results({ profileFilters, selectedAreas, dates }) {
                     </p>
                   </Table.Cell>
                   <Table.Cell>{item.fits_no}</Table.Cell>
-                  <Table.Cell>{item.fits_rate}%</Table.Cell>
+                  <Table.Cell>{item.fits_rate.toFixed(2)}%</Table.Cell>
                   <Table.Cell>UNAI</Table.Cell>
                 </Table.Row>
               );

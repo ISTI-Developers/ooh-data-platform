@@ -5,6 +5,8 @@ import { FaCheck } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useService } from "~config/services";
 import { format } from "date-fns";
+import sampleSites from "~config/sites.json";
+import { useFunction } from "~config/functions";
 
 function PlanningTable({
   dates,
@@ -14,6 +16,7 @@ function PlanningTable({
   filter,
 }) {
   const [sites, setSites] = useState([]);
+  const { toUnderscored } = useFunction();
   const { retrievePlanning } = useService();
   const headers = [
     "area",
@@ -63,7 +66,58 @@ function PlanningTable({
     }, {});
     return groupedData;
   };
+
   useEffect(() => {
+    const filterSites = () => {
+      const filters = groupFilters();
+      if (!filters)
+        return sampleSites.map((site, index) => {
+          return {
+            id: index + 1,
+            site: site.site,
+            area: site.area,
+            region: site.region,
+            fits_no: 65,
+            fits_rate: 100,
+            avg_monthly_impressions: 65,
+          };
+        });
+
+      const profiles = Object.keys(filters);
+
+      const audiences = sampleSites.map((site) => site.analytics.audiences);
+
+      const fits = audiences.map((response) => {
+        const fits = [];
+        return profiles.map((profile) => {
+          let question = response.find(
+            (response) =>
+              toUnderscored(response.question.toLowerCase()) === profile
+          );
+          question = question.responses;
+          const sum = question
+            .filter((q) => filters[profile].includes(q.choice))
+            ?.reduce((sum, item) => (sum += item.count), 0);
+          fits.push(sum);
+
+          return fits.reduce((sum, total) => (sum += total), 0);
+        });
+      });
+
+      const data = sampleSites.map((site, index) => {
+        return {
+          id: index + 1,
+          site: site.site,
+          area: site.area,
+          region: site.region,
+          fits_no: fits[index].reduce((sum, total) => (sum += total), 0),
+          fits_rate:
+            (fits[index].reduce((sum, total) => (sum += total), 0) / 65) * 100,
+          avg_monthly_impressions: 65,
+        };
+      });
+      return data;
+    };
     const setup = async () => {
       const options = {
         ...groupFilters(),
@@ -74,7 +128,7 @@ function PlanningTable({
       };
       const data = await retrievePlanning("areas", options);
       if (data) {
-        const siteData = Object.values(data);
+        const siteData = [...Object.values(data), ...filterSites()];
 
         setSites(
           filter !== "all"
@@ -125,7 +179,7 @@ function PlanningTable({
                     </Table.Cell>
                     <Table.Cell align="center">{areaData.fits_no}</Table.Cell>
                     <Table.Cell align="center">
-                      {areaData.fits_rate}%
+                      {(areaData.fits_rate / siteCount).toFixed(2)}%
                     </Table.Cell>
                     <Table.Cell align="center">
                       {areaData.avg_monthly_impressions}

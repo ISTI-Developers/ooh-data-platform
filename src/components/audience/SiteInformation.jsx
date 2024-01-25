@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import PropTypes from "prop-types";
 import classic from "~assets/classic.png";
 import digital from "~assets/digital.png";
 import SiteGraph from "./SiteGraph";
@@ -11,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { useFunction } from "~config/functions";
 import { useService } from "~config/services";
 import SiteInformationLoader from "./SiteInformationLoader";
+import sites from "~config/sites.json";
 function SiteInformation() {
   const { id } = useParams();
   const { toSpaced, capitalize } = useFunction();
@@ -23,15 +23,14 @@ function SiteInformation() {
   const [onFetching, toggleFetching] = useState(false);
   const siteKeys = [
     "area",
+    "city",
     "region",
     "site_owner",
     "latitude",
     "longitude",
-    "category",
     "type",
-    "venue_type",
+    "segments",
     "access_type",
-    "availability",
     "board_facing",
     "facing",
   ];
@@ -83,129 +82,23 @@ function SiteInformation() {
   };
 
   useEffect(() => {
-    const sampleAudienceData = [
-      {
-        category: "Demographics",
-        question: "OFW",
-        responses: [
-          { choice: "yes", count: 1 },
-          { choice: "no", count: 24 },
-        ],
-      },
-      {
-        category: "Demographics",
-        question: "Home Owner",
-        responses: [
-          { choice: "yes", count: 3 },
-          { choice: "no", count: 22 },
-        ],
-      },
-      {
-        category: "Demographics",
-        question: "Work Status",
-        responses: [
-          { choice: "working", count: 3 },
-          { choice: "non-working", count: 22 },
-        ],
-      },
-      {
-        category: "commuting behavior",
-        question: "Days Rides MRT",
-        responses: [
-          { choice: "none", count: 3 },
-          { choice: "monday", count: 8 },
-          { choice: "tuesday", count: 6 },
-          { choice: "wednesday", count: 0 },
-          { choice: "thursday", count: 1 },
-          { choice: "friday", count: 1 },
-          { choice: "saturday", count: 2 },
-          { choice: "sunday", count: 4 },
-        ],
-      },
-      {
-        category: "commuting behavior",
-        question: "Days Passes EDSA",
-        responses: [
-          { choice: "none", count: 0 },
-          { choice: "monday", count: 4 },
-          { choice: "tuesday", count: 1 },
-          { choice: "wednesday", count: 1 },
-          { choice: "thursday", count: 3 },
-          { choice: "friday", count: 2 },
-          { choice: "saturday", count: 8 },
-          { choice: "sunday", count: 6 },
-        ],
-      },
-      {
-        category: "daily activities",
-        question: "Days eats out",
-        responses: [
-          { choice: "weekends", count: 20 },
-          { choice: "weekdays", count: 5 },
-        ],
-      },
-      {
-        category: "daily activities",
-        question: "Days goes grocery or shopping",
-        responses: [
-          { choice: "weekends", count: 25 },
-          { choice: "weekdays", count: 0 },
-        ],
-      },
-      {
-        category: "daily activities",
-        question: "Days goes to palengke or market",
-        responses: [
-          { choice: "weekends", count: 12 },
-          { choice: "weekdays", count: 13 },
-        ],
-      },
-      {
-        category: "daily activities",
-        question: "Days goes to Church",
-        responses: [
-          { choice: "weekends", count: 24 },
-          { choice: "weekdays", count: 1 },
-        ],
-      },
-      {
-        category: "daily activities",
-        question: "Days goes to Mall",
-        responses: [
-          { choice: "weekends", count: 8 },
-          { choice: "weekdays", count: 17 },
-        ],
-      },
-      {
-        category: "daily activities",
-        question: "Days goes to school",
-        responses: [
-          { choice: "weekends", count: 0 },
-          { choice: "weekdays", count: 25 },
-        ],
-      },
-      {
-        category: "daily activities",
-        question: "Days goes to work",
-        responses: [
-          { choice: "weekends", count: 2 },
-          { choice: "weekdays", count: 23 },
-        ],
-      },
-    ];
-
+    toggleFetching(true);
     const setup = async () => {
       console.log("fetching...");
-
-      const data = await retrieveSite("GUADALED", dates);
-      if (data) {
-        console.log("site information loaded :)");
-        data.analytics.audiences.push(...sampleAudienceData);
-        setSiteData(data);
-        toggleFetching(false);
+      setSiteData(null);
+      if (id === "GUADALED") {
+        const data = await retrieveSite(id, dates);
+        if (data) {
+          setSiteData(data);
+          console.log("site information loaded :)");
+        } else {
+          console.log("No data found.");
+        }
       } else {
-        console.log("No data found.");
+        const sampleSite = sites.find((site) => site.site === toSpaced(id));
+        setSiteData(sampleSite);
       }
+      toggleFetching(false);
     };
     setup();
   }, [id, dates, retrieveSite]);
@@ -287,7 +180,4 @@ function SiteInformation() {
     <SiteInformationLoader />
   );
 }
-
-SiteInformation.propTypes = { site: PropTypes.string };
-
 export default SiteInformation;

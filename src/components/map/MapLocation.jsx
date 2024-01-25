@@ -8,6 +8,7 @@ import classNames from "classnames";
 import { IoMdMenu } from "react-icons/io";
 import { useService } from "~config/services";
 import Loader from "~fragments/Loader";
+import sites from "~config/sites.json";
 function MapLocation() {
   const { retrieveSites } = useService();
   const [center, setCenter] = useState({ lat: 12.8797, lng: 121.774 });
@@ -19,17 +20,58 @@ function MapLocation() {
     setZoom(() => zoom);
     setCenter(() => coords);
   };
+  const calculateMidpoint = (coordinates) => {
+    if (coordinates.length === 0) {
+      return null; // Handle empty array
+    }
+
+    var sumLat = 0;
+    var sumLon = 0;
+
+    for (var i = 0; i < coordinates.length; i++) {
+      sumLat += coordinates[i][0];
+      sumLon += coordinates[i][1];
+    }
+
+    var avgLat = sumLat / coordinates.length;
+    var avgLon = sumLon / coordinates.length;
+
+    return [avgLat, avgLon];
+  };
 
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      setBillboards(
-        data.map((item) => ({
+      const sampleData = sites;
+      setBillboards([
+        ...data.map((item) => ({
           ...item,
           longitude: parseFloat(item.longitude),
           latitude: parseFloat(item.latitude),
-        }))
-      );
+        })),
+        ...sampleData.map((item) => ({
+          site_id: item.site_id,
+          site: item.site,
+          area: item.area,
+          region: item.region,
+          type: item.type,
+          longitude: parseFloat(item.longitude),
+          latitude: parseFloat(item.latitude),
+        })),
+      ]);
+      const coordinates = [
+        ...data.map((item) => {
+          return [parseFloat(item.latitude), parseFloat(item.longitude)];
+        }),
+        ...sampleData.map((item) => {
+          return [parseFloat(item.latitude), parseFloat(item.longitude)];
+        }),
+      ];
+      const midpoint = calculateMidpoint(coordinates);
+      setCenter({
+        lat: midpoint[0],
+        lng: midpoint[1],
+      });
     };
     setup();
   }, []);
@@ -44,50 +86,52 @@ function MapLocation() {
         )}
       >
         <Accordion flush>
-          {[...new Set(billboards.map((item) => item.type))].map((type) => (
-            <Accordion.Panel key={type}>
-              <Accordion.Title>{type}</Accordion.Title>
-              <Accordion.Content>
-                <ul className="flex flex-col max-h-[375px] overflow-y-auto">
-                  {billboards
-                    .filter((item) => item.type === type)
-                    .map(({ site, latitude, longitude }, index) => {
-                      return (
-                        <li
-                          key={site + index}
-                          className="flex gap-2 transition-all cursor-pointer p-2 hover:bg-gray-300"
-                          onClick={() => {
-                            toggleLocations(false);
-                            updateMapCenter(
-                              { lat: latitude, lng: longitude },
-                              17
-                            );
-                          }}
-                        >
-                          <img
-                            src={type === "Classic" ? classic : digital}
-                            className="max-w-10"
-                          />
-                          <div>
-                            <p
-                              className={classNames(
-                                "font-semibold",
-                                type === "Classic" ? "text-xs" : "text-sm"
-                              )}
-                            >
-                              {site}
-                            </p>
-                            <p className="text-[0.6rem] text-gray-500">
-                              {[latitude, longitude].join(",")}
-                            </p>
-                          </div>
-                        </li>
-                      );
-                    })}
-                </ul>
-              </Accordion.Content>
-            </Accordion.Panel>
-          ))}
+          {[...new Set(billboards.map((item) => item.type.toLowerCase()))].map(
+            (type) => (
+              <Accordion.Panel key={type}>
+                <Accordion.Title className="capitalize">{type}</Accordion.Title>
+                <Accordion.Content>
+                  <ul className="flex flex-col max-h-[375px] overflow-y-auto">
+                    {billboards
+                      .filter((item) => item.type.toLowerCase() === type)
+                      .map(({ site, latitude, longitude }, index) => {
+                        return (
+                          <li
+                            key={site + index}
+                            className="flex gap-2 transition-all cursor-pointer p-2 hover:bg-gray-300"
+                            onClick={() => {
+                              toggleLocations(false);
+                              updateMapCenter(
+                                { lat: latitude, lng: longitude },
+                                17
+                              );
+                            }}
+                          >
+                            <img
+                              src={type === "classic" ? classic : digital}
+                              className="max-w-10"
+                            />
+                            <div>
+                              <p
+                                className={classNames(
+                                  "font-semibold",
+                                  type === "classic" ? "text-xs" : "text-sm"
+                                )}
+                              >
+                                {site}
+                              </p>
+                              <p className="text-[0.6rem] text-gray-500">
+                                {[latitude, longitude].join(",")}
+                              </p>
+                            </div>
+                          </li>
+                        );
+                      })}
+                  </ul>
+                </Accordion.Content>
+              </Accordion.Panel>
+            )
+          )}
         </Accordion>
       </div>
       <button

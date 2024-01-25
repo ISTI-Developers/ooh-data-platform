@@ -8,11 +8,12 @@ import { Label, Select } from "flowbite-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useFunction } from "~config/functions";
 import { useService } from "~config/services";
+import sites from "~config/sites.json";
 
-function AudienceOptions({ setLocation }) {
+function AudienceOptions() {
   const url = useLocation();
   const navigate = useNavigate();
-  const { toUnderscored } = useFunction();
+  const { toUnderscored, toSpaced } = useFunction();
   const { retrieveSites } = useService();
 
   const [siteNames, setSiteNames] = useState(null);
@@ -22,24 +23,39 @@ function AudienceOptions({ setLocation }) {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
+      console.log(data);
+      const sampleSites = sites;
+      console.log(data);
       if (filter !== "all") {
-        setSiteNames(
-          data
-            .filter((item) => item.type === filter)
+        setSiteNames([
+          ...data
+            .filter((item) => item.type.toLowerCase() === filter.toLowerCase())
             .map((item) => ({
               site_id: item.site_id,
               site: item.site,
               type: item.type,
-            }))
-        );
+            })),
+          ...sampleSites
+            .filter((item) => item.type.toLowerCase() === filter.toLowerCase())
+            .map((item) => ({
+              site_id: item.site_id,
+              site: item.site,
+              type: item.type,
+            })),
+        ]);
       } else {
-        setSiteNames(
-          data.map((item) => ({
+        setSiteNames([
+          ...data.map((item) => ({
             site_id: item.site_id,
             site: item.site,
             type: item.type,
-          }))
-        );
+          })),
+          ...sampleSites.map((item) => ({
+            site_id: item.site_id,
+            site: item.site,
+            type: item.type,
+          })),
+        ]);
       }
     };
     setup();
@@ -68,7 +84,6 @@ function AudienceOptions({ setLocation }) {
           id="regions"
           onChange={(e) => {
             navigate(`./${toUnderscored(e.target.value)}`);
-            setLocation(e.target.value);
           }}
         >
           {!siteNames ? (
@@ -94,7 +109,11 @@ function AudienceOptions({ setLocation }) {
                   <option
                     key={region.site_id}
                     value={region.site}
-                    selected={selectedLocation === region.site}
+                    selected={
+                      selectedLocation
+                        ? toSpaced(selectedLocation) === region.site
+                        : false
+                    }
                   >
                     {region.site}
                   </option>
@@ -139,7 +158,9 @@ export function DateRangePicker({ dates, setDates, showLoader }) {
       )}
       <DatePickerModal
         show={onSelectDate}
-        onClose={() => toggleDateButton(false)}
+        onClose={() => {
+          toggleDateButton(false);
+        }}
         setDate={setDates}
         showLoader={showLoader}
         currentDates={dates}
@@ -151,5 +172,8 @@ DateRangePicker.propTypes = {
   dates: PropTypes.object,
   setDates: PropTypes.func,
   showLoader: PropTypes.func,
+};
+AudienceOptions.propTypes = {
+  isLoading: PropTypes.bool,
 };
 export default AudienceOptions;
