@@ -3,21 +3,15 @@ import { Table } from "flowbite-react";
 import classNames from "classnames";
 import { FaCheck } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { useService } from "~config/services";
-import { format } from "date-fns";
 import sampleSites from "~config/sites.json";
 import { useFunction } from "~config/functions";
+import { usePlanning } from "~config/PlanningContext";
 
-function PlanningTable({
-  dates,
-  profileFilters,
-  selectedAreas,
-  setSelectedArea,
-  filter,
-}) {
+function PlanningTable({ filter }) {
   const [sites, setSites] = useState([]);
   const { toUnderscored } = useFunction();
-  const { retrievePlanning } = useService();
+  const { dates, profiles, areas, setAreas, allowedMultiple, siteResults } =
+    usePlanning();
   const headers = [
     "area",
     "# fits profile",
@@ -52,15 +46,25 @@ function PlanningTable({
     return Object.values(groupedData);
   };
   const groupFilters = () => {
-    if (!profileFilters) return;
-    const groupedData = profileFilters.reduce((result, current) => {
+    if (!profiles) return;
+
+    const groupedData = profiles.reduce((result, current) => {
       const question = current.question;
 
       if (!result[question]) {
-        result[question] = [];
+        result[question] = {
+          allowMultiple: false,
+          choices: [],
+        };
       }
 
-      result[question].push(current.key);
+      result[question].choices.push(current.key);
+
+      // Update allowMultiple based on allowedMultiple array
+      if (allowedMultiple && allowedMultiple.length > 0) {
+        // Check if the question key is in allowedMultiple
+        result[question].allowMultiple = allowedMultiple.includes(question);
+      }
 
       return result;
     }, {});
@@ -68,67 +72,59 @@ function PlanningTable({
   };
 
   useEffect(() => {
-    const filterSites = () => {
-      const filters = groupFilters();
-      if (!filters)
-        return sampleSites.map((site, index) => {
-          return {
-            id: index + 1,
-            site: site.site,
-            area: site.area,
-            region: site.region,
-            fits_no: 65,
-            fits_rate: 100,
-            avg_monthly_impressions: 65,
-          };
-        });
+    // const filterSites = () => {
+    //   const filters = groupFilters();
+    //   if (!filters)
+    //     return sampleSites.map((site, index) => {
+    //       return {
+    //         id: index + 1,
+    //         site: site.site,
+    //         area: site.area,
+    //         region: site.region,
+    //         fits_no: 65,
+    //         fits_rate: 100,
+    //         avg_monthly_impressions: 65,
+    //       };
+    //     });
 
-      const profiles = Object.keys(filters);
+    //   const profiles = Object.keys(filters);
 
-      const audiences = sampleSites.map((site) => site.analytics.audiences);
+    //   const audiences = sampleSites.map((site) => site.analytics.audiences);
 
-      const fits = audiences.map((response) => {
-        const fits = [];
-        return profiles.map((profile) => {
-          let question = response.find(
-            (response) =>
-              toUnderscored(response.question.toLowerCase()) === profile
-          );
-          question = question.responses;
-          const sum = question
-            .filter((q) => filters[profile].includes(q.choice))
-            ?.reduce((sum, item) => (sum += item.count), 0);
-          fits.push(sum);
+    //   const fits = audiences.map((response) => {
+    //     const fits = [];
+    //     return profiles.map((profile) => {
+    //       let question = response.find(
+    //         (response) =>
+    //           toUnderscored(response.question.toLowerCase()) === profile
+    //       );
+    //       question = question.responses;
+    //       const sum = question
+    //         .filter((q) => filters[profile].includes(q.choice))
+    //         ?.reduce((sum, item) => (sum += item.count), 0);
+    //       fits.push(sum);
 
-          return fits.reduce((sum, total) => (sum += total), 0);
-        });
-      });
+    //       return fits.reduce((sum, total) => (sum += total), 0);
+    //     });
+    //   });
 
-      const data = sampleSites.map((site, index) => {
-        return {
-          id: index + 1,
-          site: site.site,
-          area: site.area,
-          region: site.region,
-          fits_no: fits[index].reduce((sum, total) => (sum += total), 0),
-          fits_rate:
-            (fits[index].reduce((sum, total) => (sum += total), 0) / 65) * 100,
-          avg_monthly_impressions: 65,
-        };
-      });
-      return data;
-    };
+    //   const data = sampleSites.map((site, index) => {
+    //     return {
+    //       id: index + 1,
+    //       site: site.site,
+    //       area: site.area,
+    //       region: site.region,
+    //       fits_no: fits[index].reduce((sum, total) => (sum += total), 0),
+    //       fits_rate:
+    //         (fits[index].reduce((sum, total) => (sum += total), 0) / 65) * 100,
+    //       avg_monthly_impressions: 65,
+    //     };
+    //   });
+    //   return data;
+    // };
     const setup = async () => {
-      const options = {
-        ...groupFilters(),
-        dates: {
-          from: format(new Date(dates.start), "MM-dd-yyyy"),
-          to: format(new Date(dates.end), "MM-dd-yyyy"),
-        },
-      };
-      const data = await retrievePlanning("areas", options);
-      if (data) {
-        const siteData = [...Object.values(data), ...filterSites()];
+      if (siteResults) {
+        const siteData = [...Object.values(siteResults) /*, ...filterSites()*/];
 
         setSites(
           filter !== "all"
@@ -140,7 +136,7 @@ function PlanningTable({
       }
     };
     setup();
-  }, [filter, dates, profileFilters, selectedAreas]);
+  }, [allowedMultiple, filter, dates, profiles, siteResults]);
 
   return (
     sites && (
@@ -192,34 +188,28 @@ function PlanningTable({
                         className={classNames(
                           "p-1 text-sm border-2 rounded-md outline-none",
                           "transition-all",
-                          selectedAreas.find(
-                            (area) => area.area === areaData.area
-                          )
+                          areas.find((area) => area.area === areaData.area)
                             ? "px-3 border-green-300 bg-green-300 text-white"
                             : "px-2.5 border-secondary-500 text-secondary-hover hover:bg-secondary-500"
                         )}
                         onClick={() => {
-                          if (selectedAreas.length === 0) {
-                            setSelectedArea([areaData]);
+                          if (areas.length === 0) {
+                            setAreas([areaData]);
                           } else {
                             if (
-                              !selectedAreas.find(
-                                (area) => area.area === areaData.area
-                              )
+                              !areas.find((area) => area.area === areaData.area)
                             ) {
-                              setSelectedArea((prev) => [...prev, areaData]);
+                              setAreas((prev) => [...prev, areaData]);
                             } else {
-                              const updatedAreas = selectedAreas.filter(
+                              const updatedAreas = areas.filter(
                                 (area) => area.area !== areaData.area
                               );
-                              setSelectedArea(updatedAreas);
+                              setAreas(updatedAreas);
                             }
                           }
                         }}
                       >
-                        {selectedAreas.find(
-                          (area) => area.area === areaData.area
-                        ) ? (
+                        {areas.find((area) => area.area === areaData.area) ? (
                           <FaCheck className="text-xl" />
                         ) : (
                           "Add"
@@ -245,9 +235,9 @@ function PlanningTable({
 
 PlanningTable.propTypes = {
   selectedAreas: PropTypes.array,
-  setSelectedArea: PropTypes.func,
+  setAreas: PropTypes.func,
   filter: PropTypes.string,
-  dates: PropTypes.object,
+  allowedMultiple: PropTypes.array,
   profileFilters: PropTypes.array,
 };
 

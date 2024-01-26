@@ -12,8 +12,10 @@ import {
 } from "react-icons/md";
 import classNames from "classnames";
 import { useFunction } from "~config/functions";
+import { usePlanning } from "~config/PlanningContext";
 
-function Results({ profileFilters, selectedAreas, dates }) {
+function Results() {
+  const { dates, profiles, areas } = usePlanning();
   const [sites, setSites] = useState(null);
   const [sort, setSort] = useState("# fits profile");
   const [order, setOrder] = useState(false);
@@ -30,9 +32,9 @@ function Results({ profileFilters, selectedAreas, dates }) {
 
   useEffect(() => {
     const groupFilters = () => {
-      if (!profileFilters) return null;
+      if (!profiles) return null;
 
-      return profileFilters.reduce((result, current) => {
+      return profiles.reduce((result, current) => {
         const question = current.question;
         result[question] = result[question] || [];
         result[question].push(current.key);
@@ -40,10 +42,7 @@ function Results({ profileFilters, selectedAreas, dates }) {
       }, {});
     };
     const setup = async () => {
-      if (
-        (profileFilters === null || profileFilters?.length === 0) &&
-        selectedAreas.length === 0
-      ) {
+      if ((profiles === null || profiles?.length === 0) && areas.length === 0) {
         setSites([]);
         return;
       }
@@ -102,8 +101,8 @@ function Results({ profileFilters, selectedAreas, dates }) {
       const options = {
         ...groupFilters(),
         dates: {
-          from: format(new Date(dates.start), "MM-dd-yyyy"),
-          to: format(new Date(dates.end), "MM-dd-yyyy"),
+          from: format(new Date(dates.from), "MM-dd-yyyy"),
+          to: format(new Date(dates.to), "MM-dd-yyyy"),
         },
       };
 
@@ -115,8 +114,8 @@ function Results({ profileFilters, selectedAreas, dates }) {
         setSites([
           ...siteData
             .filter((data) =>
-              selectedAreas.length > 0
-                ? selectedAreas.some((result) => result.area === data.area)
+              areas.length > 0
+                ? areas.some((result) => result.area === data.area)
                 : true
             )
             .sort((area1, area2) => {
@@ -141,8 +140,8 @@ function Results({ profileFilters, selectedAreas, dates }) {
               return String(value1).localeCompare(String(value2)) * sortOrder;
             }),
           ...filterSites().filter((data) =>
-            selectedAreas.length > 0
-              ? selectedAreas.some((result) => result.area === data.area)
+            areas.length > 0
+              ? areas.some((result) => result.area === data.area)
               : true
           ),
         ]);
@@ -150,7 +149,7 @@ function Results({ profileFilters, selectedAreas, dates }) {
     };
 
     setup();
-  }, [selectedAreas, dates, profileFilters, sort, order]);
+  }, [areas, dates, profiles, sort, order]);
 
   return sites !== null ? (
     <div className="overflow-x-auto">
@@ -248,7 +247,6 @@ function Results({ profileFilters, selectedAreas, dates }) {
 
 Results.propTypes = {
   selectedAreas: PropTypes.array,
-  profileFilters: PropTypes.object,
   dates: PropTypes.object,
 };
 

@@ -1,15 +1,10 @@
-import PropTypes from "prop-types";
 import PlanningList from "./PlanningList";
 import { useEffect, useState } from "react";
 import { useService } from "../../config/services";
 import Tabs from "../../fragments/Tabs";
 import Loader from "~fragments/Loader";
 
-function ProfileFilterList({
-  toggleProfile,
-  setSearchQuery,
-  searchBuyergraphics,
-}) {
+function ProfileFilterList() {
   const { retrievePlanning } = useService();
   const [demographics, setDemographics] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
@@ -27,9 +22,6 @@ function ProfileFilterList({
       content={
         <PlanningList
           category={activeTab}
-          toggleProfile={toggleProfile}
-          search={setSearchQuery}
-          searchBuyergraphics={searchBuyergraphics}
           data={demographics}
         />
       }
@@ -44,11 +36,5 @@ function ProfileFilterList({
     </div>
   );
 }
-
-ProfileFilterList.propTypes = {
-  toggleProfile: PropTypes.func,
-  setSearchQuery: PropTypes.func,
-  searchBuyergraphics: PropTypes.func,
-};
 
 export default ProfileFilterList;

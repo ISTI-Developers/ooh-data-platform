@@ -3,15 +3,12 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import { TextInput } from "flowbite-react";
 import { useFunction } from "../../config/functions";
-function PlanningList({
-  category,
-  toggleProfile,
-  search,
-  searchBuyergraphics,
-  data,
-}) {
+import { usePlanning } from "~config/PlanningContext";
+function PlanningList({ category, data }) {
   const [demographics, setDemographics] = useState(null);
+  const [search, setSearch] = useState(null);
   const { capitalize, toSpaced } = useFunction();
+  const { findDemographics, setProfile } = usePlanning();
   useEffect(() => {
     if (category !== "all") {
       setDemographics(data.filter((item) => item.category === category));
@@ -27,13 +24,15 @@ function PlanningList({
           <TextInput
             type="search"
             placeholder="Search here"
-            onChange={(e) => search(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <ul className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
           {[
             ...new Set(
-              searchBuyergraphics(demographics).map((item) => item.question)
+              findDemographics(search, demographics).map(
+                (item) => item.question
+              )
             ),
           ].map((item, index) => {
             return (
@@ -41,9 +40,12 @@ function PlanningList({
                 key={index}
                 className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100 cursor-pointer"
                 onClick={() => {
-                  toggleProfile({
+                  setProfile({
                     key: item,
                     data: demographics.filter((it) => it.question === item),
+                    multi: demographics
+                      .filter((it) => it.question === item)
+                      ?.every((choice) => choice.multi === true),
                   });
                 }}
               >
@@ -70,9 +72,12 @@ function PlanningList({
                       "transition-all"
                     )}
                     onClick={() => {
-                      toggleProfile({
-                        question: item,
+                      setProfile({
+                        key: item,
                         data: demographics.filter((it) => it.question === item),
+                        multi: demographics
+                          .filter((it) => it.question === item)
+                          ?.every((choice) => choice.multi === true),
                       });
                     }}
                   >

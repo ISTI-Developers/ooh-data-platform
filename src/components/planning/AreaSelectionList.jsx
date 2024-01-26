@@ -4,39 +4,43 @@ import PlanningTable from "./PlanningTable";
 import { useFunction } from "~config/functions";
 import { format } from "date-fns";
 import { useState } from "react";
+import { usePlanning } from "~config/PlanningContext";
 
-function AreaSelectionList({
-  setStartDate,
-  setEndDate,
-  dates,
-  selectedAreas,
-  setSelectedArea,
-  selectedFilters,
-}) {
+function AreaSelectionList() {
   const { regions } = useFunction();
+  const { dates, setDates } = usePlanning();
   const [selectedRegion, setRegion] = useState("all");
+
+  const updateDate = (event) => {
+    setDates((current) => {
+      return {
+        ...current,
+        [event.target.id]: event.target.valueAsDate,
+      };
+    });
+  };
   return (
     <div className="bg-white p-2 overflow-x-auto overflow-y-visible w-full">
       <div className="w-full">
         <div className="flex flex-row items-center gap-4 py-2 px-1">
           <div>
-            <Label htmlFor="start_date" value="From: " />
+            <Label htmlFor="from" value="From: " />
             <input
               type="date"
-              id="start_date"
-              value={format(new Date(dates.start), "yyyy-MM-dd")}
+              id="from"
+              value={format(new Date(dates.from), "yyyy-MM-dd")}
               className="border-gray-300 rounded-lg bg-gray-100"
-              onChange={(e) => setStartDate(e.target.valueAsDate)}
+              onChange={updateDate}
             />
           </div>
           <div>
-            <Label htmlFor="end_date" value="To: " />
+            <Label htmlFor="to" value="To: " />
             <input
               type="date"
-              id="end_date"
-              value={format(new Date(dates.end), "yyyy-MM-dd")}
+              id="to"
+              value={format(new Date(dates.to), "yyyy-MM-dd")}
               className="border-gray-300 rounded-lg bg-gray-100"
-              onChange={(e) => setEndDate(e.target.valueAsDate)}
+              onChange={updateDate}
             />
           </div>
           <div>
@@ -58,11 +62,7 @@ function AreaSelectionList({
       </div>
       <div className="max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-secondary-500 scrollbar-thumb-rounded-full">
         <PlanningTable
-          dates={dates}
           filter={selectedRegion}
-          selectedAreas={selectedAreas}
-          setSelectedArea={setSelectedArea}
-          profileFilters={selectedFilters}
         />
       </div>
     </div>
@@ -70,13 +70,11 @@ function AreaSelectionList({
 }
 
 AreaSelectionList.propTypes = {
-  setStartDate: PropTypes.func,
-  setEndDate: PropTypes.func,
   setRegion: PropTypes.func,
-  dates: PropTypes.object,
   selectedRegion: PropTypes.array,
   selectedAreas: PropTypes.array,
   setSelectedArea: PropTypes.func,
+  allowedMultiple: PropTypes.array,
   selectedFilters: PropTypes.array,
 };
 
