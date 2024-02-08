@@ -1,7 +1,15 @@
 import { Modal } from "flowbite-react";
 import PropTypes from "prop-types";
 
-function PlanningModal({ trigger, toggle, header, body, footer, size = "lg" }) {
+function PlanningModal({
+  trigger,
+  toggle,
+  header,
+  body,
+  footer,
+  size = "lg",
+  isProfile,
+}) {
   return (
     <Modal
       show={trigger}
@@ -14,7 +22,10 @@ function PlanningModal({ trigger, toggle, header, body, footer, size = "lg" }) {
           base: "flex items-center justify-end space-x-2 rounded-b border-gray-200 p-4 dark:border-gray-600",
         },
       }}
-      onClose={() => toggle(false)}
+      onClose={() => {
+        console.log("closing");
+        toggle((prev) => (isProfile ? null : !prev));
+      }}
       size={size}
     >
       <Modal.Header>{header}</Modal.Header>
@@ -25,6 +36,7 @@ function PlanningModal({ trigger, toggle, header, body, footer, size = "lg" }) {
 }
 
 PlanningModal.propTypes = {
+  isProfile: PropTypes.bool,
   trigger: PropTypes.bool,
   toggle: PropTypes.func,
   header: PropTypes.node,

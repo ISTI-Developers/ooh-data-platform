@@ -32,7 +32,9 @@ export function AuthProvider({ children }) {
       console.log(response.data);
       if (response.status === 200) {
         if (response.data.id) {
-          Cookies.set("user", JSON.stringify(response.data));
+          Cookies.set("user", JSON.stringify(response.data), {
+            domain: "localhost",
+          });
           setUser(response.data);
           return { acknowledged: true };
         }

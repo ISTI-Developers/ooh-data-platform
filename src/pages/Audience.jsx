@@ -1,11 +1,18 @@
 import { FaUsers } from "react-icons/fa";
 import { useState } from "react";
 import AudienceOptions from "../fragments/AudienceOptions";
-import classNames from "classnames";
 import SiteInformation from "../components/audience/SiteInformation";
 import { Route, Routes } from "react-router-dom";
+import SiteAudienceList from "~components/audience/SiteAudienceList";
 
 function Audience() {
+  const [options, setOptions] = useState({
+    type: "all",
+    region: [],
+    city: [],
+    area: [],
+  });
+  const [query, setQuery] = useState(null);
   return (
     <div className="w-full">
       <p className="text-xl font-bold text-main flex items-center gap-2">
@@ -15,21 +22,11 @@ function Audience() {
         </span>
       </p>
       <div className="flex flex-col gap-4 w-full">
-        <AudienceOptions />
+        <AudienceOptions filterOptions={setOptions} query={query} setQuery={setQuery} />
         <Routes>
           <Route
             path="/"
-            element={
-              <section
-                className={classNames(
-                  "min-h-[60vh] flex w-full bg-slate-300 items-center justify-center rounded-lg"
-                )}
-              >
-                <p className="text-slate-600 font-semibold">
-                  Select a site to show its information.
-                </p>
-              </section>
-            }
+            element={<SiteAudienceList options={options} query={query} />}
           />
           <Route
             path="/:id"

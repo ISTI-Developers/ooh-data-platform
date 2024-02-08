@@ -6,13 +6,16 @@ import classNames from "classnames";
 import { useFunction } from "~config/functions";
 
 function Markers({ list, center, setCenter, setZoom }) {
-  const { toUnderscored } = useFunction();
+  const { toUnderscored, offsetCoordinate } = useFunction();
+  
+
   return list.map((item, key) => {
     const position = { lat: item.latitude, lng: item.longitude };
+    const offsetPosition = offsetCoordinate(item.latitude, item.longitude, 20);
 
     // Check if the coordinates are equal
     const isCentered =
-      center.lat === position.lat && center.lng === position.lng;
+      center.lat === offsetPosition.lat && center.lng === offsetPosition.lng;
 
     return (
       <AdvancedMarker
@@ -20,7 +23,12 @@ function Markers({ list, center, setCenter, setZoom }) {
         key={item.site}
         onClick={(e) => {
           setZoom(17);
-          setCenter(e.latLng.toJSON());
+          const newCenter = offsetCoordinate(
+            e.latLng.toJSON().lat,
+            e.latLng.toJSON().lng,
+            20
+          );
+          setCenter(newCenter);
         }}
       >
         <div className="flex flex-col justify-center items-center">
@@ -32,7 +40,11 @@ function Markers({ list, center, setCenter, setZoom }) {
               }}
             >
               <img
-                src="https://test-cdn.movingwalls.com/thumbnail_not_found-min.png"
+                src={
+                  item.imageURL
+                    ? item.imageURL
+                    : "https://test-cdn.movingwalls.com/thumbnail_not_found-min.png"
+                }
                 alt=""
                 className="w-full"
               />

@@ -15,7 +15,7 @@ function PlanningList({ category, data }) {
     } else {
       setDemographics(data);
     }
-  }, [category, data]);
+  }, [category]);
 
   return (
     demographics && (
@@ -39,7 +39,9 @@ function PlanningList({ category, data }) {
               <li
                 key={index}
                 className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100 cursor-pointer"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setProfile({
                     key: item,
                     data: demographics.filter((it) => it.question === item),
@@ -65,21 +67,23 @@ function PlanningList({ category, data }) {
                     ))}
                   ...
                 </div>
-                <div className="absolute top-0 right-0 h-full w-1/4 flex items-center justify-end bg-gradient-to-l from-white from-80% to-[#ffffff00] transition-all ">
+                <div className="absolute top-0 right-0 h-full w-1/4 hidden items-center justify-end bg-gradient-to-l from-white from-80% to-[#ffffff00] transition-all animate-fade group-hover:flex">
                   <button
+                    tabIndex={-1}
                     className={classNames(
                       "mr-4 p-1 px-2.5 text-sm border-2 border-secondary-500 text-secondary-hover hover:text-white hover:bg-secondary-500 rounded-md",
                       "transition-all"
                     )}
-                    onClick={() => {
-                      setProfile({
-                        key: item,
-                        data: demographics.filter((it) => it.question === item),
-                        multi: demographics
-                          .filter((it) => it.question === item)
-                          ?.every((choice) => choice.multi === true),
-                      });
-                    }}
+                    // onClick={() => {
+                    //   console.log("clikced")
+                    //   setProfile({
+                    //     key: item,
+                    //     data: demographics.filter((it) => it.question === item),
+                    //     multi: demographics
+                    //       .filter((it) => it.question === item)
+                    //       ?.every((choice) => choice.multi === true),
+                    //   });
+                    // }}
                   >
                     Add
                   </button>

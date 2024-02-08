@@ -3,7 +3,7 @@ export const tabTheme = {
   tablist: {
     base: "relative flex",
     styles: {
-      default: "overflow-x-auto scrollbar-none whitespace-nowrap",
+      default: "overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-secondary",
     },
     tabitem: {
       base: "transition-all flex items-center justify-center p-2 px-3 text-xs text-main hover:text-secondary-500 uppercase font-bold disabled:cursor-not-allowed disabled:text-gray-400 disabled:dark:text-gray-500 border-r-2 border-default last:border-none",

@@ -162,7 +162,7 @@ function PlanningTable({ filter }) {
                 return (
                   <Table.Row
                     key={area + "_" + index}
-                    className="relative group hover:bg-slate-100"
+                    className="relative group hover:bg-slate-100 text-main"
                   >
                     <Table.Cell>
                       <p className="flex flex-col whitespace-nowrap">

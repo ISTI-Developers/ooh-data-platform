@@ -3,8 +3,14 @@ import PropTypes from "prop-types";
 import { tabTheme } from "../../config/themes";
 import BehavioralInformation from "./BehavioralInformation";
 import Loader from "~fragments/Loader";
+import { useEffect, useRef } from "react";
 
 function Behaviorals({ audienceData, isFetching }) {
+  const tabs = useRef();
+
+  useEffect(() => {
+    tabs.current?.setActiveTab(0);
+  }, [audienceData]);
   if (isFetching) {
     return (
       <div>
@@ -23,6 +29,7 @@ function Behaviorals({ audienceData, isFetching }) {
   return (
     <Tabs
       style="default"
+      ref={tabs}
       className="w-full bg-white p-2 border-b-2 border-default animate-fade"
       theme={tabTheme}
     >

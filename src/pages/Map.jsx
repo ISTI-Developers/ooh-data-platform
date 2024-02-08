@@ -8,6 +8,7 @@ import { useService } from "../config/services";
 function Map() {
   const [billboards, setBillboards] = useState(null);
   const { retrieveSitesCount } = useService();
+
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSitesCount("demographics");

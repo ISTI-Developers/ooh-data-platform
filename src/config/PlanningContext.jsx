@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useService } from "./services";
 import { format } from "date-fns";
+import { useFunction } from "./functions";
 const PlanningContext = React.createContext();
 
 export function usePlanning() {
@@ -18,7 +19,7 @@ export function PlanningProvider({ children }) {
   const [profile, setProfile] = useState(null); //specific profile
   const [siteResults, setSiteResults] = useState(null);
   const [allowedMultiple, toggleMultiple] = useState([]);
-
+  const { toUnderscored } = useFunction();
   const { retrievePlanning } = useService();
 
   const addDemographics = (item) => {
@@ -41,53 +42,42 @@ export function PlanningProvider({ children }) {
     }
     return demographics.filter(
       (item) =>
-        item.question.toLowerCase().includes(query.toLowerCase()) ||
-        item.key.toLowerCase().includes(query.toLowerCase())
+        toUnderscored(item.question.toLowerCase()).includes(
+          toUnderscored(query.toLowerCase())
+        ) ||
+        toUnderscored(item.key.toLowerCase()).includes(
+          toUnderscored(query.toLowerCase())
+        )
     );
   };
 
-  // const groupFilters = () => {
-  //   if (!profiles) return;
-
-  //   const groupedData = profiles.reduce((result, current) => {
-  //     const question = current.question;
-
-  //     if (!result[question]) {
-  //       result[question] = {
-  //         allowMultiple: false,
-  //         choices: [],
-  //       };
-  //     }
-
-  //     result[question].choices.push(current.key);
-
-  //     // Update allowMultiple based on allowedMultiple array
-  //     if (allowedMultiple && allowedMultiple.length > 0) {
-  //       // Check if the question key is in allowedMultiple
-  //       result[question].allowMultiple = allowedMultiple.includes(question);
-  //     }
-
-  //     return result;
-  //   }, {});
-  //   return groupedData;
-  // };
-  const groupFilters = () => {
-    if (!profiles) return;
-    const groupedData = profiles.reduce((result, current) => {
-      const question = current.question;
-
-      if (!result[question]) {
-        result[question] = [];
-      }
-
-      result[question].push(current.key);
-
-      return result;
-    }, {});
-    return groupedData;
-  };
-
   useEffect(() => {
+    const groupFilters = () => {
+      if (!profiles) return;
+
+      const groupedData = profiles.reduce((result, current) => {
+        const question = current.question;
+
+        if (!result[question]) {
+          result[question] = {
+            allowMultiple: false,
+            choices: [],
+          };
+        }
+
+        result[question].choices.push(current.key);
+
+        // Update allowMultiple based on allowedMultiple array
+        if (allowedMultiple && allowedMultiple.length > 0) {
+          // Check if the question key is in allowedMultiple
+          result[question].allowMultiple = allowedMultiple.includes(question);
+        }
+
+        return result;
+      }, {});
+      return groupedData;
+    };
+
     const setup = async () => {
       const options = {
         ...groupFilters(),
@@ -97,11 +87,10 @@ export function PlanningProvider({ children }) {
         },
       };
       const response = await retrievePlanning("areas", options);
-      console.log(response);
       setSiteResults(response);
     };
     setup();
-  }, [profiles, dates]);
+  }, [profiles, dates, retrievePlanning, allowedMultiple]);
   const value = {
     areas,
     dates,

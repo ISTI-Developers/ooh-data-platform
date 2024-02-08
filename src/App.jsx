@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,6 +7,9 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
+import { RiInformationFill } from "react-icons/ri";
+import { Alert } from "flowbite-react";
+import Cookies from "js-cookie";
 import classNames from "classnames";
 import Header from "~fragments/Header";
 import Map from "~pages/Map";
@@ -14,11 +18,8 @@ import Planning from "~pages/Planning";
 import Register from "~pages/Register";
 import Audience from "~pages/Audience";
 import { AuthProvider, useAuth } from "~config/authContext";
-import Cookies from "js-cookie";
-import { Alert } from "flowbite-react";
-import { RiInformationFill } from "react-icons/ri";
-import { useEffect } from "react";
-// import Posts from "~pages/Posts";
+
+// Main App Component
 function App() {
   return (
     <>
@@ -31,9 +32,13 @@ function App() {
     </>
   );
 }
+
+// AppRoutes Component handles top-level routing and layout
 function AppRoutes() {
   const location = useLocation();
   const { alert, setAlert } = useAuth();
+
+  // Auto-dismiss alert after 3 seconds
   useEffect(() => {
     if (alert.isOn) {
       setTimeout(() => {
@@ -56,6 +61,7 @@ function AppRoutes() {
             : ""
         )}
       >
+        {/* Display alert if present */}
         {alert.isOn && (
           <Alert
             icon={RiInformationFill}
@@ -74,12 +80,13 @@ function AppRoutes() {
             </span>
           </Alert>
         )}
+
+        {/* React Router Routes */}
         <Routes>
           <Route element={<ProtectedRoutes />}>
             <Route exact path="/" element={<Planning />} />
             <Route path="/map" element={<Map />} />
             <Route path="/audience/*" element={<Audience />} />
-            {/* <Route path="/test/*" element={<Posts />} /> */}
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -89,9 +96,9 @@ function AppRoutes() {
   );
 }
 
+// ProtectedRoutes Component to handle authentication checks
 function ProtectedRoutes() {
   const isAuthenticated = Cookies.get("user");
-
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 }
 

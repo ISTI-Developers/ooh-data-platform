@@ -130,12 +130,18 @@ function Planning() {
         <PlanningModal
           trigger={profile}
           toggle={setProfile}
-          header={
-            <ProfileHeader {...{ profile, allowedMultiple, toggleMultiple }} />
-          }
+          header={<ProfileHeader {...{ profile }} />}
+          isProfile 
           body={
             <ProfileBody
-              {...{ addDemographics, profiles, setProfiles, profile }}
+              {...{
+                addDemographics,
+                profiles,
+                setProfiles,
+                profile,
+                allowedMultiple,
+                toggleMultiple,
+              }}
             />
           }
           footer={
@@ -196,7 +202,7 @@ function Planning() {
 const SelectedAreasBody = ({ areas, setAreas }) => {
   return (
     <>
-      {areas.length > 0 ? (
+      {areas?.length > 0 ? (
         <>
           <ul className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
             {areas.map((item, index) => {
@@ -251,7 +257,9 @@ const Header = ({ filter, headerName, setFilter }) => {
         <>
           <Button
             color="transparent"
-            onClick={() => setFilter(null)}
+            onClick={() =>
+              headerName === "Selected Areas" ? setFilter([]) : setFilter(null)
+            }
             className="text-slate-500"
           >
             Clear
@@ -318,44 +326,58 @@ const ProfileFilterBody = ({ profiles, setProfiles }) => {
     </>
   );
 };
-const ProfileHeader = ({ profile, allowedMultiple, toggleMultiple }) => {
+const ProfileHeader = ({ profile }) => {
   const { capitalize, toSpaced } = useFunction();
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex gap-4">
       <p className="font-semibold text-main text-lg flex gap-2">
         {capitalize(toSpaced(profile.key))}
       </p>
-      {profile.multi && (
-        <ToggleSwitch
-          label="Show Exact Match"
-          checked={allowedMultiple.find((key) => key === profile.key)}
-          onChange={(checked) => {
-            const profileKeyIndex = allowedMultiple.findIndex(
-              (key) => key === profile.key
-            );
-
-            if (checked && profileKeyIndex === -1) {
-              toggleMultiple((prev) => [...prev, profile.key]);
-            } else if (!checked && profileKeyIndex !== -1) {
-              toggleMultiple((prev) => {
-                const tempKeys = [...prev];
-                tempKeys.splice(profileKeyIndex, 1);
-                return tempKeys;
-              });
-            }
-          }}
-        />
-      )}
     </div>
   );
 };
-const ProfileBody = ({ addDemographics, profiles, setProfiles, profile }) => {
+const ProfileBody = ({
+  addDemographics,
+  profiles,
+  setProfiles,
+  profile,
+  allowedMultiple,
+  toggleMultiple,
+}) => {
   const { capitalize } = useFunction();
   const { data } = profile;
   return (
-    <div className="px-2">
+    <div className="px-2 flex flex-col gap-2">
+      {profile.multi && (
+        <div className="flex flex-col border-b p-2 gap-1 w-full max-w-[350px]">
+          <ToggleSwitch
+            label="Show Exact Match"
+            checked={allowedMultiple.find((key) => key === profile.key)}
+            onChange={(checked) => {
+              const profileKeyIndex = allowedMultiple.findIndex(
+                (key) => key === profile.key
+              );
+
+              if (checked && profileKeyIndex === -1) {
+                toggleMultiple((prev) => [...prev, profile.key]);
+              } else if (!checked && profileKeyIndex !== -1) {
+                toggleMultiple((prev) => {
+                  const tempKeys = [...prev];
+                  tempKeys.splice(profileKeyIndex, 1);
+                  return tempKeys;
+                });
+              }
+            }}
+          />
+          <span className="text-gray-500 text-xs">
+            {allowedMultiple.find((key) => key === profile.key)
+              ? "Profiles shown will align with ALL selected options"
+              : "Profiles shown will align with ANY selected options"}
+          </span>
+        </div>
+      )}
       <p>Please choose from the options below:</p>
-      <section className="flex flex-wrap gap-3 py-4 items-center">
+      <section className="flex flex-wrap gap-4 pb-2 items-center">
         {data.map((dmg) => {
           return (
             <div key={dmg.key} className="py-1">

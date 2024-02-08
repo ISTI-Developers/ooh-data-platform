@@ -2,10 +2,7 @@ import PropTypes from "prop-types";
 import { Table } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
-import { useService } from "~config/services";
 import Loader from "~fragments/Loader";
-import sampleSites from "~config/sites.json";
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp,
@@ -15,11 +12,10 @@ import { useFunction } from "~config/functions";
 import { usePlanning } from "~config/PlanningContext";
 
 function Results() {
-  const { dates, profiles, areas } = usePlanning();
+  const { profiles, areas, siteResults } = usePlanning();
   const [sites, setSites] = useState(null);
   const [sort, setSort] = useState("# fits profile");
   const [order, setOrder] = useState(false);
-  const { retrievePlanning } = useService();
   const { toUnderscored } = useFunction();
   const navigate = useNavigate();
   const headers = [
@@ -31,85 +27,14 @@ function Results() {
   ];
 
   useEffect(() => {
-    const groupFilters = () => {
-      if (!profiles) return null;
-
-      return profiles.reduce((result, current) => {
-        const question = current.question;
-        result[question] = result[question] || [];
-        result[question].push(current.key);
-        return result;
-      }, {});
-    };
     const setup = async () => {
       if ((profiles === null || profiles?.length === 0) && areas.length === 0) {
         setSites([]);
         return;
       }
-      const filterSites = () => {
-        const filters = groupFilters();
-        if (!filters)
-          return sampleSites.map((site, index) => {
-            return {
-              id: index + 1,
-              site: site.site,
-              area: site.area,
-              region: site.region,
-              fits_no: 65,
-              fits_rate: 100,
-              avg_monthly_impressions: 65,
-            };
-          });
 
-        const profiles = Object.keys(filters);
-
-        const audiences = sampleSites.map((site) => site.analytics.audiences);
-
-        const fits = audiences.map((response) => {
-          const fits = [];
-          return profiles.map((profile) => {
-            let question = response.find(
-              (response) =>
-                toUnderscored(response.question.toLowerCase()) === profile
-            );
-            question = question.responses;
-            const sum = question
-              .filter((q) => filters[profile].includes(q.choice))
-              ?.reduce((sum, item) => (sum += item.count), 0);
-            fits.push(sum);
-
-            return fits.reduce((sum, total) => (sum += total), 0);
-          });
-        });
-
-        const data = sampleSites.map((site, index) => {
-          return {
-            id: index + 1,
-            site: site.site,
-            area: site.area,
-            region: site.region,
-            fits_no: fits[index].reduce((sum, total) => (sum += total), 0),
-            fits_rate:
-              (fits[index].reduce((sum, total) => (sum += total), 0) / 65) *
-              100,
-            avg_monthly_impressions: 65,
-          };
-        });
-        return data;
-      };
-
-      const options = {
-        ...groupFilters(),
-        dates: {
-          from: format(new Date(dates.from), "MM-dd-yyyy"),
-          to: format(new Date(dates.to), "MM-dd-yyyy"),
-        },
-      };
-
-      const data = await retrievePlanning("areas", options);
-
-      if (data) {
-        const siteData = Object.values(data);
+      if (siteResults) {
+        const siteData = Object.values(siteResults);
 
         setSites([
           ...siteData
@@ -139,17 +64,12 @@ function Results() {
               // Use localeCompare for strings
               return String(value1).localeCompare(String(value2)) * sortOrder;
             }),
-          ...filterSites().filter((data) =>
-            areas.length > 0
-              ? areas.some((result) => result.area === data.area)
-              : true
-          ),
         ]);
       }
     };
 
     setup();
-  }, [areas, dates, profiles, sort, order]);
+  }, [areas, order, profiles, siteResults, sort]);
 
   return sites !== null ? (
     <div className="overflow-x-auto">

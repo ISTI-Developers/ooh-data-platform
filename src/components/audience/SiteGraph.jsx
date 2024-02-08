@@ -64,7 +64,7 @@ function SiteGraph({ title, data, className, isFetching }) {
           <Line
             type="linear"
             dataKey={keys[2]}
-            stroke="#8884d8"
+            stroke="#ec9912"
             strokeWidth={3}
             dot={null}
           />

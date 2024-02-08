@@ -68,6 +68,10 @@ function BehavioralInformation({ audiences = [] }) {
         return transformedItem;
       });
     }
+    if (groupedWeek.length === 1) {
+      updatedAudience.push(...groupedWeek);
+      groupedWeek.splice(0, 1);
+    }
     if (groupedWeek.length !== 0) {
       transformedData.push(
         ...groupedWeek.map((item) => {
@@ -115,7 +119,7 @@ function BehavioralInformation({ audiences = [] }) {
   };
   const CustomYAxisTick = ({ x, y, payload }) => {
     // Customize the appearance of the ticks here
-    const maxWordsPerLine = 30;
+    const maxWordsPerLine = 25;
     const textStyle = { fontSize: 12, fill: "#4f4f4f", fontWeight: "bold" };
 
     // Split the text into multiple lines
@@ -144,7 +148,52 @@ function BehavioralInformation({ audiences = [] }) {
             key={index}
             x={0}
             y={index * 12} // Adjust spacing between lines
-            dy={index === 0 ? 0 : 1.2}
+            dy={index === 0 ? 3 : 3}
+            textAnchor="end"
+            style={textStyle}
+          >
+            {line}
+          </text>
+        ))}
+      </g>
+    );
+  };
+  const CustomXAxisTick = ({ x, y, payload }) => {
+    // Customize the appearance of the ticks here
+    const maxWordsPerLine = 25;
+    const textStyle = {
+      fontSize: 10,
+      fill: "#2f2f2f",
+      transform: "rotate(-50deg)",
+    };
+
+    // Split the text into multiple lines
+    let text = toSentenceCase(toSpaced(payload.value));
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = "";
+
+    for (let i = 0; i < words.length; i++) {
+      if (
+        (currentLine + words[i]).length <= maxWordsPerLine ||
+        currentLine === ""
+      ) {
+        currentLine += (currentLine === "" ? "" : " ") + words[i];
+      } else {
+        lines.push(currentLine);
+        currentLine = words[i];
+      }
+    }
+    lines.push(currentLine);
+
+    return (
+      <g transform={`translate(${x},${y})`}>
+        {lines.map((line, index) => (
+          <text
+            key={index}
+            x={0}
+            y={index * 12} // Adjust spacing between lines
+            dy={index === 0 ? 3 : 3}
             textAnchor="end"
             style={textStyle}
           >
@@ -175,7 +224,7 @@ function BehavioralInformation({ audiences = [] }) {
                 </p>
                 <ResponsiveContainer
                   width={"100%"}
-                  height={350}
+                  height={400}
                   className="w-full"
                 >
                   {responses.length <= 6 ? (
@@ -208,19 +257,22 @@ function BehavioralInformation({ audiences = [] }) {
                       />
                     </PieChart>
                   ) : (
-                    <BarChart data={responses}>
+                    <BarChart data={responses} margin={{ bottom: 50 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis
                         dataKey="choice"
                         interval={0}
                         height={60}
-                        angle={-40}
-                        fontSize={12}
-                        textAnchor="end"
+                        tick={<CustomXAxisTick />}
                       />
+
                       <YAxis />
                       <Tooltip content={<CustomToolTip />} />
-                      <Legend />
+                      <Legend
+                        layout="horizontal"
+                        verticalAlign="top"
+                        align="center"
+                      />
                       <Bar dataKey="count" fill={colors[index]} />
                     </BarChart>
                   )}
