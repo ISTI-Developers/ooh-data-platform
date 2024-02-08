@@ -4,133 +4,348 @@ import { PiCaretDownBold } from "react-icons/pi";
 import { MdCalendarMonth } from "react-icons/md";
 import { useEffect, useState } from "react";
 import DatePickerModal from "./DatePickerModal";
-import { Label, Select } from "flowbite-react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useFunction } from "~config/functions";
+import { Label, Table, TextInput } from "flowbite-react";
 import { useService } from "~config/services";
 import sites from "~config/sites.json";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
+import { defaultTextTheme } from "~config/themes";
+import { useFunction } from "~config/functions";
+import { useLocation, useNavigate } from "react-router-dom";
 
-function AudienceOptions() {
-  const url = useLocation();
-  const navigate = useNavigate();
-  const { toUnderscored, toSpaced } = useFunction();
+function AudienceOptions({ filterOptions, setQuery }) {
   const { retrieveSites } = useService();
+  const { searchItems, toUnderscored } = useFunction();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const animatedComponents = makeAnimated();
+  const filters = [
+    { value: "all", label: "All" },
+    { value: "classic", label: "Classic" },
+    { value: "digital", label: "Digital" },
+  ];
 
   const [siteNames, setSiteNames] = useState(null);
-  const [filter, setFilter] = useState("all");
+  const [results, setResults] = useState(null);
+  const [options, setOptions] = useState({
+    regions: [],
+    areas: [],
+    cities: [],
+  });
+  const [region, setRegion] = useState([]);
+  const [area, setArea] = useState([]);
+  const [city, setCity] = useState([]);
+  const [filter, setFilter] = useState(filters[0]);
 
-  const selectedLocation = url.pathname.split("/")[2];
+  const revertOptions = (key, value) => {
+    filterOptions((prev) => ({
+      ...Object.fromEntries(
+        ["region", "city", "area"].map((k) => [k, k === key ? value : []])
+      ),
+      type: prev.type,
+    }));
+  };
+
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      console.log(data);
-      const sampleSites = sites;
-      console.log(data);
-      if (filter !== "all") {
-        setSiteNames([
-          ...data
-            .filter((item) => item.type.toLowerCase() === filter.toLowerCase())
-            .map((item) => ({
-              site_id: item.site_id,
-              site: item.site,
-              type: item.type,
-            })),
-          ...sampleSites
-            .filter((item) => item.type.toLowerCase() === filter.toLowerCase())
-            .map((item) => ({
-              site_id: item.site_id,
-              site: item.site,
-              type: item.type,
-            })),
-        ]);
+      const sampleSites = [
+        ...data,
+        ...sites.map((site) => ({
+          area: site.area,
+          city: site.city,
+          ideal_view:
+            site?.ideal_view || "14.570479942647982, 121.04641726263134",
+          imageURL:
+            site?.imageURL ||
+            "https://img.freepik.com/free-psd/blank-billboard-mockup_53876-12218.jpg",
+          latitude: site.latitude,
+          longitude: site.longitude,
+          price: site.price || 102931,
+          region: site.region,
+          segments: site.segments,
+          site: site.site,
+          site_id: site.site_id,
+          size: site.size,
+          type: site.type,
+        })),
+      ];
+      if (filter.value !== "all") {
+        setSiteNames(
+          sampleSites.filter((site) => site.type.toLowerCase() === filter.value)
+        );
       } else {
-        setSiteNames([
-          ...data.map((item) => ({
-            site_id: item.site_id,
-            site: item.site,
-            type: item.type,
-          })),
-          ...sampleSites.map((item) => ({
-            site_id: item.site_id,
-            site: item.site,
-            type: item.type,
-          })),
-        ]);
+        setSiteNames(sampleSites);
       }
+
+      setOptions((prev) => ({
+        ...prev,
+        regions: sampleSites
+          .map((item) => ({ value: item.region, label: item.region }))
+          .filter(
+            (item, index, self) =>
+              index ===
+              self.findIndex(
+                (t) => t.value === item.value && t.label === item.label
+              )
+          ),
+      }));
     };
     setup();
-  }, [filter]);
+  }, [filter.value, retrieveSites]);
+  useEffect(() => {
+    if (siteNames) {
+      if (region.length !== 0) {
+        const regions = [...new Set(region.map((reg) => reg.value))];
+        setOptions((prev) => ({
+          ...prev,
+          cities: siteNames
+            .filter((site) => regions.includes(site.region))
+            .map((item) => ({ value: item.city, label: item.city }))
+            .filter(
+              (item, index, self) =>
+                index ===
+                self.findIndex(
+                  (t) => t.value === item.value && t.label === item.label
+                )
+            ),
+        }));
+      } else {
+        setOptions((prev) => ({ ...prev, cities: [] }));
+      }
+    }
+  }, [region, siteNames]);
+
+  useEffect(() => {
+    if (siteNames) {
+      if (city.length !== 0) {
+        const cities = [...new Set(city.map((reg) => reg.value))];
+        setOptions((prev) => ({
+          ...prev,
+          areas: siteNames
+            .filter((site) => cities.includes(site.city))
+            .map((item) => ({ value: item.area, label: item.area }))
+            .filter(
+              (item, index, self) =>
+                index ===
+                self.findIndex(
+                  (t) => t.value === item.value && t.label === item.label
+                )
+            ),
+        }));
+      } else {
+        setOptions((prev) => ({ ...prev, areas: [] }));
+      }
+    }
+  }, [city, siteNames]);
+
   return (
-    <div className="flex flex-row items-center gap-4">
-      <div>
-        <Label htmlFor="regions" value="Filter Site: " />
-        <Select
-          id="regions"
+    <div className="flex flex-col gap-2">
+      <div className="relative">
+        <Label value="Search site" />
+        <TextInput
+          type="search"
+          theme={defaultTextTheme}
           onChange={(e) => {
-            setSiteNames(null);
-            setFilter(e.target.value);
+            if (e.target.value.length >= 3) {
+              setQuery(e.target.value);
+              setResults(searchItems(siteNames, e.target.value));
+            } else {
+              setQuery(null);
+              setResults(null);
+            }
           }}
-        >
-          <option value="all" selected={!filter} defaultChecked>
-            All
-          </option>
-          <option value="classic">Classic</option>
-          <option value="digital">Digital</option>
-        </Select>
+        />
+        {location.pathname.split("/").length !== 2 && (
+          <>
+            {results && results.length !== 0 && (
+              <div className="absolute w-full bg-white shadow z-[1]">
+                <Table>
+                  <Table.Body>
+                    {results.map((site) => {
+                      return (
+                        <Table.Row
+                          key={site.site_id}
+                          className="cursor-pointer hover:bg-slate-50"
+                          onClick={() => {
+                            setQuery(null);
+                            setResults(null);
+                            navigate(`./${toUnderscored(site.site)}`);
+                          }}
+                        >
+                          <Table.Cell>
+                            <div>
+                              <p className="font-semibold text-black">
+                                {site.site}
+                              </p>
+                              <div className="text-xs">
+                                <p>{site.region}</p>
+                                <p>{site.city}</p>
+                                <p>{site.area}</p>
+                              </div>
+                            </div>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <div>
+                              <p>{site.latitude}</p>
+                              <p>{site.longitude}</p>
+                            </div>
+                          </Table.Cell>
+                          <Table.Cell className="capitalize">
+                            {site.type}
+                          </Table.Cell>
+                        </Table.Row>
+                      );
+                    })}
+                  </Table.Body>
+                </Table>
+              </div>
+            )}
+          </>
+        )}
       </div>
-      <div>
-        <Label htmlFor="regions" value="Select Site: " />
-        <Select
-          id="regions"
-          onChange={(e) => {
-            navigate(`./${toUnderscored(e.target.value)}`);
-          }}
-        >
-          {!siteNames ? (
-            <option value="" selected={!selectedLocation} defaultChecked>
-              Loading options...
-            </option>
-          ) : siteNames.length === 0 ? (
-            <option value="" selected={!selectedLocation} defaultChecked>
-              No sites available
-            </option>
-          ) : (
-            <>
-              <option
-                value=""
-                disabled
-                selected={!selectedLocation}
-                defaultChecked
-              >
-                --Select--
-              </option>
-              {siteNames.map((region) => {
-                return (
-                  <option
-                    key={region.site_id}
-                    value={region.site}
-                    selected={
-                      selectedLocation
-                        ? toSpaced(selectedLocation) === region.site
-                        : false
-                    }
-                  >
-                    {region.site}
-                  </option>
-                );
-              })}
-            </>
-          )}
-        </Select>
+      <div className="flex items-center gap-4">
+        <div>
+          {/* {console.log(options)}x */}
+          <Label htmlFor="type" value="Site Type " />
+          <Select
+            id="type"
+            closeMenuOnSelect
+            isSearchable={false}
+            value={filter}
+            components={animatedComponents}
+            className="min-w-[200px]"
+            options={filters}
+            onChange={(e) => {
+              setSiteNames(null);
+              setFilter(e);
+              filterOptions((prev) => {
+                return {
+                  ...prev,
+                  type: e.value,
+                };
+              });
+            }}
+          />
+        </div>
+        <div>
+          <Label htmlFor="regions" value={`Select Region`} />
+          <Select
+            id="regions"
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            isMulti
+            className="min-w-[200px]"
+            value={region}
+            options={options?.regions}
+            onChange={(e) => {
+              const regions = [...new Set(e.map((e) => e.value))];
+              if (regions.length > 0) {
+                filterOptions((prev) => {
+                  return {
+                    ...prev,
+                    region: regions,
+                  };
+                });
+                setRegion(e);
+                setCity((cities) => {
+                  const updatedCity = [...cities];
+                  const siteCities = siteNames
+                    .filter((site) => regions.includes(site.region))
+                    .map((site) => site.city);
+                  const updatedCities = updatedCity.filter((city) =>
+                    siteCities.includes(city.value)
+                  );
+                  setArea((areas) => {
+                    const mappedCities = updatedCities.map(
+                      (city) => city.value
+                    );
+                    const updated = [...areas];
+                    const sites = siteNames
+                      .filter((site) => mappedCities.includes(site.city))
+                      .map((site) => site.area);
+                    const updatedAreas = updated.filter((area) =>
+                      sites.includes(area.value)
+                    );
+                    return updatedAreas;
+                  });
+                  return updatedCities;
+                });
+              } else {
+                revertOptions("region", regions);
+                setRegion(e);
+                setCity([]);
+                setArea([]);
+              }
+            }}
+          />
+        </div>
+        <div>
+          <Label htmlFor="cities" value={`Select City`} />
+          <Select
+            id="cities"
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            isMulti
+            className="min-w-[200px]"
+            value={city}
+            isDisabled={options.cities.length === 0}
+            options={options?.cities}
+            onChange={(e) => {
+              const cities = [...new Set(e.map((e) => e.value))];
+              if (cities.length > 0) {
+                filterOptions((prev) => {
+                  return {
+                    ...prev,
+                    city: cities,
+                  };
+                });
+                setCity(e);
+                setArea((areas) => {
+                  const updated = [...areas];
+                  const sites = siteNames
+                    .filter((site) => cities.includes(site.city))
+                    .map((site) => site.area);
+                  const updatedAreas = updated.filter((area) =>
+                    sites.includes(area.value)
+                  );
+                  return updatedAreas;
+                });
+              } else {
+                revertOptions("city", cities);
+                setCity([]);
+                setArea([]);
+              }
+            }}
+          />
+        </div>
+        <div>
+          <Label htmlFor="areas" value={`Select Area`} />
+          <Select
+            id="areas"
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            isMulti
+            isDisabled={options.areas.length === 0}
+            value={area}
+            className="min-w-[200px]"
+            options={options?.areas}
+            onChange={(e) => {
+              const areas = [...new Set(e.map((e) => e.value))];
+              filterOptions((prev) => {
+                return {
+                  ...prev,
+                  area: areas,
+                };
+              });
+              setArea(e);
+            }}
+          />
+        </div>
       </div>
     </div>
   );
 }
-
-AudienceOptions.propTypes = {
-  location: PropTypes.string,
-  setLocation: PropTypes.func,
-};
 
 export function DateRangePicker({ dates, setDates, showLoader }) {
   const [onSelectDate, toggleDateButton] = useState(false);
@@ -173,7 +388,10 @@ DateRangePicker.propTypes = {
   setDates: PropTypes.func,
   showLoader: PropTypes.func,
 };
+
 AudienceOptions.propTypes = {
-  isLoading: PropTypes.bool,
+  filterOptions: PropTypes.func,
+  setQuery: PropTypes.func,
 };
+
 export default AudienceOptions;

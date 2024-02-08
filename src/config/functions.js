@@ -77,6 +77,44 @@ const toSentenceCase = (str) => {
   return "";
 };
 
+function offsetCoordinate(lat, lng, offsetMeters) {
+  // Earth's radius in meters
+  const earthRadius = 6378137; // Approximate value for Earth's radius in meters
+
+  // Offset in radians
+  const offsetLat = offsetMeters / earthRadius;
+  const offsetLng =
+    offsetMeters / (earthRadius * Math.cos((Math.PI * lat) / 180));
+
+  // New latitude and longitude after offset
+  const newLat = lat + (offsetLat * 180) / Math.PI;
+  const newLng = lng + (offsetLng * 180) / Math.PI;
+
+  return { lat: newLat, lng: newLng };
+}
+function searchItems(array, query) {
+  // Convert query to lowercase for case-insensitive search
+  const lowerCaseQuery = query.toLowerCase();
+
+  // Array to store matched objects
+  const matches = [];
+
+  // Loop through each object in the array
+  for (let obj of array) {
+    // Check each key in the object
+    for (let key in obj) {
+      // Check if the value of the key contains the query string
+      if (obj[key].toString().toLowerCase().includes(lowerCaseQuery)) {
+        // If there's a match, add the object to the matches array
+        matches.push(obj);
+        // Break out of the loop to avoid adding the same object multiple times
+        break;
+      }
+    }
+  }
+
+  return matches;
+}
 export const useFunction = () => {
   return {
     colors,
@@ -85,5 +123,7 @@ export const useFunction = () => {
     toSpaced,
     capitalize,
     toSentenceCase,
+    offsetCoordinate,
+    searchItems,
   };
 };
