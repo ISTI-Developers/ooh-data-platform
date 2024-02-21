@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useService } from "~config/services";
-import sites from "~config/sites.json";
 import { Table } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "~fragments/Loader";
@@ -9,7 +8,7 @@ import { useFunction } from "~config/functions";
 
 function SiteAudienceList({ options, query }) {
   const { retrieveSites } = useService();
-  const { toUnderscored, searchItems } = useFunction();
+  const { searchItems } = useFunction();
   const headers = ["site", "location", "coordinates", "type"];
   const [siteList, setSites] = useState(null);
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ function SiteAudienceList({ options, query }) {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      let combinedSites = [...data, ...sites].map((item) => ({
+      let combinedSites = data.map((item) => ({
         site_id: item.site_id,
         site: item.site,
         region: item.region,
@@ -78,7 +77,7 @@ function SiteAudienceList({ options, query }) {
                     <Table.Row
                       key={site.site_id}
                       className="p-2 cursor-pointer hover:bg-slate-100"
-                      onClick={() => navigate(`./${toUnderscored(site.site)}`)}
+                      onClick={() => navigate(`./${site.site_id}`)}
                     >
                       <Table.Cell>{site.site}</Table.Cell>
                       <Table.Cell>

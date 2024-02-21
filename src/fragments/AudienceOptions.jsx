@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import DatePickerModal from "./DatePickerModal";
 import { Label, Table, TextInput } from "flowbite-react";
 import { useService } from "~config/services";
-import sites from "~config/sites.json";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { defaultTextTheme } from "~config/themes";
@@ -49,38 +48,17 @@ function AudienceOptions({ filterOptions, setQuery }) {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      const sampleSites = [
-        ...data,
-        ...sites.map((site) => ({
-          area: site.area,
-          city: site.city,
-          ideal_view:
-            site?.ideal_view || "14.570479942647982, 121.04641726263134",
-          imageURL:
-            site?.imageURL ||
-            "https://img.freepik.com/free-psd/blank-billboard-mockup_53876-12218.jpg",
-          latitude: site.latitude,
-          longitude: site.longitude,
-          price: site.price || 102931,
-          region: site.region,
-          segments: site.segments,
-          site: site.site,
-          site_id: site.site_id,
-          size: site.size,
-          type: site.type,
-        })),
-      ];
       if (filter.value !== "all") {
         setSiteNames(
-          sampleSites.filter((site) => site.type.toLowerCase() === filter.value)
+          data.filter((site) => site.type.toLowerCase() === filter.value)
         );
       } else {
-        setSiteNames(sampleSites);
+        setSiteNames(data);
       }
 
       setOptions((prev) => ({
         ...prev,
-        regions: sampleSites
+        regions: data
           .map((item) => ({ value: item.region, label: item.region }))
           .filter(
             (item, index, self) =>

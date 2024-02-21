@@ -10,7 +10,6 @@ import { Link, useParams } from "react-router-dom";
 import { useFunction } from "~config/functions";
 import { useService } from "~config/services";
 import SiteInformationLoader from "./SiteInformationLoader";
-import sites from "~config/sites.json";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
@@ -94,18 +93,15 @@ function SiteInformation() {
     const setup = async () => {
       console.log("fetching...");
       setSiteData(null);
-      if (id === "GUADALED") {
-        const data = await retrieveSite(id, dates);
-        if (data) {
-          setSiteData(data);
-          console.log("site information loaded :)");
-        } else {
-          console.log("No data found.");
-        }
+      const data = await retrieveSite(10, dates);
+      if (data) {
+        console.log(data);
+        setSiteData(data);
+        console.log("site information loaded :)");
       } else {
-        const sampleSite = sites.find((site) => site.site === toSpaced(id));
-        setSiteData(sampleSite);
+        console.log("No data found.");
       }
+
       toggleFetching(false);
     };
     setup();
@@ -119,7 +115,7 @@ function SiteInformation() {
         <div className="flex gap-4 w-full flex-col lg:flex-row">
           <div className="lg:w-2/6 bg-white p-4 flex flex-col gap-4 shadow">
             <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
-              {toSpaced(id) || siteData.area_code}
+              {capitalize(siteData.name)}
             </header>
             <img
               src={

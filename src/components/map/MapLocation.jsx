@@ -8,7 +8,6 @@ import classNames from "classnames";
 import { IoMdMenu } from "react-icons/io";
 import { useService } from "~config/services";
 import Loader from "~fragments/Loader";
-import sites from "~config/sites.json";
 import { defaultTextTheme } from "~config/themes";
 import { useFunction } from "~config/functions";
 function MapLocation() {
@@ -64,28 +63,15 @@ function MapLocation() {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      const sampleData = sites;
       setBillboards([
         ...data.map((item) => ({
           ...item,
           longitude: parseFloat(item.longitude),
           latitude: parseFloat(item.latitude),
         })),
-        ...sampleData.map((item) => ({
-          site_id: item.site_id,
-          site: item.site,
-          area: item.area,
-          region: item.region,
-          type: item.type,
-          longitude: parseFloat(item.longitude),
-          latitude: parseFloat(item.latitude),
-        })),
       ]);
       const coordinates = [
         ...data.map((item) => {
-          return [parseFloat(item.latitude), parseFloat(item.longitude)];
-        }),
-        ...sampleData.map((item) => {
           return [parseFloat(item.latitude), parseFloat(item.longitude)];
         }),
       ];

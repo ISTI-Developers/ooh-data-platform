@@ -3,13 +3,10 @@ import { Table } from "flowbite-react";
 import classNames from "classnames";
 import { FaCheck } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import sampleSites from "~config/sites.json";
-import { useFunction } from "~config/functions";
 import { usePlanning } from "~config/PlanningContext";
 
 function PlanningTable({ filter }) {
   const [sites, setSites] = useState([]);
-  const { toUnderscored } = useFunction();
   const { dates, profiles, areas, setAreas, allowedMultiple, siteResults } =
     usePlanning();
   const headers = [
@@ -45,83 +42,8 @@ function PlanningTable({ filter }) {
 
     return Object.values(groupedData);
   };
-  const groupFilters = () => {
-    if (!profiles) return;
-
-    const groupedData = profiles.reduce((result, current) => {
-      const question = current.question;
-
-      if (!result[question]) {
-        result[question] = {
-          allowMultiple: false,
-          choices: [],
-        };
-      }
-
-      result[question].choices.push(current.key);
-
-      // Update allowMultiple based on allowedMultiple array
-      if (allowedMultiple && allowedMultiple.length > 0) {
-        // Check if the question key is in allowedMultiple
-        result[question].allowMultiple = allowedMultiple.includes(question);
-      }
-
-      return result;
-    }, {});
-    return groupedData;
-  };
 
   useEffect(() => {
-    // const filterSites = () => {
-    //   const filters = groupFilters();
-    //   if (!filters)
-    //     return sampleSites.map((site, index) => {
-    //       return {
-    //         id: index + 1,
-    //         site: site.site,
-    //         area: site.area,
-    //         region: site.region,
-    //         fits_no: 65,
-    //         fits_rate: 100,
-    //         avg_monthly_impressions: 65,
-    //       };
-    //     });
-
-    //   const profiles = Object.keys(filters);
-
-    //   const audiences = sampleSites.map((site) => site.analytics.audiences);
-
-    //   const fits = audiences.map((response) => {
-    //     const fits = [];
-    //     return profiles.map((profile) => {
-    //       let question = response.find(
-    //         (response) =>
-    //           toUnderscored(response.question.toLowerCase()) === profile
-    //       );
-    //       question = question.responses;
-    //       const sum = question
-    //         .filter((q) => filters[profile].includes(q.choice))
-    //         ?.reduce((sum, item) => (sum += item.count), 0);
-    //       fits.push(sum);
-
-    //       return fits.reduce((sum, total) => (sum += total), 0);
-    //     });
-    //   });
-
-    //   const data = sampleSites.map((site, index) => {
-    //     return {
-    //       id: index + 1,
-    //       site: site.site,
-    //       area: site.area,
-    //       region: site.region,
-    //       fits_no: fits[index].reduce((sum, total) => (sum += total), 0),
-    //       fits_rate:
-    //         (fits[index].reduce((sum, total) => (sum += total), 0) / 65) * 100,
-    //       avg_monthly_impressions: 65,
-    //     };
-    //   });
-    //   return data;
-    // };
     const setup = async () => {
       if (siteResults) {
         const siteData = [...Object.values(siteResults) /*, ...filterSites()*/];
