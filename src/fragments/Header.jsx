@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Navbar } from "flowbite-react";
 import { Link, useLocation } from "react-router-dom";
-import logo from "../assets/unai.png";
+import logo from "../assets/scmi.png";
 import PropTypes from "prop-types";
 import { navbarTheme } from "../config/themes";
 import { useAuth } from "../config/authContext";
