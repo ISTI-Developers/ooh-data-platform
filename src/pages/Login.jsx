@@ -8,6 +8,7 @@ import {
   passwordFieldTheme,
 } from "../config/themes";
 import { useAuth } from "../config/authContext";
+import Cookies from "js-cookie";
 
 function Login() {
   const { user, signInUser, setAlert } = useAuth();
@@ -27,7 +28,11 @@ function Login() {
 
     const response = await signInUser(uname, pass);
     if (response?.acknowledged) {
-      navigate("/");
+      if (response.role.permissions.admin.access) {
+        window.location.href = "http://localhost:5174/";
+      } else {
+        navigate("/");
+      }
     } else {
       setAlert({
         isOn: true,
@@ -40,7 +45,11 @@ function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      if (JSON.parse(Cookies.get("role")).permissions.admin.access) {
+        window.location.href = "http://localhost:5174/";
+      } else {
+        navigate("/");
+      }
     }
   }, [navigate, user]);
   return (
@@ -98,7 +107,7 @@ function Login() {
                 </button>
               </div>
               <Link
-                to="/login"
+                to="/forgot-password"
                 className="text-sm font-semibold text-secondary w-fit"
               >
                 Forgot Password?

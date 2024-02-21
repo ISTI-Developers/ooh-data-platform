@@ -90,7 +90,7 @@ export function PlanningProvider({ children }) {
       setSiteResults(response);
     };
     setup();
-  }, [profiles, dates, retrievePlanning, allowedMultiple]);
+  }, [profiles, dates, allowedMultiple]);
   const value = {
     areas,
     dates,

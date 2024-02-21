@@ -18,6 +18,7 @@ import Planning from "~pages/Planning";
 import Register from "~pages/Register";
 import Audience from "~pages/Audience";
 import { AuthProvider, useAuth } from "~config/authContext";
+import ForgotPassword from "~pages/ForgotPassword";
 
 // Main App Component
 function App() {
@@ -55,7 +56,7 @@ function AppRoutes() {
     <>
       <div
         className={classNames(
-          "bg-default h-full min-h-[calc(100vh_-_100px)] p-4 xl:px-20 2xl:px-40 flex flex-col gap-4 relative",
+          "bg-default h-full min-h-[calc(100vh_-_110px)] p-4 xl:px-20 2xl:px-40 flex flex-col gap-4 relative",
           ["/login", "/register"].includes(location.pathname)
             ? "justify-center"
             : ""
@@ -89,6 +90,8 @@ function AppRoutes() {
             <Route path="/audience/*" element={<Audience />} />
           </Route>
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/password-recovery" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
         </Routes>
       </div>
