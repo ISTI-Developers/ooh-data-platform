@@ -29,14 +29,20 @@ export function AuthProvider({ children }) {
         password: password,
       });
 
-      console.log(response.data);
+      // console.log(response.data);
       if (response.status === 200) {
         if (response.data.id) {
+          const { role_id } = response.data;
+          const role = await retrieveRole(role_id);
+          console.log(role_id, role);
+          Cookies.set("role", JSON.stringify(role), {
+            domain: "localhost",
+          });
           Cookies.set("user", JSON.stringify(response.data), {
             domain: "localhost",
           });
           setUser(response.data);
-          return { acknowledged: true };
+          return { acknowledged: true, role: role };
         }
       }
     } catch (e) {
@@ -52,6 +58,21 @@ export function AuthProvider({ children }) {
       });
 
       console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const retrieveRole = async (id) => {
+    try {
+      const response = await axios.get(url.roles, {
+        params: {
+          id: id,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
     } catch (e) {
       console.log(e);
     }
@@ -78,6 +99,6 @@ export function AuthProvider({ children }) {
       if (!["/login", "/register"].includes(location.pathname))
         navigate("/login");
     }
-  }, [location.pathname]);
+  }, []);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
