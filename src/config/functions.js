@@ -92,7 +92,8 @@ function offsetCoordinate(lat, lng, offsetMeters) {
 
   return { lat: newLat, lng: newLng };
 }
-function searchItems(array, query) {
+function searchItems(array, query = "") {
+  console.log(query)
   // Convert query to lowercase for case-insensitive search
   const lowerCaseQuery = query.toLowerCase();
 

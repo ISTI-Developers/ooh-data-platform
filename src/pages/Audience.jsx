@@ -12,7 +12,7 @@ function Audience() {
     city: [],
     area: [],
   });
-  const [query, setQuery] = useState(null);
+  const [query, setQuery] = useState("");
   return (
     <div className="w-full">
       <p className="text-xl font-bold text-main flex items-center gap-2">
@@ -22,7 +22,11 @@ function Audience() {
         </span>
       </p>
       <div className="flex flex-col gap-4 w-full">
-        <AudienceOptions filterOptions={setOptions} query={query} setQuery={setQuery} />
+        <AudienceOptions
+          filterOptions={setOptions}
+          query={query}
+          setQuery={setQuery}
+        />
         <Routes>
           <Route
             path="/"
