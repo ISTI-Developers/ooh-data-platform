@@ -19,6 +19,7 @@ function Login() {
   const [isSending, toggleSending] = useState(false);
   const username = useRef(null);
   const password = useRef(null);
+  const adminURL = "http://192.168.11.17:5174";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,7 +30,7 @@ function Login() {
     const response = await signInUser(uname, pass);
     if (response?.acknowledged) {
       if (response.role.permissions.admin.access) {
-        window.location.href = "http://localhost:5174/";
+        window.location.href = adminURL;
       } else {
         navigate("/");
       }
@@ -46,7 +47,7 @@ function Login() {
   useEffect(() => {
     if (user) {
       if (JSON.parse(Cookies.get("role")).permissions.admin.access) {
-        window.location.href = "http://localhost:5174/";
+        window.location.href = adminURL;
       } else {
         navigate("/");
       }

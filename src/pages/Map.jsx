@@ -12,13 +12,7 @@ function Map() {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSitesCount("demographics");
-      const sampleData = data.map((region) => {
-        return {
-          ...region,
-          digital: 5,
-        };
-      });
-      setBillboards(sampleData);
+      setBillboards(data);
     };
     setup();
   }, []);

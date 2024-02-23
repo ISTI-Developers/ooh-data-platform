@@ -4,6 +4,8 @@ export const devEndpoints = {
   login: server + "/user/login",
   roles: server + "/user/roles",
   register: server + "/user/register",
+  email: server + "/user/email-verification",
+  password: server + "/user/password-change",
   planning: server + "/dashboard/planning",
   sites: server + "/dashboard/sites",
 };

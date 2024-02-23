@@ -100,7 +100,6 @@ export function PlanningProvider({ children }) {
     allowedMultiple,
     setAreas,
     setDates,
-    setSiteResults,
     setProfile,
     setProfiles,
     toggleMultiple,

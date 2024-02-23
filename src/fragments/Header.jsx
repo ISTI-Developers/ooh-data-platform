@@ -8,7 +8,7 @@ import { useAuth } from "../config/authContext";
 
 function Header() {
   const location = useLocation();
-  const { user, logoutUser } = useAuth();
+  const { user, logoutUser, isViewable, CheckPermission } = useAuth();
   return (
     <>
       <Navbar theme={navbarTheme} border>
@@ -23,11 +23,11 @@ function Header() {
         <Navbar.Collapse>
           {/* Mapping of links for navigation bar */}
           {user &&
+            isViewable(["maps", "audiences"]) &&
             ["", "map", "audience"].map((item, index) => {
-              return (
+              return index === 0 ? (
                 <Link
                   to={`/${item}`}
-                  key={index}
                   className={classNames(
                     "capitalize font-semibold text-lg hover:text-secondary",
                     //check if same pathname to the item for showing the active link
@@ -39,6 +39,22 @@ function Header() {
                   {/* planning page is the home of the system so it checks if the item == "" */}
                   {item === "" ? "planning" : item}
                 </Link>
+              ) : (
+                <CheckPermission key={index} path={`${item}s`}>
+                  <Link
+                    to={`/${item}`}
+                    className={classNames(
+                      "capitalize font-semibold text-lg hover:text-secondary",
+                      //check if same pathname to the item for showing the active link
+                      location.pathname == `/${item}`
+                        ? "text-secondary"
+                        : "text-main"
+                    )}
+                  >
+                    {/* planning page is the home of the system so it checks if the item == "" */}
+                    {item === "" ? "planning" : item}
+                  </Link>
+                </CheckPermission>
               );
             })}
           {/* conditional rendering if user has logged in or not */}

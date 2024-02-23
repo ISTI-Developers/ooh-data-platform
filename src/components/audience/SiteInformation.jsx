@@ -30,9 +30,9 @@ function SiteInformation() {
     "city",
     "region",
     "site_owner",
-    "latitude",
-    "longitude",
-    "ideal_view",
+    // "latitude",
+    // "longitude",
+    // "ideal_view",
     "type",
     "price",
     "segments",
@@ -93,7 +93,7 @@ function SiteInformation() {
     const setup = async () => {
       console.log("fetching...");
       setSiteData(null);
-      const data = await retrieveSite(10, dates);
+      const data = await retrieveSite(id, dates);
       if (data) {
         console.log(data);
         setSiteData(data);

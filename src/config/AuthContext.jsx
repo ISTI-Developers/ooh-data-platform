@@ -13,9 +13,12 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
+  const domain = window.location.hostname;
+
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState(null);
+  const [role, setRole] = useState(null);
   const [alert, setAlert] = useState({
     isOn: false,
     type: "info",
@@ -34,12 +37,12 @@ export function AuthProvider({ children }) {
         if (response.data.id) {
           const { role_id } = response.data;
           const role = await retrieveRole(role_id);
-          console.log(role_id, role);
+
           Cookies.set("role", JSON.stringify(role), {
-            domain: "localhost",
+            domain: domain,
           });
           Cookies.set("user", JSON.stringify(response.data), {
-            domain: "localhost",
+            domain: domain,
           });
           setUser(response.data);
           return { acknowledged: true, role: role };
@@ -79,26 +82,93 @@ export function AuthProvider({ children }) {
   };
   const logoutUser = () => {
     Cookies.remove("user");
+    Cookies.remove("role");
     Cookies.remove("siteCache");
     setUser(null);
+    setRole(null);
     navigate("/login");
   };
+  const verifyEmail = async (email) => {
+    try {
+      const response = await axios.post(
+        url.email,
+        { email_address: email },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (e) {
+      if (e.response.data) {
+        return e.response.data;
+      }
+    }
+  };
+  const changePassword = async (id, password) => {
+    try {
+      const response = await axios.patch(
+        url.password,
+        { id: id, password: password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
+      return response.data;
+    } catch (e) {
+      console.log(e);
+      if (e.response.data) {
+        return e.response.data;
+      }
+    }
+  };
+  function CheckPermission({ path, children }) {
+    const permissions = role ? role.permissions.client.modules : null;
+
+    return permissions !== null && permissions[path]?.view && <>{children}</>;
+  }
+  function isViewable(array) {
+    const permissions = role ? role.permissions.client.modules : null;
+
+    return (
+      permissions !== null &&
+      array.some((link) => {
+        return permissions[link]?.view;
+      })
+    );
+  }
   const value = {
     user,
+    role,
     alert,
     setAlert,
     signInUser,
     registerUser,
     logoutUser,
+    verifyEmail,
+    changePassword,
+    CheckPermission,
+    isViewable,
   };
 
   useEffect(() => {
-    if (Cookies.get("user")) {
+    // console.log(Cookies.get("user"), Cookies.get("role"));
+    if (Cookies.get("user") && Cookies.get("role")) {
       setUser(JSON.parse(Cookies.get("user")));
+      setRole(JSON.parse(Cookies.get("role")));
     } else {
-      if (!["/login", "/register"].includes(location.pathname))
+      if (
+        !["/login", "/register", "/forgot-password", "/password-recovery"].some(
+          (path) => location.pathname.startsWith(path)
+        )
+      ) {
         navigate("/login");
+      }
     }
-  }, []);
+  }, [location.pathname]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

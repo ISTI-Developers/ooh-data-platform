@@ -7,7 +7,6 @@ import { useFunction } from "~config/functions";
 
 function Markers({ list, center, setCenter, setZoom }) {
   const { toUnderscored, offsetCoordinate } = useFunction();
-  
 
   return list.map((item, key) => {
     const position = { lat: item.latitude, lng: item.longitude };
@@ -36,7 +35,8 @@ function Markers({ list, center, setCenter, setZoom }) {
             <div
               className="mb-5 max-w-[250px] p-2 rounded bg-white shadow z-[1]"
               onClick={() => {
-                window.location.href = "/audience/" + toUnderscored(item.site);
+                window.location.href =
+                  "/audience/" + toUnderscored(item.site_code);
               }}
             >
               <img

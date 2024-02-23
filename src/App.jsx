@@ -19,6 +19,7 @@ import Register from "~pages/Register";
 import Audience from "~pages/Audience";
 import { AuthProvider, useAuth } from "~config/authContext";
 import ForgotPassword from "~pages/ForgotPassword";
+import PasswordRecovery from "~pages/PasswordRecovery";
 
 // Main App Component
 function App() {
@@ -37,7 +38,8 @@ function App() {
 // AppRoutes Component handles top-level routing and layout
 function AppRoutes() {
   const location = useLocation();
-  const { alert, setAlert } = useAuth();
+  const { alert, setAlert, CheckPermission } = useAuth();
+  // const { CheckPermission } = useFunction();
 
   // Auto-dismiss alert after 3 seconds
   useEffect(() => {
@@ -86,12 +88,30 @@ function AppRoutes() {
         <Routes>
           <Route element={<ProtectedRoutes />}>
             <Route exact path="/" element={<Planning />} />
-            <Route path="/map" element={<Map />} />
-            <Route path="/audience/*" element={<Audience />} />
+            {Cookies.get("role") &&
+              ["map", "audience"].map((route) => {
+                let Component;
+                switch (route) {
+                  case "map":
+                    Component = Map;
+                    break;
+                  case "audience":
+                    Component = Audience;
+                    break;
+                }
+
+                const element = <Component />;
+
+                return CheckPermission({
+                  path: `${route}s`,
+                  children: <Route path={`/${route}/*`} element={element} />,
+                });
+              })}
           </Route>
           <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/password-recovery" element={<ForgotPassword />} />
+          <Route path="/forgot-password/*" element={<ForgotPassword />} />
+          <Route path="/password-recovery/" element={<EmptyPage />} />
+          <Route path="/password-recovery/:id" element={<PasswordRecovery />} />
           <Route path="/register" element={<Register />} />
         </Routes>
       </div>
@@ -101,8 +121,11 @@ function AppRoutes() {
 
 // ProtectedRoutes Component to handle authentication checks
 function ProtectedRoutes() {
-  const isAuthenticated = Cookies.get("user");
+  const isAuthenticated = Cookies.get("user") && Cookies.get("role");
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 }
 
+function EmptyPage() {
+  return <Navigate to="/login" />;
+}
 export default App;

@@ -23,7 +23,19 @@ function Results() {
     "site",
     "# fits profile",
     "% fits profile",
-    "company",
+    "site owner",
+  ];
+  const companies = [
+    "United Neon",
+    "DOOH",
+    "RS Concepts",
+    "City Ads Group/Infinite Grafix",
+    "Adstrat Group",
+    "Summit OOH",
+    "Outcomm",
+    "Nyxsys",
+    "Mediaworld Metro Advertising",
+    "Luneta Advertising",
   ];
 
   useEffect(() => {
@@ -121,13 +133,14 @@ function Results() {
         <Table.Body>
           {sites.length !== 0 ? (
             sites.map((item, index) => {
+              // console.log(item);
               return (
                 <Table.Row
                   key={index}
                   className="hover:bg-slate-200 transition-all cursor-pointer"
                   onClick={() => {
-                    localStorage.setItem("location", item.site);
-                    navigate(`/audience/${toUnderscored(item.site)}`);
+                    localStorage.setItem("location", item.site_code);
+                    navigate(`/audience/${toUnderscored(item.site_code)}`);
                   }}
                 >
                   <Table.Cell className="text-main whitespace-nowrap">
@@ -144,7 +157,10 @@ function Results() {
                   </Table.Cell>
                   <Table.Cell>{item.fits_no}</Table.Cell>
                   <Table.Cell>{item.fits_rate.toFixed(2)}%</Table.Cell>
-                  <Table.Cell>UNAI</Table.Cell>
+                  <Table.Cell>
+                    {item.site_owner ||
+                      companies[Math.floor(Math.random() * companies.length)]}
+                  </Table.Cell>
                 </Table.Row>
               );
             })

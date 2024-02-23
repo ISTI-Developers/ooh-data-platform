@@ -17,6 +17,7 @@ function SiteAudienceList({ options, query }) {
     const setup = async () => {
       const data = await retrieveSites();
       let combinedSites = data.map((item) => ({
+        site_code: item.site_code,
         site_id: item.site_id,
         site: item.site,
         region: item.region,
@@ -77,7 +78,7 @@ function SiteAudienceList({ options, query }) {
                     <Table.Row
                       key={site.site_id}
                       className="p-2 cursor-pointer hover:bg-slate-100"
-                      onClick={() => navigate(`./${site.site_id}`)}
+                      onClick={() => navigate(`./${site.site_code}`)}
                     >
                       <Table.Cell>{site.site}</Table.Cell>
                       <Table.Cell>

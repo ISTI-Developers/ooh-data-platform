@@ -1,3 +1,5 @@
+import Cookies from "js-cookie";
+
 const conjunctionWords = [
   "and",
   "but",
@@ -51,6 +53,7 @@ const regions = [
   "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
 ];
 
+
 const toUnderscored = (text) => {
   return text.split(" ").join("_");
 };
@@ -93,7 +96,6 @@ function offsetCoordinate(lat, lng, offsetMeters) {
   return { lat: newLat, lng: newLng };
 }
 function searchItems(array, query = "") {
-  console.log(query)
   // Convert query to lowercase for case-insensitive search
   const lowerCaseQuery = query.toLowerCase();
 
@@ -116,6 +118,8 @@ function searchItems(array, query = "") {
 
   return matches;
 }
+
+
 export const useFunction = () => {
   return {
     colors,
