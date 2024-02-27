@@ -40,12 +40,18 @@ function BillboardGraph({ data, title }) {
     </div>
   );
 }
-
 const CustomizedAxisTick = ({ x, y, payload }) => {
+  let label = payload.value;
+
+  //check if label has parenthesis
+  const matches = label.match(/\(([^)]+)\)/);
+  if (matches) {
+    label = matches[1];
+  }
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dy={6} textAnchor="end" fill="#666" fontSize={12}>
-        {payload.value.split("(")[1].split(")")[0]}
+        {label}
       </text>
     </g>
   );

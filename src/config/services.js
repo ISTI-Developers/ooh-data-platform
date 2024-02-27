@@ -45,7 +45,6 @@ const retrieveSites = async (type = null) => {
     const response = await axios.get(url.sites, {
       params: {
         type: type,
-        // options: options,
       },
       headers: {
         "Content-Type": "application/json",
@@ -62,7 +61,6 @@ const retrieveSitesCount = async () => {
     const response = await axios.get(url.sites, {
       params: {
         count: true,
-        // options: options,
       },
       headers: {
         "Content-Type": "application/json",

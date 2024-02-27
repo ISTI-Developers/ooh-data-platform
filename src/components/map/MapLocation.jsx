@@ -15,7 +15,7 @@ function MapLocation() {
   const { retrieveSites } = useService();
   const { offsetCoordinate, toUnderscored } = useFunction();
   const [center, setCenter] = useState({ lat: 12.8797, lng: 121.774 });
-  const [zoom, setZoom] = useState(12);
+  const [zoom, setZoom] = useState(5.7);
   const [showLocations, toggleLocations] = useState(false);
   const [billboards, setBillboards] = useState(null);
   const [query, setQuery] = useState(null);
@@ -24,40 +24,22 @@ function MapLocation() {
     setZoom(() => zoom);
     setCenter(() => coords);
   };
-  const calculateMidpoint = (coordinates) => {
-    if (coordinates.length === 0) {
-      return null; // Handle empty array
-    }
 
-    var sumLat = 0;
-    var sumLon = 0;
-
-    for (var i = 0; i < coordinates.length; i++) {
-      sumLat += coordinates[i][0];
-      sumLon += coordinates[i][1];
-    }
-
-    var avgLat = sumLat / coordinates.length;
-    var avgLon = sumLon / coordinates.length;
-
-    return [avgLat, avgLon];
-  };
-
+  //function used for searching site
   const filterSites = (data) => {
+    //return if no query
     if (!query) {
       return data;
     }
+    //return if query is less than 3
     if (query?.length < 3) {
       return data;
     }
-    return data.filter(
-      (item) =>
-        toUnderscored(item.site.toLowerCase()).includes(
-          toUnderscored(query.toLowerCase())
-        ) ||
-        toUnderscored(item.site.toLowerCase()).includes(
-          toUnderscored(query.toLowerCase())
-        )
+    //return the sites filtered by their name
+    return data.filter((item) =>
+      toUnderscored(item.site.toLowerCase()).includes(
+        toUnderscored(query.toLowerCase())
+      )
     );
   };
 
@@ -71,16 +53,6 @@ function MapLocation() {
           latitude: parseFloat(item.latitude),
         })),
       ]);
-      const coordinates = [
-        ...data.map((item) => {
-          return [parseFloat(item.latitude), parseFloat(item.longitude)];
-        }),
-      ];
-      const midpoint = calculateMidpoint(coordinates);
-      setCenter({
-        lat: midpoint[0],
-        lng: midpoint[1],
-      });
     };
     setup();
   }, []);
