@@ -101,6 +101,7 @@ export function AuthProvider({ children }) {
       );
       return response.data;
     } catch (e) {
+      console.log(e);
       if (e.response.data) {
         return e.response.data;
       }

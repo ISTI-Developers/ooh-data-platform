@@ -17,7 +17,7 @@ function Audience() {
     <div className="w-full">
       <p className="text-xl font-bold text-main flex items-center gap-2">
         Audiences
-        <span className="text-blue-800">
+        <span className="text-[#ec9912]">
           <FaUsers />
         </span>
       </p>

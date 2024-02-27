@@ -5,16 +5,25 @@ import { useAuth } from "~config/AuthContext";
 import { defaultTextTheme, mainButtonTheme } from "~config/themes";
 
 function ForgotPassword() {
+  //initialize the variables
   const email = useRef(null);
-  const { verifyEmail, setAlert } = useAuth();
   const navigate = useNavigate();
+
+  //fetch custom functions from custom context
+  const { verifyEmail, setAlert } = useAuth();
+
+  //function for processing the email address entered by the user
   const validateEmailAddress = async (e) => {
     e.preventDefault();
+
+    //retrieve the email address from the reference variable
     const emailAddress = email.current.value;
 
-    if (/@|.com/.test(emailAddress)) {
+    //regex used for testing if email address has both @ and .
+    if (/@|./.test(emailAddress)) {
       const response = await verifyEmail(emailAddress);
 
+      //if response has success and its true, show the success alert or else show the failed alert message.
       if (response?.success) {
         setAlert({
           isOn: true,
@@ -89,8 +98,11 @@ function ForgotPassword() {
 }
 
 function VerifiedLink() {
+  //retrieve the email_address from the body of the url
   const location = useLocation();
   const email = location.state?.email_address;
+
+  //show the success message
   return (
     <div className="max-w-xl w-full bg-white shadow flex flex-col items-center p-8 gap-4">
       <header className="w-full pb-2 border-b">
@@ -98,7 +110,9 @@ function VerifiedLink() {
       </header>
       <main className="w-full flex flex-col gap-4 text-xl">
         <p>
-          To recover your password, please follow the instructions sent to your email, <span className="font-semibold">{email}</span>.
+          To recover your password, please follow the instructions sent to your
+          email, <span className="font-semibold">{email}</span>. If you cannot
+          find our email in your inbox, please check your spam folder.
         </p>
       </main>
     </div>

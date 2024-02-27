@@ -16,7 +16,7 @@ function BillboardGraph({ data, title }) {
       <header className="text-xl font-bold text-main">{title}</header>
       <div className="flex gap-2 overflow-x-auto">
         <div className=" min-w-[768px] w-full">
-          <ResponsiveContainer width={"100%"} height={120 + (data.length * 30)}>
+          <ResponsiveContainer width={"100%"} height={120 + data.length * 60}>
             <BarChart data={data} layout="vertical" margin={{ left: 50 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <YAxis
@@ -32,6 +32,7 @@ function BillboardGraph({ data, title }) {
               <Legend />
               <Bar dataKey="digital" fill="#183145" />
               <Bar dataKey="classic" fill="#0692da" />
+              <Bar dataKey="banner" fill="#0ec9912" />
             </BarChart>
           </ResponsiveContainer>
         </div>

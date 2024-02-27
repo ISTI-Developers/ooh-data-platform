@@ -1,14 +1,15 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import PropTypes from "prop-types";
-import digital from "../../assets/digital.png";
-import classic from "../../assets/classic.png";
+import digital from "~/assets/digital.png";
+import classic from "~/assets/classic.png";
+import banner from "~/assets/banner.png";
 import classNames from "classnames";
 import { useFunction } from "~config/functions";
 
 function Markers({ list, center, setCenter, setZoom }) {
   const { toUnderscored, offsetCoordinate } = useFunction();
 
-  return list.map((item, key) => {
+  return list.map((item) => {
     const position = { lat: item.latitude, lng: item.longitude };
     const offsetPosition = offsetCoordinate(item.latitude, item.longitude, 20);
 
@@ -58,7 +59,13 @@ function Markers({ list, center, setCenter, setZoom }) {
               "w-10 transition-all",
               isCentered && "scale-150"
             )}
-            src={item.type === "Digital" ? digital : classic}
+            src={
+              item.type.toLowerCase() === "digital"
+                ? digital
+                : item.type.toLowerCase() === "classic"
+                ? classic
+                : banner
+            }
             alt=""
           />
         </div>

@@ -2,6 +2,7 @@ import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";
 import Markers from "./Markers";
 import { Accordion, Label, TextInput } from "flowbite-react";
+import banner from "~assets/banner.png";
 import digital from "~assets/digital.png";
 import classic from "~assets/classic.png";
 import classNames from "classnames";
@@ -129,20 +130,19 @@ function MapLocation() {
                             }}
                           >
                             <img
-                              src={type === "classic" ? classic : digital}
+                              src={
+                                type === "classic"
+                                  ? classic
+                                  : type === "digital"
+                                  ? digital
+                                  : banner
+                              }
                               className="max-w-10"
                             />
                             <div>
-                              <p
-                                className={classNames(
-                                  "font-semibold",
-                                  type === "classic" ? "text-xs" : "text-sm"
-                                )}
-                              >
-                                {site}
-                              </p>
+                              <p className="text-xs font-semibold">{site}</p>
                               <p className="text-[0.6rem] text-gray-500">
-                                {[latitude, longitude].join(",")}
+                                {[latitude, longitude].join(", ")}
                               </p>
                             </div>
                           </li>

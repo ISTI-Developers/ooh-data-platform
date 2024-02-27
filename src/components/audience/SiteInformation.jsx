@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import classic from "~assets/classic.png";
+import banner from "~assets/banner.png";
 import digital from "~assets/digital.png";
 import SiteGraph from "./SiteGraph";
 import { Badge, Label } from "flowbite-react";
@@ -119,7 +120,11 @@ function SiteInformation() {
             </header>
             <img
               src={
-                siteData.type.toLowerCase() === "classic" ? classic : digital
+                siteData.type.toLowerCase() === "classic"
+                  ? classic
+                  : siteData.type.toLowerCase() === "banner"
+                  ? banner
+                  : digital
               }
               className="w-full"
             />

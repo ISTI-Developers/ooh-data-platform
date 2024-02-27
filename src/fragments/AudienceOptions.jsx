@@ -20,6 +20,7 @@ function AudienceOptions({ filterOptions, setQuery }) {
   const animatedComponents = makeAnimated();
   const filters = [
     { value: "all", label: "All" },
+    { value: "banner", label: "Banner" },
     { value: "classic", label: "Classic" },
     { value: "digital", label: "Digital" },
   ];

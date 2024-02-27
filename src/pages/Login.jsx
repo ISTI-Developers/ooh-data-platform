@@ -19,7 +19,7 @@ function Login() {
   const [isSending, toggleSending] = useState(false);
   const username = useRef(null);
   const password = useRef(null);
-  const adminURL = "http://192.168.11.17:5174";
+  const adminURL = "http://localhost:5174";
 
   const handleLogin = async (e) => {
     e.preventDefault();
