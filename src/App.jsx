@@ -7,19 +7,19 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
-import { RiInformationFill } from "react-icons/ri";
-import { Alert } from "flowbite-react";
 import Cookies from "js-cookie";
 import classNames from "classnames";
-import Header from "~fragments/Header";
+import { Alert } from "flowbite-react";
+import { RiInformationFill } from "react-icons/ri";
 import Map from "~pages/Map";
 import Login from "~pages/Login";
 import Planning from "~pages/Planning";
-import Register from "~pages/Register";
 import Audience from "~pages/Audience";
-import { AuthProvider, useAuth } from "~config/authContext";
+import Register from "~pages/Register";
+import Header from "~fragments/Header";
 import ForgotPassword from "~pages/ForgotPassword";
 import PasswordRecovery from "~pages/PasswordRecovery";
+import { AuthProvider, useAuth } from "~config/authContext";
 
 // Main App Component
 function App() {
@@ -39,8 +39,6 @@ function App() {
 function AppRoutes() {
   const location = useLocation();
   const { alert, setAlert, CheckPermission } = useAuth();
-  // const { CheckPermission } = useFunction();
-
   // Auto-dismiss alert after 3 seconds
   useEffect(() => {
     if (alert.isOn) {
@@ -89,6 +87,7 @@ function AppRoutes() {
           <Route element={<ProtectedRoutes />}>
             <Route exact path="/" element={<Planning />} />
             {Cookies.get("role") &&
+              //map the two pages that can or cannot be seen by the user based on role privileges.
               ["map", "audience"].map((route) => {
                 let Component;
                 switch (route) {
@@ -102,6 +101,7 @@ function AppRoutes() {
 
                 const element = <Component />;
 
+                //the function to check the permission
                 return CheckPermission({
                   path: `${route}s`,
                   children: <Route path={`/${route}/*`} element={element} />,

@@ -1,6 +1,5 @@
 import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
-// import Cookies from "js-cookie";
 import { format } from "date-fns";
 
 const retrievePlanning = async (get, options = null) => {
@@ -21,21 +20,16 @@ const retrievePlanning = async (get, options = null) => {
   }
 };
 
-const retrieveSite = async (id, options) => {
+const retrieveSite = async (id) => {
   try {
-    // const siteCache = Cookies.get("siteCache");
-    // const analyticsDate = Cookies.get("analyticsDate");
-    // if (siteCache && analyticsDate) {
-    //   const siteInformation = JSON.parse(siteCache);
-    //   const dates = JSON.parse(analyticsDate);
-    //   if (siteInformation.id === id && dates === options) {
-    //     return siteInformation;
-    //   } else {
-    //     await fetchSiteInformation(id, options);
-    //   }
-    // } else {
-    return await fetchSiteInformation(id, options);
-    // }
+    return await fetchSiteInformation(id);
+  } catch (e) {
+    console.log(e);
+  }
+};
+const retrieveSiteAnalytics = async (id, option) => {
+  try {
+    return await fetchSiteInformation(id, option);
   } catch (e) {
     console.log(e);
   }
@@ -73,24 +67,31 @@ const retrieveSitesCount = async () => {
   }
 };
 
-const fetchSiteInformation = async (id, options) => {
+const fetchSiteInformation = async (id, options = null) => {
+  const params = {
+    id: id,
+  };
+  if (options) {
+    params.from = format(new Date(options.from), "MM-dd-yyyy");
+    params.to = format(new Date(options.to), "MM-dd-yyyy");
+  }
   const response = await axios.get(url.sites, {
-    params: {
-      id: id,
-      from: format(new Date(options.from), "MM-dd-yyyy"),
-      to: format(new Date(options.to), "MM-dd-yyyy"),
-    },
+    params: params,
     headers: {
       "Content-Type": "application/json",
     },
   });
 
   if (response.data) {
-    // Cookies.set("siteCache", JSON.stringify(response.data));
-    // Cookies.set("analyticsDate", JSON.stringify(options));
     return response.data;
   }
 };
 export const useService = () => {
-  return { retrievePlanning, retrieveSite, retrieveSites, retrieveSitesCount };
+  return {
+    retrievePlanning,
+    retrieveSite,
+    retrieveSites,
+    retrieveSitesCount,
+    retrieveSiteAnalytics,
+  };
 };

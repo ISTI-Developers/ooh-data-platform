@@ -81,11 +81,12 @@ export function AuthProvider({ children }) {
     }
   };
   const logoutUser = () => {
-    Cookies.remove("user");
-    Cookies.remove("role");
-    Cookies.remove("siteCache");
+    Cookies.remove("user", { domain: domain });
+    Cookies.remove("role", { domain: domain });
+    Cookies.remove("siteCache", { domain: domain });
     setUser(null);
     setRole(null);
+    console.log(Cookies.get("user"), Cookies.get("role"));
     navigate("/login");
   };
   const verifyEmail = async (email) => {

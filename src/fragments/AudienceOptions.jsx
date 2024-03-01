@@ -49,6 +49,7 @@ function AudienceOptions({ filterOptions, setQuery }) {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
+      console.log(data)
       if (filter.value !== "all") {
         setSiteNames(
           data.filter((site) => site.type.toLowerCase() === filter.value)

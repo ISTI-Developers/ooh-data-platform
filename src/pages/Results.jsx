@@ -84,9 +84,9 @@ function Results() {
   }, [areas, order, profiles, siteResults, sort]);
 
   return sites !== null ? (
-    <div className="overflow-x-auto">
-      <Table className="border bg-white rounded-md w-full">
-        <Table.Head className="shadow-md">
+    <div className="overflow-x-auto h-full max-h-[92vh]">
+      <Table className="bg-white rounded-md w-full">
+        <Table.Head className="shadow-md sticky top-0">
           {headers.map((header, index) => {
             return (
               <Table.HeadCell

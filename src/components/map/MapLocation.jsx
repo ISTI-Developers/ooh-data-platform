@@ -139,7 +139,7 @@ function MapLocation() {
           <IoMdMenu className="text-xl text-slate-700" />
         </button>
         <APIProvider apiKey="AIzaSyCA8e__QnDK_Hc0p4QgLyePl3ONN8IpNKU">
-          <div className="h-[550px] w-full lg:w-3/4">
+          <div className="min-h-[625px] w-full lg:w-3/4">
             <Map
               zoom={zoom}
               center={center}

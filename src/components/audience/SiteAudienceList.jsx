@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useService } from "~config/services";
-import { Table } from "flowbite-react";
+import { Pagination, Table } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "~fragments/Loader";
 import { useFunction } from "~config/functions";
@@ -11,6 +11,15 @@ function SiteAudienceList({ options, query }) {
   const { searchItems } = useFunction();
   const headers = ["site", "location", "coordinates", "type"];
   const [siteList, setSites] = useState(null);
+  const [siteCount, setSiteCount] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  // Calculate start and end index
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const onPageChange = (page) => setCurrentPage(page);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,51 +66,63 @@ function SiteAudienceList({ options, query }) {
         setSites(combinedSites);
       }
 
-      setSites(searchItems(combinedSites, query));
+      const sites = searchItems(combinedSites, query);
+      setSiteCount(sites.length);
+      // Slice the array to get the current page items
+      const currentItems = sites.slice(startIndex, endIndex);
+      // Handle next and previous page clicks
+      setSites(currentItems);
     };
     setup();
-  }, [retrieveSites, options, query, searchItems]);
+  }, [retrieveSites, options, query, searchItems, startIndex, endIndex]);
   return (
-    <section className=" bg-white">
+    <section>
       {siteList ? (
         <>
           {siteList.length !== 0 ? (
-            <Table>
-              <Table.Head>
-                {headers.map((site) => {
-                  return <Table.HeadCell key={site}>{site}</Table.HeadCell>;
-                })}
-              </Table.Head>
-              <Table.Body>
-                {siteList.map((site) => {
-                  return (
-                    <Table.Row
-                      key={site.site_id}
-                      className="p-2 cursor-pointer hover:bg-slate-100"
-                      onClick={() => navigate(`./${site.site_code}`)}
-                    >
-                      <Table.Cell>{site.site}</Table.Cell>
-                      <Table.Cell>
-                        <div>
-                          <p>{site.region}</p>
-                          <p>{site.city}</p>
-                          <p>{site.area}</p>
-                        </div>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <div>
-                          <p>{site.latitude}</p>
-                          <p>{site.longitude}</p>
-                        </div>
-                      </Table.Cell>
-                      <Table.Cell className="capitalize">
-                        {site.type}
-                      </Table.Cell>
-                    </Table.Row>
-                  );
-                })}
-              </Table.Body>
-            </Table>
+            <>
+              <Table className="bg-white shadow rounded-md">
+                <Table.Head>
+                  {headers.map((site) => {
+                    return <Table.HeadCell key={site}>{site}</Table.HeadCell>;
+                  })}
+                </Table.Head>
+                <Table.Body>
+                  {siteList.map((site) => {
+                    return (
+                      <Table.Row
+                        key={site.site_id}
+                        className="p-2 cursor-pointer hover:bg-slate-100"
+                        onClick={() => navigate(`./${site.site_code}`)}
+                      >
+                        <Table.Cell>{site.site}</Table.Cell>
+                        <Table.Cell>
+                          <div>
+                            <p>{site.region}</p>
+                            <p>{site.city}</p>
+                            <p>{site.area}</p>
+                          </div>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <div>
+                            <p>{site.latitude}</p>
+                            <p>{site.longitude}</p>
+                          </div>
+                        </Table.Cell>
+                        <Table.Cell className="capitalize">
+                          {site.type}
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(siteCount / 6)}
+                onPageChange={onPageChange}
+              />
+            </>
           ) : (
             <div className="p-2">No sites found</div>
           )}

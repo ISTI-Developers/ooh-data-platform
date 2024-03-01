@@ -19,6 +19,7 @@ function Login() {
   const [isSending, toggleSending] = useState(false);
   const username = useRef(null);
   const password = useRef(null);
+  // const domain = window.location.hostname;
   const adminURL = "http://localhost:5174";
 
   const handleLogin = async (e) => {

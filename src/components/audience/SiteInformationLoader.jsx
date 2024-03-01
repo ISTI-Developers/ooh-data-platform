@@ -100,6 +100,13 @@ function SiteInformationLoader() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function AnalyticsLoader() {
+  return (
+    <>
       <div className="flex h-[14rem] gap-4 bg-white p-4 shadow">
         <div className="w-full lg:w-1/4">
           <Loader height="12rem" />
@@ -128,14 +135,10 @@ function SiteInformationLoader() {
           <Loader height="15rem" />
         </div>
       </div>
-      <div className="w-1/4">
-        <Loader />
-      </div>
       <div className="h-[15rem]  bg-white p-4 shadow">
         <Loader height="13rem" />
       </div>
-    </div>
+    </>
   );
 }
-
 export default SiteInformationLoader;

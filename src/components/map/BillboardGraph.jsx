@@ -17,9 +17,9 @@ function BillboardGraph({ data, title }) {
       <div className="flex gap-2 overflow-x-auto">
         <div className=" min-w-[768px] w-full">
           <ResponsiveContainer width={"100%"} height={120 + data.length * 60}>
-            <BarChart data={data} layout="vertical" margin={{ left: 50 }}>
+            <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <YAxis
+              <XAxis
                 dataKey="region"
                 type="category"
                 interval={0}
@@ -27,12 +27,12 @@ function BillboardGraph({ data, title }) {
                 textAnchor="end"
                 tick={<CustomizedAxisTick />}
               />
-              <XAxis type="number" domain={[0, "max"]} />
+              <YAxis type="number" domain={[0, "max"]} />
               <Tooltip />
               <Legend />
               <Bar dataKey="digital" fill="#183145" />
               <Bar dataKey="classic" fill="#0692da" />
-              <Bar dataKey="banner" fill="#0ec9912" />
+              <Bar dataKey="banner" fill="#ec9912" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -50,7 +50,7 @@ const CustomizedAxisTick = ({ x, y, payload }) => {
   }
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dy={6} textAnchor="end" fill="#666" fontSize={12}>
+      <text x={0} y={0} dy={6} textAnchor="end" fill="#666"  fontSize={12}>
         {label}
       </text>
     </g>
