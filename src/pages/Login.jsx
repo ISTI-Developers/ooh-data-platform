@@ -20,7 +20,7 @@ function Login() {
   const username = useRef(null);
   const password = useRef(null);
   // const domain = window.location.hostname;
-  const adminURL = "http://localhost:5174";
+  const adminURL = "https://ooh-ad.scmiph.com";
 
   const handleLogin = async (e) => {
     e.preventDefault();

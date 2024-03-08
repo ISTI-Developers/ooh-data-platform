@@ -13,7 +13,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const domain = window.location.hostname;
+  const domain = "scmiph.com";
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,10 +39,10 @@ export function AuthProvider({ children }) {
           const role = await retrieveRole(role_id);
 
           Cookies.set("role", JSON.stringify(role), {
-            domain: domain,
+            domain: "." + domain,
           });
           Cookies.set("user", JSON.stringify(response.data), {
-            domain: domain,
+            domain: "." + domain,
           });
           setUser(response.data);
           return { acknowledged: true, role: role };
