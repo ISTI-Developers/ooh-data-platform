@@ -87,6 +87,7 @@ export function PlanningProvider({ children }) {
         },
       };
       const response = await retrievePlanning("areas", options);
+      console.log(response, options)
       setSiteResults(response);
     };
     setup();

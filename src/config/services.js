@@ -1,9 +1,11 @@
 import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
 import { format } from "date-fns";
+import Cookies from "js-cookie";
 
 const retrievePlanning = async (get, options = null) => {
   try {
+    console.log(JSON.stringify(options));
     const response = await axios.get(url.planning, {
       params: {
         get: get,
@@ -11,6 +13,7 @@ const retrievePlanning = async (get, options = null) => {
       },
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
       },
     });
 
@@ -42,6 +45,7 @@ const retrieveSites = async (type = null) => {
       },
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
       },
     });
 
@@ -58,6 +62,7 @@ const retrieveSitesCount = async () => {
       },
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
       },
     });
 
@@ -79,6 +84,7 @@ const fetchSiteInformation = async (id, options = null) => {
     params: params,
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${Cookies.get("token")}`,
     },
   });
 

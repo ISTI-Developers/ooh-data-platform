@@ -13,7 +13,8 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const domain = "scmiph.com";
+  const domain =
+    window.location.hostname == "localhost" ? "localhost" : ".scmiph.com";
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,6 +36,9 @@ export function AuthProvider({ children }) {
       // console.log(response.data);
       if (response.status === 200) {
         if (response.data.id) {
+          Cookies.set("token", response.data?.token, {
+            domain: domain,
+          });
           const { role_id } = response.data;
           const role = await retrieveRole(role_id);
 

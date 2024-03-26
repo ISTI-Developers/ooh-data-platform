@@ -45,6 +45,7 @@ function PlanningTable({ filter }) {
 
   useEffect(() => {
     const setup = async () => {
+      console.log(siteResults);
       if (siteResults) {
         const siteData = [...Object.values(siteResults) /*, ...filterSites()*/];
 

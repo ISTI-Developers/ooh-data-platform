@@ -24,7 +24,7 @@ function SiteInformation() {
     "price",
     "segments",
     "size",
-    "ideal_view",
+    // "ideal_view",
     "access_type",
     "board_facing",
     "facing",

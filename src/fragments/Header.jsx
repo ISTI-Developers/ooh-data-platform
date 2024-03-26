@@ -14,6 +14,7 @@ function Header() {
       <Navbar theme={navbarTheme} border>
         <Navbar.Brand href="/">
           <img
+            fetchPriority="high"
             src={logo}
             alt="United Neon Advertising Inc."
             className="w-full max-w-[200px]"
