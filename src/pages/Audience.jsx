@@ -22,15 +22,19 @@ function Audience() {
         </span>
       </p>
       <div className="flex flex-col gap-4 w-full">
-        <AudienceOptions
-          filterOptions={setOptions}
-          query={query}
-          setQuery={setQuery}
-        />
         <Routes>
           <Route
             path="/"
-            element={<SiteAudienceList options={options} query={query} />}
+            element={
+              <>
+                <AudienceOptions
+                  filterOptions={setOptions}
+                  query={query}
+                  setQuery={setQuery}
+                />
+                <SiteAudienceList options={options} query={query} />
+              </>
+            }
           />
           <Route
             path="/:id"
