@@ -33,8 +33,8 @@ export function AuthProvider({ children }) {
         password: password,
       });
 
-      // console.log(response.data);
       if (response.status === 200) {
+        console.log(response.data);
         if (response.data.id) {
           Cookies.set("token", response.data?.token, {
             domain: domain,
@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
         }
       }
     } catch (e) {
-      return e.response.data;
+      return e.response;
     }
   };
   const registerUser = async (user) => {
@@ -77,6 +77,7 @@ export function AuthProvider({ children }) {
         },
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`,
         },
       });
       return response.data;
