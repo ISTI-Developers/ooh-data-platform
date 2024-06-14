@@ -11,7 +11,8 @@ export function usePlanning() {
 
 export function PlanningProvider({ children }) {
   const [dates, setDates] = useState({
-    from: new Date().setDate(new Date().getDate() - 30),
+    // from: new Date().setDate(new Date().getDate() - 30),
+    from: new Date("11-01-2023"),
     to: new Date(),
   });
   const [profiles, setProfiles] = useState([]); //selected profiles
@@ -87,11 +88,16 @@ export function PlanningProvider({ children }) {
         },
       };
       const response = await retrievePlanning("areas", options);
-      console.log(response, options)
       setSiteResults(response);
     };
     setup();
   }, [profiles, dates, allowedMultiple]);
+
+  // useEffect(() => {
+  //   const profileCookie = Cookies.get("profiles");
+
+  //     Cookies.set("profiles", JSON.stringify(profiles));
+  // }, [profiles]);
   const value = {
     areas,
     dates,

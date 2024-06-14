@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 
 const retrievePlanning = async (get, options = null) => {
   try {
-    console.log(JSON.stringify(options));
+    // console.log(JSON.stringify(options));
     const response = await axios.get(url.planning, {
       params: {
         get: get,
@@ -34,7 +34,10 @@ const retrieveSiteAnalytics = async (id, option) => {
   try {
     return await fetchSiteInformation(id, option);
   } catch (e) {
-    console.log(e);
+    if (e) {
+      console.log(e);
+      return { analytics: { error: true } };
+    }
   }
 };
 const retrieveSites = async (type = null) => {
@@ -92,6 +95,21 @@ const fetchSiteInformation = async (id, options = null) => {
     return response.data;
   }
 };
+const retrieveSitesBehaviors = async (data) => {
+  try {
+    const response = await axios.get(url.behaviors, {
+      params: data,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};
 export const useService = () => {
   return {
     retrievePlanning,
@@ -99,5 +117,6 @@ export const useService = () => {
     retrieveSites,
     retrieveSitesCount,
     retrieveSiteAnalytics,
+    retrieveSitesBehaviors,
   };
 };

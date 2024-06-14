@@ -10,44 +10,62 @@ import Behaviorals from "./Behaviorals";
 import { useService } from "~config/services";
 import { useParams } from "react-router-dom";
 import { useFunction } from "~config/functions";
-import { AnalyticsLoader } from "./SiteInformationLoader";
+import { format } from "date-fns";
 
 function AnalyticsInformation() {
-  const { id } = useParams();
-  const [analytics, setAnalytics] = useState(null);
-  const [question, searchQuestion] = useState(null);
   const [dates, setDateRange] = useState({
-    from: new Date().setDate(new Date().getDate() - 30),
+    from: new Date("11-01-2023"),
     to: new Date(),
   });
-  const [onFetching, toggleFetching] = useState(false);
-  const { retrieveSiteAnalytics } = useService();
-  const { capitalize } = useFunction();
 
+  return (
+    <>
+      <SiteAnalytics dates={dates} setDateRange={setDateRange} />
+      {/* <SiteBehaviors dates={dates} /> */}
+    </>
+  );
+}
+
+function SiteAnalytics({ dates, setDateRange }) {
+  const [onFetching, toggleFetching] = useState(false);
+  const { id } = useParams();
+  const [impressions, setImpressions] = useState(null);
+  const { retrieveSiteAnalytics } = useService();
   const impressionKeys = [
     "average_daily_impressions",
     "average_weekly_impressions",
     "average_monthly_impressions",
     "highest_monthly_impression",
   ];
-
+  const { capitalize } = useFunction();
   useEffect(() => {
     const setup = async () => {
       const response = await retrieveSiteAnalytics(id, dates);
-      setAnalytics(response.analytics);
-      toggleFetching(false);
+      console.log(response);
+      if (response) {
+        setImpressions(response.analytics);
+        toggleFetching(false);
+      }
     };
     setup();
   }, [dates, id, retrieveSiteAnalytics]);
-  return analytics ? (
+
+  if (!impressions) {
+    return <>Loading impressions...</>;
+  }
+
+  if (impressions.error) {
+    return <>Impressions not found for the selected dates</>;
+  }
+
+  return (
     <>
       <div className="flex w-full gap-4 bg-white p-4 py-8 shadow overflow-x-auto snap-x snap-mandatory">
-        {console.log(onFetching)}
         {impressionKeys.map((key) => {
           return (
             <Card
               key={key}
-              count={analytics[key]}
+              count={impressions[key]}
               title={`Total ${capitalize(key, "_")}`}
             />
           );
@@ -59,12 +77,12 @@ function AnalyticsInformation() {
         showLoader={toggleFetching}
       />
       <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        {Object.keys(analytics.impressions).map((impression) => {
+        {Object.keys(impressions.impressions).map((impression) => {
           return (
             <SiteGraph
               key={impression + "_graph"}
               title={`Average ${capitalize(impression)} Impression`}
-              data={analytics.impressions[impression]}
+              data={impressions.impressions[impression]}
               className={
                 impression === "daily" ? "lg:col-[1/3] xl:col-[1/2]" : ""
               }
@@ -73,27 +91,53 @@ function AnalyticsInformation() {
           );
         })}
       </div>
+    </>
+  );
+}
+
+function SiteBehaviors({ dates }) {
+  const [onFetching, toggleFetching] = useState(false);
+  const [question, searchQuestion] = useState(null);
+  const [audiences, setAudiences] = useState(null);
+  const { id } = useParams();
+  const { retrieveSitesBehaviors } = useService();
+
+  useEffect(() => {
+    const setup = async () => {
+      const { from, to } = dates;
+      const response = await retrieveSitesBehaviors({
+        id: id,
+        from: format(new Date(from), "MM-dd-yyyy"),
+        to: format(new Date(to), "MM-dd-yyyy"),
+        category: "Profile",
+      });
+      setAudiences(response);
+      // console.log('done fetching');
+      toggleFetching(false);
+    };
+    setup();
+  }, [dates, id, retrieveSitesBehaviors, toggleFetching]);
+  return (
+    audiences && (
       <div className="bg-white p-4 w-full shadow flex flex-col gap-4">
         <p className="font-semibold text-main">Audience Behavior</p>
         <BehaviorSearch
           questions={question}
-          audiences={analytics.audiences}
+          audiences={audiences}
           searchQuestion={searchQuestion}
         />
         <Behaviorals
           audienceData={
             question
-              ? analytics.audiences.filter((audience) =>
+              ? audiences.filter((audience) =>
                   question.includes(audience.question)
                 )
-              : analytics.audiences
+              : audiences
           }
           isFetching={onFetching}
         />
       </div>
-    </>
-  ) : (
-    <AnalyticsLoader />
+    )
   );
 }
 
@@ -155,5 +199,10 @@ BehaviorSearch.propTypes = {
   questions: PropTypes.object,
   audiences: PropTypes.object,
   searchQuestion: PropTypes.func,
+};
+SiteBehaviors.propTypes = {
+  dates: PropTypes.object,
+  onFetching: PropTypes.bool,
+  toggleFetching: PropTypes.func,
 };
 export default AnalyticsInformation;

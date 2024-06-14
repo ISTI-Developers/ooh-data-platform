@@ -36,7 +36,26 @@ function Login() {
       if (response.role.permissions.admin.access) {
         window.location.href = adminURL;
       } else {
-        navigate("/");
+        const pages = response.role.permissions.client.modules;
+        console.log(pages);
+        const filteredResults = {};
+        for (const [key, value] of Object.entries(pages)) {
+          if (value.view) {
+            filteredResults[key] = value;
+          }
+        }
+        const page = Object.keys(filteredResults);
+        if (page.length !== 0) {
+          if (page[0] === "planning") {
+            navigate("/");
+          } else {
+            navigate(`/${page[0].substring(0, page[0].length - 1)}`);
+          }
+        }
+        // if (response.role.permissions.client.modules.planning.view) {
+        //   navigate("/");
+        // } else {
+        // }
       }
     } else {
       setAlert({

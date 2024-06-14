@@ -7,6 +7,7 @@ import { useFunction } from "~config/functions";
 import { useService } from "~config/services";
 import SiteInformationLoader from "./SiteInformationLoader";
 import AnalyticsInformation from "./AnalyticsInformation";
+import { RiExternalLinkFill } from "react-icons/ri";
 
 function SiteInformation() {
   const { id } = useParams();
@@ -16,7 +17,7 @@ function SiteInformation() {
   const [siteData, setSiteData] = useState(null);
 
   const siteKeys = [
-    "area",
+    // "area",
     "city",
     "region",
     "site_owner",
@@ -24,11 +25,29 @@ function SiteInformation() {
     "price",
     "segments",
     "size",
-    // "ideal_view",
-    "access_type",
+    "ideal_view",
+    // "access_type",
     "board_facing",
-    "facing",
+    // "facing",
   ];
+
+  const getImageSrc = (site) => {
+    let { imageURL, type } = site;
+
+    if (!imageURL) {
+      type = type.toLowerCase();
+      switch (type) {
+        case "classic":
+          return classic;
+        case "digital":
+          return digital;
+        case "banner":
+          return banner;
+      }
+    }
+
+    return imageURL;
+  };
 
   useEffect(() => {
     const setup = async () => {
@@ -52,15 +71,7 @@ function SiteInformation() {
               {capitalize(siteData.name)}
             </header>
             <img
-              src={
-                siteData.imageURL
-                  ? siteData.imageURL
-                  : siteData.type.toLowerCase() === "classic"
-                  ? classic
-                  : siteData.type.toLowerCase() === "banner"
-                  ? banner
-                  : digital
-              }
+              src={getImageSrc(siteData)}
               className="size-full object-center object-cover"
             />
           </div>
@@ -68,21 +79,32 @@ function SiteInformation() {
             <header className="font-bold text-xl text-main border-b-4 border-secondary pb-2">
               Site Details
             </header>
-            <div className="grid grid-cols-2 grid-rows-6 grid-flow-col gap-4">
+            <div className="grid grid-cols-2 grid-rows-5 grid-flow-col gap-4">
               {siteKeys.map((site) => {
                 return (
                   <p className="flex flex-col gap-1" key={site}>
                     <span className="font-semibold">
                       {capitalize(toSpaced(site))}
                     </span>
-                    <span className="capitalize">
-                      {site === "price"
-                        ? Intl.NumberFormat("en-PH", {
-                            style: "currency",
-                            currency: "PHP",
-                          }).format(siteData[site])
-                        : siteData[site]}
-                    </span>
+                    {site === "ideal_view" ? (
+                      <a
+                        href={siteData['ideal_view']}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-secondary underline flex items-center"
+                      >
+                        Visit Link <RiExternalLinkFill />
+                      </a>
+                    ) : (
+                      <span className="capitalize">
+                        {site === "price"
+                          ? Intl.NumberFormat("en-PH", {
+                              style: "currency",
+                              currency: "PHP",
+                            }).format(siteData[site])
+                          : siteData[site]}
+                      </span>
+                    )}
                   </p>
                 );
               })}

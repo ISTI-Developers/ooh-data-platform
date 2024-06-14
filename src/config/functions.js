@@ -52,7 +52,25 @@ const regions = [
   "Autonomous Region in Muslim Mindanao (ARMM)",
   "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)",
 ];
-
+const regionList = [
+  "Metro Manila",
+  "Cordillera Administrative Region",
+  "Ilocos Region",
+  "Cagayan Valley",
+  "Central Luzon",
+  "Calabarzon",
+  "Mimaropa",
+  "Bicol",
+  "Western Visayas",
+  "Central Visayas",
+  "Eastern Visayas",
+  "Zamboanga Peninsula",
+  "Northern Mindanao",
+  "Davao Region",
+  "Region XII",
+  "Caraga",
+  "Bangsamoro Autonomous Region in Muslim Mindanao",
+];
 
 const toUnderscored = (text) => {
   return text.split(" ").join("_");
@@ -119,11 +137,11 @@ function searchItems(array, query = "") {
   return matches;
 }
 
-
 export const useFunction = () => {
   return {
     colors,
     regions,
+    regionList,
     toUnderscored,
     toSpaced,
     capitalize,

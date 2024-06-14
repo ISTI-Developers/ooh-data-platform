@@ -14,7 +14,6 @@ function Header() {
       <Navbar theme={navbarTheme} border>
         <Navbar.Brand href="/">
           <img
-            fetchPriority="high"
             src={logo}
             alt="United Neon Advertising Inc."
             className="w-full max-w-[200px]"
@@ -24,22 +23,22 @@ function Header() {
         <Navbar.Collapse>
           {/* Mapping of links for navigation bar */}
           {user &&
-            isViewable(["maps", "audiences"]) &&
-            ["", "map", "audience"].map((item, index) => {
+            isViewable(["planning", "maps", "audiences"]) &&
+            ["planning", "map", "audience"].map((item, index) => {
               return index === 0 ? (
-                <Link
-                  to={`/${item}`}
-                  className={classNames(
-                    "capitalize font-semibold text-lg hover:text-secondary",
-                    //check if same pathname to the item for showing the active link
-                    location.pathname == `/${item}`
-                      ? "text-secondary"
-                      : "text-main"
-                  )}
-                >
-                  {/* planning page is the home of the system so it checks if the item == "" */}
-                  {item === "" ? "planning" : item}
-                </Link>
+                <CheckPermission key={index} path={item}>
+                  <Link
+                    to={`/`}
+                    className={classNames(
+                      "capitalize font-semibold text-lg hover:text-secondary",
+                      //check if same pathname to the item for showing the active link
+                      location.pathname == `/` ? "text-secondary" : "text-main"
+                    )}
+                  >
+                    {/* planning page is the home of the system so it checks if the item == "" */}
+                    Planning
+                  </Link>
+                </CheckPermission>
               ) : (
                 <CheckPermission key={index} path={`${item}s`}>
                   <Link
@@ -58,6 +57,16 @@ function Header() {
                 </CheckPermission>
               );
             })}
+          <Link
+            to="/reports"
+            className={classNames(
+              "capitalize font-semibold text-lg hover:text-secondary",
+              //check if same pathname to the item for showing the active link
+              location.pathname == `/reports` ? "text-secondary" : "text-main"
+            )}
+          >
+            Reports
+          </Link>
           {/* conditional rendering if user has logged in or not */}
           {user ? (
             <button

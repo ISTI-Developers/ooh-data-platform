@@ -211,7 +211,7 @@ const SelectedAreasBody = ({ areas, setAreas }) => {
                   key={index}
                   className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
                 >
-                  <p className="font-semibold text-sm ">{item.area}</p>
+                  <p className="font-semibold text-sm ">{item.city}</p>
                   <p className="text-xs">{item.region}</p>
                   <div className="absolute top-0 right-0 h-full w-1/4 flex items-center justify-end bg-gradient-to-l from-white from-90% to-[#ffffff00] transition-all ">
                     <button

@@ -14,7 +14,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
   const domain =
-    window.location.hostname == "localhost" ? "localhost" : ".scmiph.com";
+    window.location.hostname == "localhost" ? "localhost" : "scmiph.com";
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -167,6 +167,16 @@ export function AuthProvider({ children }) {
     if (Cookies.get("user") && Cookies.get("role")) {
       setUser(JSON.parse(Cookies.get("user")));
       setRole(JSON.parse(Cookies.get("role")));
+      // const modules = JSON.parse(Cookies.get("role")).permissions.client
+      //   .modules;
+      // const filteredResults = {};
+      // for (const [key, value] of Object.entries(modules)) {
+      //   if (value.view) {
+      //     filteredResults[key] = value;
+      //   }
+      // }
+
+      // console.log(Object.keys(filteredResults).length !== 0);
     } else {
       if (
         !["/login", "/register", "/forgot-password", "/password-recovery"].some(

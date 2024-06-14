@@ -20,6 +20,8 @@ import Header from "~fragments/Header";
 import ForgotPassword from "~pages/ForgotPassword";
 import PasswordRecovery from "~pages/PasswordRecovery";
 import { AuthProvider, useAuth } from "~config/authContext";
+import Reports from "~pages/Reports";
+import { ReportProvider } from "~config/ReportContext";
 
 // Main App Component
 function App() {
@@ -39,6 +41,9 @@ function App() {
 function AppRoutes() {
   const location = useLocation();
   const { alert, setAlert, CheckPermission } = useAuth();
+  let hasUser = Cookies.get("role");
+
+  if (hasUser) hasUser = JSON.parse(hasUser);
   // Auto-dismiss alert after 3 seconds
   useEffect(() => {
     if (alert.isOn) {
@@ -85,12 +90,15 @@ function AppRoutes() {
         {/* React Router Routes */}
         <Routes>
           <Route element={<ProtectedRoutes />}>
-            <Route exact path="/" element={<Planning />} />
-            {Cookies.get("role") &&
+            {/* <Route exact path="/" element={<Planning />} /> */}
+            {hasUser &&
               //map the two pages that can or cannot be seen by the user based on role privileges.
-              ["map", "audience"].map((route) => {
+              ["planning", "map", "audience"].map((route) => {
                 let Component;
                 switch (route) {
+                  case "planning":
+                    Component = Planning;
+                    break;
                   case "map":
                     Component = Map;
                     break;
@@ -102,11 +110,31 @@ function AppRoutes() {
                 const element = <Component />;
 
                 //the function to check the permission
-                return CheckPermission({
-                  path: `${route}s`,
-                  children: <Route path={`/${route}/*`} element={element} />,
-                });
+                if (route === "planning") {
+                  return CheckPermission({
+                    path: route,
+                    children: <Route path={`/`} element={element} />,
+                  });
+                } else {
+                  return CheckPermission({
+                    path: `${route}s`,
+                    children: <Route path={`/${route}/*`} element={element} />,
+                  });
+                }
               })}
+            {hasUser &&
+              ["sales", "superadmin"].includes(
+                hasUser.role_name.toLowerCase()
+              ) && (
+                <Route
+                  path="/reports"
+                  element={
+                    <ReportProvider>
+                      <Reports />
+                    </ReportProvider>
+                  }
+                />
+              )}
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password/*" element={<ForgotPassword />} />

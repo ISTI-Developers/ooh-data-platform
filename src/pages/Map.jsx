@@ -11,7 +11,15 @@ function Map() {
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSitesCount("demographics");
-      setBillboards(data);
+      // console.log(data);
+      setBillboards(
+        data.map((item) => ({
+          ...item,
+          digital: parseInt(item.digital),
+          classic: parseInt(item.classic),
+          banner: parseInt(item.banner),
+        }))
+      );
     };
     setup();
   }, []);

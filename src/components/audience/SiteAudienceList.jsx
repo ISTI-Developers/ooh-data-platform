@@ -98,9 +98,9 @@ function SiteAudienceList({ options, query }) {
                         <Table.Cell>{site.site}</Table.Cell>
                         <Table.Cell>
                           <div>
+                            <p className="">{site.city}</p>
                             <p>{site.region}</p>
-                            <p>{site.city}</p>
-                            <p>{site.area}</p>
+                            {/* <p>{site.area}</p> */}
                           </div>
                         </Table.Cell>
                         <Table.Cell>

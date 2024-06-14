@@ -23,7 +23,6 @@ function PlanningModal({
         },
       }}
       onClose={() => {
-        console.log("closing");
         toggle((prev) => (isProfile ? null : !prev));
       }}
       size={size}

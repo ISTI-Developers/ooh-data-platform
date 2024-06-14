@@ -7,7 +7,7 @@ import { useState } from "react";
 import { usePlanning } from "~config/PlanningContext";
 
 function AreaSelectionList() {
-  const { regions } = useFunction();
+  const { regionList } = useFunction();
   const { dates, setDates } = usePlanning();
   const [selectedRegion, setRegion] = useState("all");
 
@@ -49,7 +49,7 @@ function AreaSelectionList() {
               <option value="all" selected={selectedRegion === null}>
                 All Regions
               </option>
-              {regions.map((region) => {
+              {regionList.map((region) => {
                 return (
                   <option key={region} value={region}>
                     {region}
@@ -61,9 +61,7 @@ function AreaSelectionList() {
         </div>
       </div>
       <div className="max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-secondary-500 scrollbar-thumb-rounded-full">
-        <PlanningTable
-          filter={selectedRegion}
-        />
+        <PlanningTable filter={selectedRegion} />
       </div>
     </div>
   );

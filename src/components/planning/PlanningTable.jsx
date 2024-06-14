@@ -10,44 +10,71 @@ function PlanningTable({ filter }) {
   const { dates, profiles, areas, setAreas, allowedMultiple, siteResults } =
     usePlanning();
   const headers = [
-    "area",
+    "city",
     "# fits profile",
     "% fits profile",
     "avg monthly impressions",
     "action",
   ];
   const countSitesByArea = (siteData) => {
-    const groupedData = siteData.reduce((result, current) => {
-      const areaKey = current.area;
-      if (!result[areaKey]) {
-        result[areaKey] = {
-          area: areaKey,
-          siteCount: 0,
-          region: current.region,
-          fits_no: 0,
-          fits_rate: 0,
-          avg_monthly_impressions: 0,
+    const groupedData = [];
+    console.log(siteData);
+    for (const city in siteData) {
+      if (!groupedData.find((data) => data === city)) {
+        const newItem = {
+          city: city,
+          siteCount: siteData[city].length,
+          region: siteData[city][0].region,
+          fits_no: siteData[city].reduce(
+            (total, site) => total + site.fits_no,
+            0
+          ),
+          fits_rate: siteData[city].reduce(
+            (total, site) => total + site.fits_rate,
+            0
+          ),
+          avg_monthly_impressions: siteData[city].reduce(
+            (total, site) => total + site.avg_monthly_impressions,
+            0
+          ),
         };
+        groupedData.push(newItem);
       }
+    }
 
-      // Summing up values
-      result[areaKey].siteCount++;
-      result[areaKey].fits_no += current.fits_no;
-      result[areaKey].fits_rate += current.fits_rate;
-      result[areaKey].avg_monthly_impressions +=
-        current.avg_monthly_impressions;
+    return groupedData;
+    // console.log(siteData);
+    // const groupedData = siteData.reduce((result, current) => {
+    //   const areaKey = current.area;
+    //   if (!result[areaKey]) {
+    //     result[areaKey] = {
+    //       area: areaKey,
+    //       siteCount: 0,
+    //       region: current.region,
+    //       fits_no: 0,
+    //       fits_rate: 0,
+    //       avg_monthly_impressions: 0,
+    //     };
+    //   }
 
-      return result;
-    }, {});
+    //   // Summing up values
+    //   result[areaKey].siteCount++;
+    //   result[areaKey].fits_no += current.fits_no;
+    //   result[areaKey].fits_rate += current.fits_rate;
+    //   result[areaKey].avg_monthly_impressions +=
+    //     current.avg_monthly_impressions;
 
-    return Object.values(groupedData);
+    //   return result;
+    // }, {});
+
+    // return Object.values(groupedData);
   };
 
   useEffect(() => {
     const setup = async () => {
-      console.log(siteResults);
       if (siteResults) {
-        const siteData = [...Object.values(siteResults) /*, ...filterSites()*/];
+        // const siteData = [...Object.values(siteResults) /*, ...filterSites()*/];
+        const siteData = siteResults;
 
         setSites(
           filter !== "all"
@@ -81,15 +108,15 @@ function PlanningTable({ filter }) {
           <Table.Body>
             {sites.length > 0 ? (
               sites.map((areaData, index) => {
-                const { area, region, siteCount } = areaData;
+                const { city, region, siteCount } = areaData;
                 return (
                   <Table.Row
-                    key={area + "_" + index}
+                    key={city + "_" + index}
                     className="relative group hover:bg-slate-100 text-main"
                   >
                     <Table.Cell>
                       <p className="flex flex-col whitespace-nowrap">
-                        <span>{area}</span>
+                        <span>{city}</span>
                         <span className="text-xs">{region}</span>
                         <span className="text-xs">
                           No. of Sites: {siteCount}
@@ -101,7 +128,7 @@ function PlanningTable({ filter }) {
                       {(areaData.fits_rate / siteCount).toFixed(2)}%
                     </Table.Cell>
                     <Table.Cell align="center">
-                      {areaData.avg_monthly_impressions}
+                      {(areaData.fits_rate / siteCount).toFixed(2)}
                     </Table.Cell>
                     <Table.Cell
                       align="center"
@@ -111,28 +138,29 @@ function PlanningTable({ filter }) {
                         className={classNames(
                           "p-1 text-sm border-2 rounded-md outline-none",
                           "transition-all",
-                          areas.find((area) => area.area === areaData.area)
+                          areas.find((area) => area.city === areaData.city)
                             ? "px-3 border-green-300 bg-green-300 text-white"
                             : "px-2.5 border-secondary-500 text-secondary-hover hover:bg-secondary-500"
                         )}
                         onClick={() => {
+                          console.log(areaData);
                           if (areas.length === 0) {
                             setAreas([areaData]);
                           } else {
                             if (
-                              !areas.find((area) => area.area === areaData.area)
+                              !areas.find((area) => area.city === areaData.city)
                             ) {
                               setAreas((prev) => [...prev, areaData]);
                             } else {
                               const updatedAreas = areas.filter(
-                                (area) => area.area !== areaData.area
+                                (area) => area.city !== areaData.city
                               );
                               setAreas(updatedAreas);
                             }
                           }
                         }}
                       >
-                        {areas.find((area) => area.area === areaData.area) ? (
+                        {areas.find((area) => area.city === areaData.city) ? (
                           <FaCheck className="text-xl" />
                         ) : (
                           "Add"

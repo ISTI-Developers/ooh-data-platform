@@ -19,25 +19,12 @@ function Results() {
   const { toUnderscored } = useFunction();
   const navigate = useNavigate();
   const headers = [
-    "area",
     "site",
+    "city",
     "# fits profile",
     "% fits profile",
     "site owner",
   ];
-  const companies = [
-    "United Neon",
-    "DOOH",
-    "RS Concepts",
-    "City Ads Group/Infinite Grafix",
-    "Adstrat Group",
-    "Summit OOH",
-    "Outcomm",
-    "Nyxsys",
-    "Mediaworld Metro Advertising",
-    "Luneta Advertising",
-  ];
-
   useEffect(() => {
     const setup = async () => {
       if ((profiles === null || profiles?.length === 0) && areas.length === 0) {
@@ -46,13 +33,13 @@ function Results() {
       }
 
       if (siteResults) {
-        const siteData = Object.values(siteResults);
+        const siteData = Object.values(siteResults).flatMap((item) => item);
 
         setSites([
           ...siteData
             .filter((data) =>
               areas.length > 0
-                ? areas.some((result) => result.area === data.area)
+                ? areas.some((result) => result.city === data.city)
                 : true
             )
             .sort((area1, area2) => {
@@ -143,24 +130,23 @@ function Results() {
                     navigate(`/audience/${toUnderscored(item.site_code)}`);
                   }}
                 >
-                  <Table.Cell className="text-main whitespace-nowrap">
-                    <p className="font-semibold text-lg ">{item.area}</p>
-                    <p>{item.region}</p>
-                  </Table.Cell>
                   <Table.Cell>
-                    <p className="flex flex-col whitespace-nowrap">
-                      <span>{item.site}</span>
+                    <p className="flex flex-col text-main whitespace-nowrap">
+                      <span className="font-semibold text-lg ">
+                        {item.site}
+                      </span>
                       <span>
                         Avg Monthly Impressions: {item.avg_monthly_impressions}
                       </span>
                     </p>
                   </Table.Cell>
-                  <Table.Cell>{item.fits_no}</Table.Cell>
-                  <Table.Cell>{item.fits_rate.toFixed(2)}%</Table.Cell>
-                  <Table.Cell>
-                    {item.site_owner ||
-                      companies[Math.floor(Math.random() * companies.length)]}
+                  <Table.Cell className="whitespace-nowrap">
+                    <p>{item.city}</p>
+                    <p>{item.region}</p>
                   </Table.Cell>
+                  <Table.Cell>{item.fits_no}</Table.Cell>
+                  <Table.Cell>{item.fits_rate?.toFixed(2)}%</Table.Cell>
+                  <Table.Cell>{item.site_owner}</Table.Cell>
                 </Table.Row>
               );
             })
