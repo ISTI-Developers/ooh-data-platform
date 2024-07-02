@@ -8,9 +8,6 @@
       "~components/*": [
         "src/components/*"
       ],
-      "~mapComponents/*": [
-        "src/components/map/*"
-      ],
       "~config/*": [
         "src/config/*"
       ],
@@ -22,6 +19,9 @@
       ],
       "~/*": [
         "src/*"
+      ],
+      "~reports/*": [
+        "src/components/reports/*"
       ]
     }
   }
