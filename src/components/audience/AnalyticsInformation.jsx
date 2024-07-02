@@ -21,7 +21,7 @@ function AnalyticsInformation() {
   return (
     <>
       <SiteAnalytics dates={dates} setDateRange={setDateRange} />
-      {/* <SiteBehaviors dates={dates} /> */}
+      <SiteBehaviors dates={dates} />
     </>
   );
 }
@@ -35,7 +35,7 @@ function SiteAnalytics({ dates, setDateRange }) {
     "average_daily_impressions",
     "average_weekly_impressions",
     "average_monthly_impressions",
-    "highest_monthly_impression",
+    // "highest_monthly_impression",
   ];
   const { capitalize } = useFunction();
   useEffect(() => {
@@ -44,6 +44,7 @@ function SiteAnalytics({ dates, setDateRange }) {
       console.log(response);
       if (response) {
         setImpressions(response.analytics);
+        console.log(response.analytics)
         toggleFetching(false);
       }
     };
@@ -112,7 +113,7 @@ function SiteBehaviors({ dates }) {
         category: "Profile",
       });
       setAudiences(response);
-      // console.log('done fetching');
+
       toggleFetching(false);
     };
     setup();
