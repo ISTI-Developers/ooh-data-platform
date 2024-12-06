@@ -1,5 +1,3 @@
-import Cookies from "js-cookie";
-
 const conjunctionWords = [
   "and",
   "but",
@@ -87,6 +85,16 @@ const capitalize = (text = "", sep = " ") => {
   });
   return tempText.join(" ");
 };
+const capitalizeFirst = (text = "", sep = " ") => {
+  const tempText = text.split(sep);
+  tempText.forEach((text, index) => {
+    if (!conjunctionWords.includes(text)) {
+      tempText[index] =
+        text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+    }
+  });
+  return tempText.join(" ");
+};
 
 const toSentenceCase = (str) => {
   // Check if the input string is not empty
@@ -113,8 +121,25 @@ function offsetCoordinate(lat, lng, offsetMeters) {
 
   return { lat: newLat, lng: newLng };
 }
+const haversineDistance = (coords1, coords2) => {
+  const toRad = (x) => (x * Math.PI) / 180;
+
+  const R = 6371e3; // Earth's radius in meters
+  const dLat = toRad(coords2.lat - coords1.lat);
+  const dLng = toRad(coords2.lng - coords1.lng);
+  const lat1 = toRad(coords1.lat);
+  const lat2 = toRad(coords2.lat);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+};
 function searchItems(array, query = "") {
   // Convert query to lowercase for case-insensitive search
+  if (!query || query.length === 0) return;
   const lowerCaseQuery = query.toLowerCase();
 
   // Array to store matched objects
@@ -148,5 +173,7 @@ export const useFunction = () => {
     toSentenceCase,
     offsetCoordinate,
     searchItems,
+    capitalizeFirst,
+    haversineDistance,
   };
 };

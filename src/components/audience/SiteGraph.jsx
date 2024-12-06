@@ -58,7 +58,9 @@ function SiteGraph({ title, data, className, isFetching }) {
         <LineChart width={"100%"} data={newImpressions} margin={{ left: 20 }}>
           <CartesianGrid strokeDasharray="3 6" />
           <XAxis dataKey={keys[0]} tick={<CustomLabel />} />
-          <YAxis />
+          <YAxis  
+          // domain={['min','max']}
+          />
           <Tooltip content={<CustomToolTip />} />
           <Legend />
           <Line
@@ -73,7 +75,7 @@ function SiteGraph({ title, data, className, isFetching }) {
             dataKey={keys[1]}
             stroke="#84b6d8"
             strokeWidth={4}
-            dot={{ fill: "#0692da", stroke: "#0692da", strokeWidth: 2 }}
+            dot={{ fill: "#0692da", stroke: "#0692da", strokeWidth: 1 }}
             activeDot={{ fill: "#0692da" }}
           />
         </LineChart>

@@ -1,72 +1,41 @@
 import {
   Button,
+  Datepicker,
   Label,
-  Modal,
   TextInput,
   Tooltip as Tip,
 } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaArrowsRotate, FaChartLine } from "react-icons/fa6";
-import { ReportProvider, useReport } from "~config/ReportContext";
+import { useReport } from "~config/ReportContext";
 import { defaultTextTheme, mainButtonTheme } from "~config/themes";
 import PropTypes from "prop-types";
 import { format } from "date-fns";
 import classNames from "classnames";
-import { generateRandomNumbers } from "~config/reports.test";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Rectangle,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { AiOutlineLoading } from "react-icons/ai";
+import PrintAllModal from "~components/reports/PrintAllModal";
+import ReportModal from "~components/reports/ReportModal";
+import SiteQuery from "~components/reports/SiteQuery";
+import Impressions from "~components/reports/Impressions";
 
 function Reports() {
-  const { reports, addReport, show } = useReport();
-  // const [reports, setReports] = useState([{ site: null, details: null }]);
-  // const [charts, setCharts] = useState([]);
+  const { reports, addReport, toggleModal } = useReport();
+  const [enable, togglePrint] = useState(false);
 
-  // const addReport = () => {
-  //   setReports([...reports, { site: null, details: null }]);
-  // };
+  useEffect(() => {
+    const printReady = () => togglePrint(true);
+    const printWaiting = () => togglePrint(false);
 
-  // const updateReport = (index, newData) => {
-  //   const newReports = reports.map((report, i) =>
-  //     i === index ? newData : report
-  //   );
-  //   setReports(newReports);
-  // };
-  // const clearSite = (index) => {
-  //   const tempReports = [...reports];
-  //   const newReports = tempReports.find((_, i) => i === index);
-  //   newReports.site = null;
+    if (reports.some((item) => item.site == null)) {
+      printWaiting();
+    } else {
+      printWaiting();
+      const timeout = setTimeout(printReady, 1500);
 
-  //   setReports(tempReports);
-  // };
-  // const removeReport = (index) => {
-  //   setReports((current) => {
-  //     return current.filter((_, i) => i !== index);
-  //   });
-  // };
-
-  // const addChart = (site, chart) => {
-  //   setCharts((prev) => {
-  //     return [...prev, { site: site, chart: chart }];
-  //   });
-  // };
-  // const deleteChart = (index) => {
-  //   setCharts((prev) => {
-  //     return prev.filter((_, i) => i !== index);
-  //   });
-  // };
+      return () => clearTimeout(timeout);
+    }
+  }, [reports]);
   return (
     <>
       <div className="w-full py-4">
@@ -79,10 +48,11 @@ function Reports() {
           </p>
           <Button
             type="button"
-            disabled
-            color="warning"
+            color="information"
+            disabled={!enable}
             theme={mainButtonTheme}
-            className="bg-[#ec9912] w-[150px]"
+            className="bg-secondary-hover w-[150px] text-white"
+            onClick={() => toggleModal("all")}
           >
             Print All
           </Button>
@@ -109,47 +79,27 @@ function Reports() {
           </Button>
         </div>
       </div>
-      <Modal show={show !== null} dismissible>
-        <Modal.Header>
-          Print {reports[show]?.site.site} Impressions
-        </Modal.Header>
-        <Modal.Body></Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            color="warning"
-            processingSpinner={
-              <AiOutlineLoading className="h-6 w-6 animate-spin" />
-            }
-            theme={mainButtonTheme}
-            className="bg-[#ec9912] w-[150px]"
-            onClick={() => console.log()}
-          >
-            Print
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <PrintAllModal />
+      <ReportModal />
     </>
   );
 }
 
 function Report({ index, reportData, sites, count }) {
-  const { updateReport, removeReport, clearSite } = useReport();
+  const { updateReport, removeReport, clearSite, fetchReport } = useReport();
+  const [active, setActive] = useState(true);
   const [query, setQuery] = useState("");
   const [site, setSite] = useState(null);
-  const [title, setTitle] = useState("");
   const [details, setDetails] = useState(null);
   const [dates, setDates] = useState({
     from: new Date().setDate(new Date().getDate() - 30),
     to: new Date(),
   });
-  const [canvases, setCanvases] = useState([]);
-
-  const onDateChange = (e) => {
-    const date = new Date(e.target.value);
+  const onDateChange = (id, value) => {
+    const date = new Date(value);
     setDates((prev) => ({
       ...prev,
-      [e.target.id]: date,
+      [id]: date,
     }));
   };
 
@@ -159,93 +109,48 @@ function Report({ index, reportData, sites, count }) {
       alert("Please select a site first.");
       return;
     }
-    const from = format(dates.from, "yyyy-MM-dd");
-    const to = format(dates.to, "yyyy-MM-dd");
+    const from = format(dates.from, "MM-dd-yyyy");
+    const to = format(dates.to, "MM-dd-yyyy");
+    const id = site.site;
 
-    const analytics = generateRandomNumbers(from, to);
-    const { daily, weekly, monthly } = analytics;
+    const { analytics } = await fetchReport(id, from, to);
 
-    const total = daily.reduce((sum, item) => sum + item.impressions, 0);
+    const {
+      average_daily_impressions,
+      average_weekly_impressions,
+      average_monthly_impressions,
+      impressions,
+    } = analytics;
 
     const entries = {
-      daily: Math.round(total / daily.length),
-      weekly: Math.round(total / weekly.length),
-      monthly: Math.round(total / monthly.length),
+      daily: average_daily_impressions,
+      weekly: average_weekly_impressions,
+      monthly: average_monthly_impressions,
+    };
+
+    const { daily } = impressions;
+    const size = daily.length;
+    const actualDates = {
+      from: new Date(daily[0].period),
+      to: new Date(daily[size - 1].period),
     };
     const finalAnalytics = {
       ...entries,
-      entries: analytics,
+      entries: impressions,
+      dates: actualDates,
     };
 
+
     setQuery("");
-    setTitle(site.site);
     setDetails(finalAnalytics);
     updateReport(index, { site, details: finalAnalytics });
   };
 
-  const onPrint = () => {
-    const charts = canvases.slice(-3);
-    const weeklyImpressions = details.entries.weekly.map((item) => {
-      return [item.date, item.impressions.toLocaleString()];
-    });
+  useEffect(() => {
+    const timeout = setTimeout(() => setActive(false), 3000);
 
-    const columns = [
-      { title: "Week", dataKey: "date" },
-      { title: "Impressions", dataKey: "impressions" },
-    ];
-    const pdf = new jsPDF("p", "mm", "legal");
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    // const pageHeight = pdf.internal.pageSize.getHeight();
-
-    pdf.setFont("helvetica", "bold");
-    pdf.text(`${title} Impressions`, 15, 15);
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(12);
-    pdf.text(
-      `${format(new Date(dates.from), "MMMM d, yyyy")} - ${format(
-        new Date(dates.to),
-        "MMMM d, yyyy"
-      )}`,
-      15,
-      21
-    );
-    pdf.line(15, 25, pageWidth - 15, 25);
-
-    pdf.setFont("helvetica", "bold");
-    pdf.text(`Weekly Impressions Breakdown`, 15, 32);
-    pdf.autoTable({
-      startY: 36, // Starting Y position for the table
-      head: [columns.map((col) => col.title)], // Table headers
-      body: weeklyImpressions, // Table data
-      theme: "grid", // Optional: style the table
-      headStyles: { fillColor: [0, 57, 107] }, // Optional: custom header styles
-      margin: { top: 10 },
-      styles: {
-        cellPadding: 2,
-        fontSize: 10,
-        halign: "center",
-        valign: "middle",
-      },
-      didDrawPage: function (data) {
-        // Calculate the position for the next content
-        const tableEndY = data.cursor.y + 10;
-        pdf.setFont("helvetica", "bold");
-        pdf.text("Charts", 15, tableEndY);
-        pdf.setFont("helvetica", "normal");
-        // pdf.text("Daily Impressions", 15, tableEndY + 6);
-        pdf.addImage(charts[0], "PNG", 15, tableEndY + 2, 100, 80);
-        pdf.addImage(charts[1], "PNG", 15, tableEndY + 82, 100, 80);
-        pdf.addImage(charts[2], "PNG", 15, tableEndY + 164, 100, 80);
-        // pdf.text("Weekly Impressions", 15, tableEndY + 56);
-        // pdf.addImage(charts[1], "PNG", 15, tableEndY + 62);
-        // pdf.text("Monthly Impressions", 15, tableEndY + 16);
-        // pdf.addImage(charts[0], "PNG", 15, 30);
-      },
-    });
-    pdf.save(`${title}.pdf`);
-  };
-
+    return () => clearTimeout(timeout);
+  }, []);
   return (
     <div className="space-y-6">
       <form
@@ -280,7 +185,7 @@ function Report({ index, reportData, sites, count }) {
               <Label htmlFor="site" value="Search Site" />
               <TextInput
                 type="search"
-                theme={defaultTextTheme}
+                // theme={defaultTextTheme}
                 onChange={(e) => setQuery(e.target.value)}
               />
               <SiteQuery query={query} setSite={setSite} sites={sites} />
@@ -289,18 +194,35 @@ function Report({ index, reportData, sites, count }) {
         </section>
         <div>
           <Label htmlFor="from" value="From: " />
-          <input
+          {/* <input
             type="date"
             id="from"
             required
             value={format(new Date(dates.from), "yyyy-MM-dd")}
             className="border-gray-300"
             onChange={onDateChange}
+          /> */}
+          <Datepicker
+            id="to"
+            required
+            value={format(new Date(dates.from), "MMM dd, yyyy")}
+            onSelectedDateChanged={(date) =>
+              onDateChange("from", format(new Date(date), "yyyy-MM-dd"))
+            }
           />
         </div>
         <div>
           <Label htmlFor="to" value="To: " />
-          <input
+          <Datepicker
+            id="to"
+            required
+            value={format(new Date(dates.to), "MMM dd, yyyy")}
+            minDate={new Date(dates.from)}
+            onSelectedDateChanged={(date) =>
+              onDateChange("to", format(new Date(date), "yyyy-MM-dd"))
+            }
+          />
+          {/* <input
             type="date"
             id="to"
             required
@@ -308,7 +230,7 @@ function Report({ index, reportData, sites, count }) {
             className="border-gray-300"
             min={format(new Date(dates.from), "yyyy-MM-dd")}
             onChange={onDateChange}
-          />
+          /> */}
         </div>
         <Button
           type="submit"
@@ -338,6 +260,9 @@ function Report({ index, reportData, sites, count }) {
       <section
         className={classNames(
           "bg-slate-200 w-full min-h-[300px] flex p-6 gap-6",
+          active
+            ? "pointer-events-none cursor-wait"
+            : "pointer-events-auto cursor-default",
           !details ? "items-center justify-center" : "flex-col"
         )}
       >
@@ -352,19 +277,6 @@ function Report({ index, reportData, sites, count }) {
                 {reportData.site !== null ? reportData.site.site : site.site}{" "}
                 Impressions
               </h2>
-              <div className="flex items-center gap-1 ml-auto">
-                <label htmlFor="title" className="font-semibold">
-                  Title:{" "}
-                </label>
-                <input
-                  id="title"
-                  type="text"
-                  className="bg-transparent border-x-0 border-t-0 border-b-2 border-main outline-none focus:ring-0"
-                  placeholder="Enter file title and name"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
               <PrintButton index={index} />
             </section>
             <div className="grid grid-cols-3 gap-6">
@@ -377,7 +289,6 @@ function Report({ index, reportData, sites, count }) {
                     key={item}
                     title={item}
                     impressions={[analytics[item], analytics.entries[item]]}
-                    setCanvases={setCanvases}
                   />
                 );
               })}
@@ -407,133 +318,19 @@ function PrintButton({ index }) {
       processingSpinner={<AiOutlineLoading className="h-6 w-6 animate-spin" />}
       theme={mainButtonTheme}
       className="bg-[#ec9912] w-[150px]"
-      onClick={() => toggleModal(index)}
+      onClick={() => {
+        toggleModal(index);
+      }}
     >
       Print
     </Button>
   );
 }
-function SiteQuery({ query, setSite, sites: siteList }) {
-  const [results, setResults] = useState(null);
-  const { sites } = useReport();
-
-  useEffect(() => {
-    if (query?.length < 2) {
-      setResults(null);
-      return;
-    }
-
-    if (!sites) return;
-
-    const siteWithReports = siteList.map((item) =>
-      item ? item.site.toLowerCase() : null
-    );
-    const filteredSites = sites.filter(
-      (item) =>
-        item.site.toLowerCase().includes(query.toLowerCase()) &&
-        !siteWithReports.includes(item.site.toLowerCase())
-    );
-    if (filteredSites.length !== 0) {
-      setResults(filteredSites);
-    } else {
-      setResults("No sites found.");
-    }
-  }, [query, sites]);
-  return (
-    results &&
-    (typeof results === "object" ? (
-      <ul className="bg-white absolute w-full z-[2] max-h-[175px] overflow-y-auto flex flex-col border-x border-b border-cyan-500">
-        {results.map((item) => {
-          return (
-            <li
-              key={item.site_code}
-              className="p-2 cursor-pointer hover:bg-slate-50"
-              onClick={() => {
-                setSite(item);
-                setResults(null);
-              }}
-            >
-              {item.site}
-            </li>
-          );
-        })}
-      </ul>
-    ) : (
-      <ul className="bg-white absolute w-full z-[2] p-2 text-slate-600">
-        {results}
-      </ul>
-    ))
-  );
-}
-
-function Impressions({ title, impressions }) {
-  const [average, data] = impressions;
-  const chartRef = useRef(null);
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white shadow-md p-2">
-          <p>{format(new Date(label), "MMMM d, yyyy")}</p>
-          <p className="text-[#1F487E]">{`Impressions: ${payload[0].value.toLocaleString()}`}</p>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  return (
-    <div className="bg-white p-4 flex flex-col gap-4" ref={chartRef}>
-      <section>
-        <p className="capitalize text-xl font-semibold">{title} Impressions</p>
-        <p>
-          Average:{" "}
-          <span className="font-semibold text-xl">
-            {average.toLocaleString()}
-          </span>
-        </p>
-      </section>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart
-          data={data}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 10,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="date"
-            tickFormatter={(value) => format(new Date(value), "MM-dd")}
-            angle={-20}
-            textAnchor="end"
-          />
-          <YAxis />
-          <Tooltip content={CustomTooltip} />
-          <Legend
-            formatter={(value) =>
-              value.charAt(0).toUpperCase() + value.slice(1)
-            }
-          />
-          <Bar
-            dataKey="impressions"
-            fill="#1F487E"
-            activeBar={
-              <Rectangle fill="#ec9912" stroke="#1F487E" strokeWidth={4} />
-            }
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
 
 PrintButton.propTypes = {
-  onClick: PropTypes.func,
+  index: PropTypes.number,
 };
+
 Report.propTypes = {
   index: PropTypes.number,
   count: PropTypes.number,
@@ -543,18 +340,5 @@ Report.propTypes = {
   removeReport: PropTypes.func,
   sites: PropTypes.array,
 };
-SiteQuery.propTypes = {
-  query: PropTypes.string,
-  setSite: PropTypes.func,
-  sites: PropTypes.array,
-};
-Impressions.propTypes = {
-  title: PropTypes.string,
-  impressions: PropTypes.array,
-  active: PropTypes.bool,
-  payload: PropTypes.object,
-  label: PropTypes.string,
-  site: PropTypes.object,
-  setCanvases: PropTypes.func,
-};
+
 export default Reports;

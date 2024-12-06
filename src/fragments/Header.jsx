@@ -57,16 +57,18 @@ function Header() {
                 </CheckPermission>
               );
             })}
-          <Link
-            to="/reports"
-            className={classNames(
-              "capitalize font-semibold text-lg hover:text-secondary",
-              //check if same pathname to the item for showing the active link
-              location.pathname == `/reports` ? "text-secondary" : "text-main"
-            )}
-          >
-            Reports
-          </Link>
+          {user && (
+            <Link
+              to="/reports"
+              className={classNames(
+                "capitalize font-semibold text-lg hover:text-secondary",
+                //check if same pathname to the item for showing the active link
+                location.pathname == `/reports` ? "text-secondary" : "text-main"
+              )}
+            >
+              Reports
+            </Link>
+          )}
           {/* conditional rendering if user has logged in or not */}
           {user ? (
             <button

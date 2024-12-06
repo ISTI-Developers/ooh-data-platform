@@ -32,30 +32,34 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
             </Button>
           );
         })}
-        <button
-          className={classNames(
-            "absolute top-[24px] left-0 h-full -translate-y-1/2 transition-all bg-gradient-to-r from-white from-50% to-transparent px-2 outline-none"
-          )}
-          onClick={() => {
-            if (tabList.current) {
-              tabList.current.scrollLeft -= 250;
-            }
-          }}
-        >
-          <MdArrowBackIos />
-        </button>
-        <button
-          className={classNames(
-            "absolute top-[24px] right-0 -translate-y-1/2 transition-all bg-gradient-to-l from-white from-50% to-transparent px-2 outline-none"
-          )}
-          onClick={() => {
-            if (tabList.current) {
-              tabList.current.scrollLeft += 250;
-            }
-          }}
-        >
-          <MdArrowForwardIos />
-        </button>
+        {tabs.length > 2 && (
+          <>
+            <button
+              className={classNames(
+                "absolute top-[24px] left-0 h-full -translate-y-1/2 transition-all bg-gradient-to-r from-white from-50% to-transparent px-2 outline-none"
+              )}
+              onClick={() => {
+                if (tabList.current) {
+                  tabList.current.scrollLeft -= 250;
+                }
+              }}
+            >
+              <MdArrowBackIos />
+            </button>
+            <button
+              className={classNames(
+                "absolute top-[24px] right-0 -translate-y-1/2 transition-all bg-gradient-to-l from-white from-50% to-transparent px-2 outline-none"
+              )}
+              onClick={() => {
+                if (tabList.current) {
+                  tabList.current.scrollLeft += 250;
+                }
+              }}
+            >
+              <MdArrowForwardIos />
+            </button>
+          </>
+        )}
       </header>
       <main className="p-1">{content}</main>
     </div>

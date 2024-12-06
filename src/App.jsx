@@ -22,6 +22,8 @@ import PasswordRecovery from "~pages/PasswordRecovery";
 import { AuthProvider, useAuth } from "~config/authContext";
 import Reports from "~pages/Reports";
 import { ReportProvider } from "~config/ReportContext";
+import ReportDecks from "~pages/ReportDecks";
+import MapProvider from "~config/MapsContext";
 
 // Main App Component
 function App() {
@@ -61,7 +63,7 @@ function AppRoutes() {
     <>
       <div
         className={classNames(
-          "bg-default h-full min-h-[calc(100vh_-_110px)] p-4 xl:px-20 2xl:px-40 flex flex-col gap-4 relative",
+          "bg-default h-full min-h-[calc(100vh_-_110px)] p-4 2xl:px-40 flex flex-col gap-4 relative",
           ["/login", "/register"].includes(location.pathname)
             ? "justify-center"
             : ""
@@ -87,61 +89,78 @@ function AppRoutes() {
           </Alert>
         )}
 
-        {/* React Router Routes */}
-        <Routes>
-          <Route element={<ProtectedRoutes />}>
-            {/* <Route exact path="/" element={<Planning />} /> */}
-            {hasUser &&
-              //map the two pages that can or cannot be seen by the user based on role privileges.
-              ["planning", "map", "audience"].map((route) => {
-                let Component;
-                switch (route) {
-                  case "planning":
-                    Component = Planning;
-                    break;
-                  case "map":
-                    Component = Map;
-                    break;
-                  case "audience":
-                    Component = Audience;
-                    break;
-                }
-
-                const element = <Component />;
-
-                //the function to check the permission
-                if (route === "planning") {
-                  return CheckPermission({
-                    path: route,
-                    children: <Route path={`/`} element={element} />,
-                  });
-                } else {
-                  return CheckPermission({
-                    path: `${route}s`,
-                    children: <Route path={`/${route}/*`} element={element} />,
-                  });
-                }
-              })}
-            {hasUser &&
-              ["sales", "superadmin"].includes(
-                hasUser.role_name.toLowerCase()
-              ) && (
-                <Route
-                  path="/reports"
-                  element={
-                    <ReportProvider>
-                      <Reports />
-                    </ReportProvider>
+        <MapProvider>
+          {/* React Router Routes */}
+          <Routes>
+            <Route element={<ProtectedRoutes />}>
+              {/* <Route exact path="/" element={<Planning />} /> */}
+              {hasUser &&
+                //map the two pages that can or cannot be seen by the user based on role privileges.
+                ["planning", "map", "audience"].map((route) => {
+                  let Component;
+                  switch (route) {
+                    case "planning":
+                      Component = Planning;
+                      break;
+                    case "map":
+                      Component = Map;
+                      break;
+                    case "audience":
+                      Component = Audience;
+                      break;
                   }
-                />
-              )}
-          </Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password/*" element={<ForgotPassword />} />
-          <Route path="/password-recovery/" element={<EmptyPage />} />
-          <Route path="/password-recovery/:id" element={<PasswordRecovery />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
+
+                  const element = <Component />;
+
+                  //the function to check the permission
+                  if (route === "planning") {
+                    return CheckPermission({
+                      path: route,
+                      children: <Route path={`/`} element={element} />,
+                    });
+                  } else {
+                    return CheckPermission({
+                      path: `${route}s`,
+                      children: (
+                        <Route path={`/${route}/*`} element={element} />
+                      ),
+                    });
+                  }
+                })}
+              {hasUser &&
+                ["sales", "superadmin"].includes(
+                  hasUser.role_name.toLowerCase()
+                ) && (
+                  <>
+                    <Route
+                      path="/reports"
+                      element={
+                        <ReportProvider>
+                          <ReportDecks />
+                        </ReportProvider>
+                      }
+                    />
+                    <Route
+                      path="/old_reports"
+                      element={
+                        <ReportProvider>
+                          <Reports />
+                        </ReportProvider>
+                      }
+                    />
+                  </>
+                )}
+            </Route>
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password/*" element={<ForgotPassword />} />
+            <Route path="/password-recovery/" element={<EmptyPage />} />
+            <Route
+              path="/password-recovery/:id"
+              element={<PasswordRecovery />}
+            />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </MapProvider>
       </div>
     </>
   );

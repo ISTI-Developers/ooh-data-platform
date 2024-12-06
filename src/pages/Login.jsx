@@ -32,6 +32,7 @@ function Login() {
     const pass = password.current.value;
 
     const response = await signInUser(uname, pass);
+    console.log(response);
     if (response?.acknowledged) {
       if (response.role.permissions.admin.access) {
         window.location.href = adminURL;
@@ -69,8 +70,13 @@ function Login() {
 
   useEffect(() => {
     if (user) {
-      if (JSON.parse(Cookies.get("role")).permissions.admin.access) {
-        window.location.href = adminURL;
+      const roleCookie = Cookies.get("role") || null;
+      if (roleCookie) {
+        if (JSON.parse(Cookies.get("role")).permissions.admin.access) {
+          window.location.href = adminURL;
+        } else {
+          navigate("/");
+        }
       } else {
         navigate("/");
       }

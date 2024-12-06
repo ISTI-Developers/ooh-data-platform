@@ -10,7 +10,6 @@ function Audience() {
     type: "all",
     region: [],
     city: [],
-    area: [],
   });
   const [query, setQuery] = useState("");
   return (

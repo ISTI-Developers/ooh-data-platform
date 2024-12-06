@@ -1,0 +1,328 @@
+/* eslint-disable react/prop-types */
+import classNames from "classnames";
+import { Checkbox, Label, Table, TextInput, Tooltip } from "flowbite-react";
+import { useMemo, useState } from "react";
+import { IoOptions } from "react-icons/io5";
+import { useReport } from "~config/ReportContext";
+import { tooltip } from "~config/themes";
+import { v4 } from "uuid";
+import Select from "react-select";
+import Tabs from "~fragments/Tabs";
+import { FaMinusSquare } from "react-icons/fa";
+import { Select as FSelect } from "flowbite-react";
+
+const DeckOptions = () => {
+  const { reports, priceDetails, setPriceDetails, addPriceAdjustment } =
+    useReport();
+  const [open, setOpen] = useState();
+  const [activeTab, setActiveTab] = useState("price_adjustment");
+
+  const canAddAnotherAdjustment = useMemo(() => {
+    if (priceDetails.length === 0 || reports.length === 0) return false;
+
+    if (priceDetails.some((details) => details.sites.length === 0))
+      return false;
+
+    if (priceDetails[0].sites.some((site) => site.value === "all")) {
+      return false;
+    }
+
+    const adjustedSites = priceDetails.flatMap((detail) => detail.sites);
+
+    if (adjustedSites.length < reports.length) return true;
+
+    return false;
+  }, [priceDetails, reports.length]);
+
+  return (
+    <>
+      <div className="relative">
+        <Tooltip
+          theme={tooltip}
+          content="Deck Options"
+          arrow={false}
+          className="whitespace-nowrap"
+        >
+          <div
+            className="rounded-md text-2xl"
+            role="button"
+            onClick={() => {
+              setOpen((prev) => !prev);
+              setPriceDetails((prev) => {
+                if (prev.length === 0) {
+                  return [
+                    {
+                      id: v4(),
+                      price: 0,
+                      sites: [
+                        {
+                          label: "All",
+                          value: "all",
+                        },
+                      ],
+                    },
+                  ];
+                }
+                return prev;
+              });
+            }}
+          >
+            <IoOptions className="text-slate-700" />
+          </div>
+        </Tooltip>
+        <div
+          className={classNames(
+            "absolute top-0 right-0 min-w-[600px] p-4 bg-white border border-gray-300 shadow-md transition-all translate-y-10 rounded space-y-4",
+            open
+              ? "opacity-100 pointer-events-auto z-[3]"
+              : "opacity-0 pointer-events-none"
+          )}
+        >
+          <Tabs
+            tabs={["price_adjustment", "rate/duration"]}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+            content={
+              <>
+                <section
+                  className={classNames(
+                    activeTab === "price_adjustment"
+                      ? "block space-y-2"
+                      : "hidden"
+                  )}
+                >
+                  {priceDetails.length > 0 && (
+                    <>
+                      {priceDetails.map((detail, index) => {
+                        return (
+                          <PriceAdjustmentItem
+                            details={detail}
+                            index={index}
+                            key={index}
+                          />
+                        );
+                      })}
+                      <button
+                        onClick={addPriceAdjustment}
+                        disabled={!canAddAnotherAdjustment}
+                        className={classNames(
+                          "ml-auto float-end w-fit px-2 py-1  rounded",
+                          canAddAnotherAdjustment
+                            ? "text-white bg-[#ec9912] cursor-pointer"
+                            : "text-gray-500 bg-gray-200 cursor-not-allowed"
+                        )}
+                      >
+                        Add new
+                      </button>
+                    </>
+                  )}
+                </section>
+                <section
+                  className={classNames(
+                    activeTab === "rate/duration" ? "block space-y-2" : "hidden"
+                  )}
+                >
+                  <RateGenerator />
+                </section>
+              </>
+            }
+          />
+        </div>
+      </div>
+      <div
+        onClick={() => setOpen(false)}
+        className={classNames(
+          "fixed top-0 left-0 bg-black w-full h-full opacity-0",
+          open ? "pointer-events-auto z-[2]" : "pointer-events-none z-[1]"
+        )}
+      />
+    </>
+  );
+};
+
+const RateGenerator = () => {
+  const { rates, setRates, showRates: show, setShow } = useReport();
+
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="rates"
+          onChange={(e) => {
+            setShow(e.target.checked);
+          }}
+        />
+        <Label htmlFor="rates">Generate rates per month</Label>
+      </div>
+      {show && (
+        <div className="flex flex-col gap-4">
+          <section className="grid grid-cols-[.5fr_1fr_auto] gap-4 items-center font-bold uppercase">
+            <p>Duration</p>
+            <p>Discount</p>
+          </section>
+          {rates.map((rate, index) => {
+            return (
+              <section
+                key={index}
+                className="grid grid-cols-[.5fr_1fr_auto] items-center gap-4"
+              >
+                <p>{rate.duration} months</p>
+                <input
+                  type="number"
+                  step={rate.type === "flat" ? 1000 : 1}
+                  min={0}
+                  max={rate.type === "percent" ? 100 : undefined}
+                  value={rate.discount}
+                  onChange={(e) =>
+                    setRates((prev) => {
+                      const updatedPrev = [...prev];
+                      updatedPrev[index] = {
+                        ...updatedPrev[index],
+                        discount: e.target.valueAsNumber,
+                      };
+
+                      return updatedPrev;
+                    })
+                  }
+                />
+                <select
+                  value={rate.type}
+                  onChange={(e) =>
+                    setRates((prev) => {
+                      const updatedPrev = [...prev];
+                      updatedPrev[index] = {
+                        ...updatedPrev[index],
+                        discount:
+                          updatedPrev[index].discount > 100
+                            ? 100
+                            : updatedPrev[index].discount,
+                        type: e.target.value,
+                      };
+
+                      return updatedPrev;
+                    })
+                  }
+                >
+                  <option value="flat">---</option>
+                  <option value="percent">%</option>
+                </select>
+              </section>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+};
+const PriceAdjustmentItem = ({ details, index }) => {
+  const { priceDetails, reports, setPriceDetails } = useReport();
+
+  const reportOptions = useMemo(() => {
+    if (!reports) return [];
+
+    const selectedSites = priceDetails.flatMap((detail) => detail.sites);
+
+    const options = reports.map((report) => ({
+      label: report.site.site_code,
+      value: report.site.site,
+      isDisabled: details.sites.some((site) => site.value === "all"),
+    }));
+
+    return options.filter(
+      (option) => !selectedSites.some((site) => site.value === option.value)
+    );
+  }, [details.sites, priceDetails, reports]);
+
+  const options = useMemo(() => {
+    return index === 0
+      ? [
+          {
+            label: "All",
+            value: "all",
+          },
+          ...reportOptions,
+        ]
+      : [...reportOptions];
+  }, [index, reportOptions]);
+
+  return (
+    <div className="grid grid-cols-[1fr_1.5fr_auto] gap-4">
+      <div>
+        <Label htmlFor={`price_${index}`}>Price</Label>
+        <div className="w-full border border-gray-300 h-10 rounded flex items-center overflow-hidden">
+          <p className="border-r text-lg px-4">₱</p>
+          <input
+            type="number"
+            value={details.price}
+            min={0}
+            step={50000}
+            onChange={(e) =>
+              setPriceDetails((prev) => {
+                // Create a new array to avoid direct mutation
+                const updatedPrices = [...prev];
+
+                // Update the specific index
+                updatedPrices[index] = {
+                  ...updatedPrices[index], // Spread the existing values
+                  price: e.target.valueAsNumber, // Update the price
+                };
+
+                return updatedPrices; // Return the updated array
+              })
+            }
+            className="w-full border-none focus:ring-0 focus:outline-none focus:border-none"
+          />
+        </div>
+      </div>
+      <div>
+        <Label htmlFor={`site_${index}`}>Sites</Label>
+        <Select
+          value={details.sites}
+          options={options}
+          isMulti
+          closeMenuOnSelect={false}
+          onChange={(value) =>
+            setPriceDetails((prev) => {
+              const updatedSites = [...prev];
+              const isAll = value.some((option) => option.value === "all");
+
+              console.log(options.filter((option) => option.value !== "all"));
+              updatedSites[index] = {
+                ...updatedSites[index],
+                sites: isAll
+                  ? [{ label: "All", value: "all" }]
+                  : index === 0 &&
+                    options.filter((option) => option.value !== "all")
+                      .length === 1
+                  ? [{ label: "All", value: "all" }]
+                  : value,
+              };
+
+              if (isAll) {
+                return updatedSites.filter((item) =>
+                  item.sites.some((site) => site.value === "all")
+                );
+              } else {
+                return updatedSites;
+              }
+            })
+          }
+        />
+      </div>
+      <button
+        type="button"
+        disabled={priceDetails.length === 1}
+        onClick={() =>
+          setPriceDetails((prev) => {
+            return prev.filter((_, i) => i !== index);
+          })
+        }
+        className="text-red-700 mt-4 disabled:text-gray-400 disabled:cursor-not-allowed"
+      >
+        <FaMinusSquare />
+      </button>
+    </div>
+  );
+};
+
+export default DeckOptions;

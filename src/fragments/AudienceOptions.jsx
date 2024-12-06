@@ -11,6 +11,7 @@ import makeAnimated from "react-select/animated";
 import { defaultTextTheme } from "~config/themes";
 import { useFunction } from "~config/functions";
 import { useLocation, useNavigate } from "react-router-dom";
+import addresses from "../config/output.json";
 
 function AudienceOptions({ filterOptions, setQuery }) {
   const { retrieveSites } = useService();
@@ -29,18 +30,16 @@ function AudienceOptions({ filterOptions, setQuery }) {
   const [results, setResults] = useState(null);
   const [options, setOptions] = useState({
     regions: [],
-    areas: [],
     cities: [],
   });
   const [region, setRegion] = useState([]);
-  const [area, setArea] = useState([]);
   const [city, setCity] = useState([]);
   const [filter, setFilter] = useState(filters[0]);
 
   const revertOptions = (key, value) => {
     filterOptions((prev) => ({
       ...Object.fromEntries(
-        ["region", "city", "area"].map((k) => [k, k === key ? value : []])
+        ["region", "city"].map((k) => [k, k === key ? value : []])
       ),
       type: prev.type,
     }));
@@ -48,7 +47,12 @@ function AudienceOptions({ filterOptions, setQuery }) {
 
   useEffect(() => {
     const setup = async () => {
-      const data = await retrieveSites();
+      let data = await retrieveSites();
+      data = data.map((item) => {
+        const addr = addresses.find((site) => site.site === item.site);
+
+        return { ...item, address: addr.address };
+      });
       if (filter.value !== "all") {
         setSiteNames(
           data.filter((site) => site.type.toLowerCase() === filter.value)
@@ -130,12 +134,12 @@ function AudienceOptions({ filterOptions, setQuery }) {
               setQuery(e.target.value);
               setResults(searchItems(siteNames, e.target.value));
             } else {
-              setQuery(null);
+              setQuery("");
               setResults(null);
             }
           }}
         />
-        {location.pathname.split("/").length !== 2 && (
+        {/* {location.pathname.split("/").length !== 2 && (
           <>
             {results && results.length !== 0 && (
               <div className="absolute w-full bg-white shadow z-[1]">
@@ -181,7 +185,7 @@ function AudienceOptions({ filterOptions, setQuery }) {
               </div>
             )}
           </>
-        )}
+        )} */}
       </div>
       <div className="flex items-center gap-4">
         <div>
@@ -235,26 +239,12 @@ function AudienceOptions({ filterOptions, setQuery }) {
                   const updatedCities = updatedCity.filter((city) =>
                     siteCities.includes(city.value)
                   );
-                  setArea((areas) => {
-                    const mappedCities = updatedCities.map(
-                      (city) => city.value
-                    );
-                    const updated = [...areas];
-                    const sites = siteNames
-                      .filter((site) => mappedCities.includes(site.city))
-                      .map((site) => site.area);
-                    const updatedAreas = updated.filter((area) =>
-                      sites.includes(area.value)
-                    );
-                    return updatedAreas;
-                  });
                   return updatedCities;
                 });
               } else {
                 revertOptions("region", regions);
                 setRegion(e);
                 setCity([]);
-                setArea([]);
               }
             }}
           />
@@ -280,44 +270,10 @@ function AudienceOptions({ filterOptions, setQuery }) {
                   };
                 });
                 setCity(e);
-                setArea((areas) => {
-                  const updated = [...areas];
-                  const sites = siteNames
-                    .filter((site) => cities.includes(site.city))
-                    .map((site) => site.area);
-                  const updatedAreas = updated.filter((area) =>
-                    sites.includes(area.value)
-                  );
-                  return updatedAreas;
-                });
               } else {
                 revertOptions("city", cities);
                 setCity([]);
-                setArea([]);
               }
-            }}
-          />
-        </div>
-        <div>
-          <Label htmlFor="areas" value={`Select Area`} />
-          <Select
-            id="areas"
-            closeMenuOnSelect={false}
-            components={animatedComponents}
-            isMulti
-            isDisabled={options.areas.length === 0}
-            value={area}
-            className="min-w-[200px]"
-            options={options?.areas}
-            onChange={(e) => {
-              const areas = [...new Set(e.map((e) => e.value))];
-              filterOptions((prev) => {
-                return {
-                  ...prev,
-                  area: areas,
-                };
-              });
-              setArea(e);
             }}
           />
         </div>

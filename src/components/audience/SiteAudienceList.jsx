@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { useService } from "~config/services";
 import { Pagination, Table } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "~fragments/Loader";
-import { useFunction } from "~config/functions";
+import { pagination, table } from "~config/themes";
 
 function SiteAudienceList({ options, query }) {
   const { retrieveSites } = useService();
-  const { searchItems } = useFunction();
   const headers = ["site", "location", "coordinates", "type"];
-  const [siteList, setSites] = useState(null);
+  const [siteList, setSites] = useState([]);
   const [siteCount, setSiteCount] = useState(1);
+  const [currentItems, setCurrentItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
@@ -22,85 +22,69 @@ function SiteAudienceList({ options, query }) {
 
   const navigate = useNavigate();
 
+  const filteredItems = useMemo(() => {
+    const { type, region, city } = options;
+
+    return siteList.filter((item) => {
+      setCurrentPage(1);
+
+      const matchesQuery =
+        item.site.toLowerCase().includes(query.toLowerCase()) ||
+        item.unis_code.toLowerCase().includes(query.toLowerCase()) ||
+        item.address.toLowerCase().includes(query.toLowerCase());
+      const matchesType =
+        type === "all" || item.type.toLowerCase() === type.toLowerCase();
+      const matchesRegion = region.length === 0 || region.includes(item.region);
+      const matchesCity = city.length === 0 || region.includes(item.city);
+
+      return matchesQuery && matchesType && matchesRegion && matchesCity;
+    });
+  }, [options, siteList, query]);
+
   useEffect(() => {
     const setup = async () => {
       const data = await retrieveSites();
-      let combinedSites = data.map((item) => ({
-        site_code: item.site_code,
-        site_id: item.site_id,
-        site: item.site,
-        region: item.region,
-        city: item.city || "EDSA",
-        area: item.area,
-        latitude: item.latitude,
-        longitude: item.longitude,
-        type: item.type,
-      }));
-
-      if (options.type !== "all") {
-        combinedSites = combinedSites.filter(
-          (site) => site.type.toLowerCase() === options.type
-        );
-      }
-      if (options.region.length !== 0) {
-        combinedSites = combinedSites.filter((site) =>
-          options.region.includes(site.region)
-        );
-      }
-      if (options.city.length !== 0) {
-        combinedSites = combinedSites.filter((site) =>
-          options.city.includes(site.city)
-        );
-      }
-      if (options.area.length !== 0) {
-        combinedSites = combinedSites.filter((site) =>
-          options.area.includes(site.area)
-        );
-      }
-
-      if (!query) {
-        setSites(combinedSites);
-      }
-
-      if (query?.length < 3) {
-        setSites(combinedSites);
-      }
-
-      const sites = searchItems(combinedSites, query);
-      setSiteCount(sites.length);
-      // Slice the array to get the current page items
-      const currentItems = sites.slice(startIndex, endIndex);
-      // Handle next and previous page clicks
-      setSites(currentItems);
+      console.log(data);
+      setSites(data);
     };
     setup();
-  }, [retrieveSites, options, query, searchItems, startIndex, endIndex]);
+  }, []);
+
+  useEffect(() => {
+    setSiteCount(filteredItems.length);
+    // Calculate start and end indices for the current page
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    // Slice the array to get the current page items
+    const currentPageItems = filteredItems.slice(startIndex, endIndex);
+
+    // Set the current page items
+    setCurrentItems(currentPageItems);
+  }, [currentPage, endIndex, filteredItems]);
+
   return (
     <section>
-      {siteList ? (
+      {currentItems ? (
         <>
-          {siteList.length !== 0 ? (
+          {currentItems.length !== 0 ? (
             <>
-              <Table className="bg-white shadow rounded-md">
+              <Table theme={table} className="bg-white shadow rounded-md">
                 <Table.Head>
                   {headers.map((site) => {
                     return <Table.HeadCell key={site}>{site}</Table.HeadCell>;
                   })}
                 </Table.Head>
                 <Table.Body>
-                  {siteList.map((site) => {
+                  {currentItems.map((site) => {
                     return (
                       <Table.Row
                         key={site.site_id}
                         className="p-2 cursor-pointer hover:bg-slate-100"
                         onClick={() => navigate(`./${site.site_code}`)}
                       >
-                        <Table.Cell>{site.site}</Table.Cell>
+                        <Table.Cell>{site.unis_code}</Table.Cell>
                         <Table.Cell>
                           <div>
-                            <p className="">{site.city}</p>
-                            <p>{site.region}</p>
-                            {/* <p>{site.area}</p> */}
+                            <p>{site.address}</p>
                           </div>
                         </Table.Cell>
                         <Table.Cell>
@@ -118,6 +102,7 @@ function SiteAudienceList({ options, query }) {
                 </Table.Body>
               </Table>
               <Pagination
+                theme={pagination}
                 currentPage={currentPage}
                 totalPages={Math.ceil(siteCount / 6)}
                 onPageChange={onPageChange}

@@ -5,11 +5,20 @@ import classic from "~/assets/classic.png";
 import banner from "~/assets/banner.png";
 import classNames from "classnames";
 import { useFunction } from "~config/functions";
+import { useMap } from "~config/MapsContext";
 
-function Markers({ list, center, setCenter, setZoom }) {
-  const { toUnderscored, offsetCoordinate } = useFunction();
+function Markers({ center, setCenter }) {
+  const { offsetCoordinate } = useFunction();
+  const {
+    queryResults,
+    setZoom,
+    setSelectedSite,
+    setSelectedLandmark,
+    selectedSite,
+    zoom,
+  } = useMap();
 
-  return list.map((item) => {
+  return queryResults.map((item) => {
     const position = { lat: item.latitude, lng: item.longitude };
     const offsetPosition = offsetCoordinate(item.latitude, item.longitude, 20);
 
@@ -17,58 +26,40 @@ function Markers({ list, center, setCenter, setZoom }) {
     const isCentered =
       center.lat === offsetPosition.lat && center.lng === offsetPosition.lng;
 
+    const size = zoom < 10 ? zoom / 4 : zoom / 8;
     return (
       <AdvancedMarker
         position={position}
         key={item.site}
         onClick={(e) => {
-          setZoom(17);
+          setZoom(18);
           const newCenter = offsetCoordinate(
             e.latLng.toJSON().lat,
             e.latLng.toJSON().lng,
             20
           );
           setCenter(newCenter);
+          setSelectedLandmark(null);
+          setSelectedSite(item);
         }}
       >
-        <div className="flex flex-col justify-center items-center">
-          {isCentered && (
-            <div
-              className="mb-5 max-w-[250px] p-2 rounded bg-white shadow z-[1]"
-              onClick={() => {
-                window.location.href =
-                  "/audience/" + toUnderscored(item.site_code);
-              }}
-            >
-              <img
-                src={
-                  item.imageURL
-                    ? item.imageURL
-                    : "https://test-cdn.movingwalls.com/thumbnail_not_found-min.png"
-                }
-                alt=""
-                className="w-full"
-              />
-              <p className="font-semibold">{item.site}</p>
-              <p className="">{item.area}</p>
-              <p className="">{item.region}</p>
-            </div>
+        <img
+          style={{ width: `${size}rem` }}
+          className={classNames(
+            "transition-all duration-200",
+            isCentered && item === selectedSite
+              ? "scale-150 z-10"
+              : "scale-100 -z-10"
           )}
-          <img
-            className={classNames(
-              "w-10 transition-all",
-              isCentered && "scale-150"
-            )}
-            src={
-              item.type.toLowerCase() === "digital"
-                ? digital
-                : item.type.toLowerCase() === "classic"
-                ? classic
-                : banner
-            }
-            alt=""
-          />
-        </div>
+          src={
+            item.type.toLowerCase() === "digital"
+              ? digital
+              : item.type.toLowerCase() === "classic"
+              ? classic
+              : banner
+          }
+          alt=""
+        />
       </AdvancedMarker>
     );
   });
@@ -79,6 +70,9 @@ Markers.propTypes = {
   center: PropTypes.object,
   setCenter: PropTypes.func,
   setZoom: PropTypes.func,
+  setSite: PropTypes.func,
+  site: PropTypes.object,
+  zoom: PropTypes.number,
 };
 
 export default Markers;

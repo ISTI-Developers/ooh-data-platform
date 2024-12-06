@@ -2,6 +2,7 @@ import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
+import addresses from "./output.json";
 
 const retrievePlanning = async (get, options = null) => {
   try {
@@ -52,7 +53,20 @@ const retrieveSites = async (type = null) => {
       },
     });
 
-    return response.data;
+    if (response.data) {
+      const sites = response.data;
+
+      const data = sites.map((item) => {
+        const site = addresses.find((site) => site.site === item.site);
+        return {
+          ...item,
+          address: site ? site.address : null,
+          unis_code: site.site_id,
+        };
+      });
+
+      return data;
+    }
   } catch (e) {
     console.log(e);
   }
@@ -110,6 +124,64 @@ const retrieveSitesBehaviors = async (data) => {
     console.log(e);
   }
 };
+const retrieveLandmarks = async () => {
+  try {
+    const response = await axios.get(url.landmarks, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const retrieveSiteImages = async (id) => {
+  try {
+    const response = await axios.get(url.siteImages + "/" + id, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+const retrieveAreas = async () => {
+  try {
+    const response = await axios.get(url.sites + "/areas", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+const retrieveAdditionalSiteDetails = async () => {
+  try {
+    const response = await axios.get(url.sites + "/unis", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const useService = () => {
   return {
     retrievePlanning,
@@ -118,5 +190,9 @@ export const useService = () => {
     retrieveSitesCount,
     retrieveSiteAnalytics,
     retrieveSitesBehaviors,
+    retrieveLandmarks,
+    retrieveSiteImages,
+    retrieveAreas,
+    retrieveAdditionalSiteDetails,
   };
 };
