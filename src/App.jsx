@@ -22,7 +22,7 @@ import PasswordRecovery from "~pages/PasswordRecovery";
 import { AuthProvider, useAuth } from "~config/authContext";
 import Reports from "~pages/Reports";
 import { ReportProvider } from "~config/ReportContext";
-import ReportDecks from "~pages/ReportDecks";
+// import ReportDecks from "~pages/ReportDecks";
 import MapProvider from "~config/MapsContext";
 
 // Main App Component
@@ -60,109 +60,78 @@ function AppRoutes() {
   }, [alert, setAlert]);
 
   return (
-    <>
-      <div
-        className={classNames(
-          "bg-default h-full min-h-[calc(100vh_-_110px)] p-4 2xl:px-40 flex flex-col gap-4 relative",
-          ["/login", "/register"].includes(location.pathname)
-            ? "justify-center"
-            : ""
-        )}
-      >
-        {/* Display alert if present */}
-        {alert.isOn && (
-          <Alert
-            icon={RiInformationFill}
-            color={alert.type}
-            onDismiss={() =>
-              setAlert({
-                isOn: false,
-                type: "info",
-                message: "",
-              })
-            }
-            className="absolute top-[10%] left-[50%] translate-x-[-50%] animate-fade-fr-t"
-          >
-            <span>
-              <p className="w-[300px] text-center">{alert.message}</p>
-            </span>
-          </Alert>
-        )}
+    <div
+      className={classNames(
+        "bg-default h-full min-h-[calc(100vh_-_110px)] p-4 2xl:px-40 flex flex-col gap-4 relative",
+        ["/login", "/register"].includes(location.pathname)
+          ? "justify-center"
+          : ""
+      )}
+    >
+      {/* Display alert if present */}
+      {alert.isOn && (
+        <Alert
+          icon={RiInformationFill}
+          color={alert.type}
+          onDismiss={() =>
+            setAlert({
+              isOn: false,
+              type: "info",
+              message: "",
+            })
+          }
+          className="absolute top-[10%] left-[50%] translate-x-[-50%] animate-fade-fr-t"
+        >
+          <span>
+            <p className="w-[300px] text-center">{alert.message}</p>
+          </span>
+        </Alert>
+      )}
 
-        <MapProvider>
-          {/* React Router Routes */}
-          <Routes>
-            <Route element={<ProtectedRoutes />}>
-              {/* <Route exact path="/" element={<Planning />} /> */}
-              {hasUser &&
-                //map the two pages that can or cannot be seen by the user based on role privileges.
-                ["planning", "map", "audience"].map((route) => {
-                  let Component;
-                  switch (route) {
-                    case "planning":
-                      Component = Planning;
-                      break;
-                    case "map":
-                      Component = Map;
-                      break;
-                    case "audience":
-                      Component = Audience;
-                      break;
+      <MapProvider>
+        <Routes>
+          <Route element={<ProtectedRoutes />}>
+            {hasUser &&
+              ["planning", "maps", "audiences", "reports"].map(
+                (route, index) => {
+                  const Component = {
+                    planning: Planning,
+                    maps: Map,
+                    audiences: Audience,
+                    reports: Reports,
+                  }[route];
+
+                  return CheckPermission({
+                    path: route,
+                    children: (
+                      <Route
+                        path={index === 0 ? `/` : `/${route}/*`}
+                        element={<Component />}
+                      />
+                    ),
+                  });
+                }
+              )}
+            {hasUser &&
+              ["sales", "superadmin"].includes(hasUser.name.toLowerCase()) && (
+                <Route
+                  path="/old_reports"
+                  element={
+                    <ReportProvider>
+                      <Reports />
+                    </ReportProvider>
                   }
-
-                  const element = <Component />;
-
-                  //the function to check the permission
-                  if (route === "planning") {
-                    return CheckPermission({
-                      path: route,
-                      children: <Route path={`/`} element={element} />,
-                    });
-                  } else {
-                    return CheckPermission({
-                      path: `${route}s`,
-                      children: (
-                        <Route path={`/${route}/*`} element={element} />
-                      ),
-                    });
-                  }
-                })}
-              {hasUser &&
-                ["sales", "superadmin"].includes(
-                  hasUser.role_name.toLowerCase()
-                ) && (
-                  <>
-                    <Route
-                      path="/reports"
-                      element={
-                        <ReportProvider>
-                          <ReportDecks />
-                        </ReportProvider>
-                      }
-                    />
-                    <Route
-                      path="/old_reports"
-                      element={
-                        <ReportProvider>
-                          <Reports />
-                        </ReportProvider>
-                      }
-                    />
-                  </>
-                )}
-            </Route>
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password/*" element={<ForgotPassword />} />
-            <Route path="/password-recovery/" element={<EmptyPage />} />
-            <Route
-              path="/password-recovery/:id"
-              element={<PasswordRecovery />}
-            />
-            <Route path="/register" element={<Register />} />
-          </Routes>
-        </MapProvider>
-      </div>
-    </>
+                />
+              )}
+          </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password/*" element={<ForgotPassword />} />
+          <Route path="/password-recovery/" element={<EmptyPage />} />
+          <Route path="/password-recovery/:id" element={<PasswordRecovery />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </MapProvider>
+    </div>
   );
 }
 

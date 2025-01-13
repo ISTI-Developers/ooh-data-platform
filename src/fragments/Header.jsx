@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Navbar } from "flowbite-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, NavLink } from "react-router-dom";
 import logo from "../assets/scmi.png";
 import PropTypes from "prop-types";
 import { navbarTheme } from "../config/themes";
@@ -9,6 +9,7 @@ import { useAuth } from "../config/authContext";
 function Header() {
   const location = useLocation();
   const { user, logoutUser, isViewable, CheckPermission } = useAuth();
+  const pages = ["planning", "maps", "audiences", "reports"];
   return (
     <>
       <Navbar theme={navbarTheme} border>
@@ -23,52 +24,22 @@ function Header() {
         <Navbar.Collapse>
           {/* Mapping of links for navigation bar */}
           {user &&
-            isViewable(["planning", "maps", "audiences"]) &&
-            ["planning", "map", "audience"].map((item, index) => {
-              return index === 0 ? (
-                <CheckPermission key={index} path={item}>
-                  <Link
-                    to={`/`}
-                    className={classNames(
+            isViewable(pages) &&
+            pages.map((item, index) => (
+              <CheckPermission key={index} path={item}>
+                <NavLink
+                  to={index === 0 ? "/" : `/${item}`}
+                  className={({ isActive }) =>
+                    classNames(
                       "capitalize font-semibold text-lg hover:text-secondary",
-                      //check if same pathname to the item for showing the active link
-                      location.pathname == `/` ? "text-secondary" : "text-main"
-                    )}
-                  >
-                    {/* planning page is the home of the system so it checks if the item == "" */}
-                    Planning
-                  </Link>
-                </CheckPermission>
-              ) : (
-                <CheckPermission key={index} path={`${item}s`}>
-                  <Link
-                    to={`/${item}`}
-                    className={classNames(
-                      "capitalize font-semibold text-lg hover:text-secondary",
-                      //check if same pathname to the item for showing the active link
-                      location.pathname == `/${item}`
-                        ? "text-secondary"
-                        : "text-main"
-                    )}
-                  >
-                    {/* planning page is the home of the system so it checks if the item == "" */}
-                    {item === "" ? "planning" : item}
-                  </Link>
-                </CheckPermission>
-              );
-            })}
-          {user && (
-            <Link
-              to="/reports"
-              className={classNames(
-                "capitalize font-semibold text-lg hover:text-secondary",
-                //check if same pathname to the item for showing the active link
-                location.pathname == `/reports` ? "text-secondary" : "text-main"
-              )}
-            >
-              Reports
-            </Link>
-          )}
+                      isActive ? "text-secondary" : "text-main"
+                    )
+                  }
+                >
+                  {item === "" ? "planning" : item}
+                </NavLink>
+              </CheckPermission>
+            ))}
           {/* conditional rendering if user has logged in or not */}
           {user ? (
             <button
@@ -78,37 +49,33 @@ function Header() {
               Logout
             </button>
           ) : (
-            <>
-              {/* conditional rendering for when the user is in login or register pages */}
-              {location.pathname !== "/login" ? (
-                <UserAccessLink to="login" />
-              ) : (
-                <UserAccessLink to="register" />
-              )}
-            </>
+            <UserAccessLink to={location.pathname !== "/login" ? "login" : "register"} />
           )}
         </Navbar.Collapse>
       </Navbar>
     </>
   );
 }
+
 // component used to render the login and register links
 const UserAccessLink = ({ to }) => {
   return (
-    <a
-      href={`/${to}`}
+    <Link
+      to={`/${to}`}
       className="capitalize font-semibold text-lg text-main hover:text-secondary pl-3 pt-2 md:p-0"
     >
       {to}
-    </a>
+    </Link>
   );
 };
 
 UserAccessLink.propTypes = {
-  to: PropTypes.string,
+  to: PropTypes.string.isRequired,
 };
+
 Header.propTypes = {
   user: PropTypes.object,
   setUser: PropTypes.func,
 };
+
 export default Header;

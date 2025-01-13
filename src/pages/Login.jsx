@@ -32,37 +32,37 @@ function Login() {
     const pass = password.current.value;
 
     const response = await signInUser(uname, pass);
-    console.log(response);
     if (response?.acknowledged) {
-      if (response.role.permissions.admin.access) {
+      const { admin } = response.role;
+      if (admin) {
         window.location.href = adminURL;
       } else {
-        const pages = response.role.permissions.client.modules;
-        console.log(pages);
-        const filteredResults = {};
-        for (const [key, value] of Object.entries(pages)) {
-          if (value.view) {
-            filteredResults[key] = value;
-          }
-        }
-        const page = Object.keys(filteredResults);
-        if (page.length !== 0) {
-          if (page[0] === "planning") {
-            navigate("/");
-          } else {
-            navigate(`/${page[0].substring(0, page[0].length - 1)}`);
-          }
-        }
-        // if (response.role.permissions.client.modules.planning.view) {
-        //   navigate("/");
-        // } else {
-        // }
+        window.location.href = "/";
       }
+      // if (response.role.permissions.admin.access) {
+      //   window.location.href = adminURL;
+      // } else {
+      //   const pages = response.role.permissions.client.modules;
+      //   const filteredResults = {};
+      //   for (const [key, value] of Object.entries(pages)) {
+      //     if (value.view) {
+      //       filteredResults[key] = value;
+      //     }
+      //   }
+      //   const page = Object.keys(filteredResults);
+      //   if (page.length !== 0) {
+      //     if (page[0] === "planning") {
+      //       navigate("/");
+      //     } else {
+      //       navigate(`/${page[0].substring(0, page[0].length - 1)}`);
+      //     }
+      //   }
+      // }
     } else {
       setAlert({
         isOn: true,
         type: "failure",
-        message: response.message,
+        message: response?.data?.message,
       });
       toggleSending((prev) => !prev);
     }
@@ -72,7 +72,7 @@ function Login() {
     if (user) {
       const roleCookie = Cookies.get("role") || null;
       if (roleCookie) {
-        if (JSON.parse(Cookies.get("role")).permissions.admin.access) {
+        if (JSON.parse(Cookies.get("role")).admin) {
           window.location.href = adminURL;
         } else {
           navigate("/");

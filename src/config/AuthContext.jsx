@@ -34,7 +34,6 @@ export function AuthProvider({ children }) {
       });
 
       if (response.status === 200) {
-        console.log(response.data);
         if (response.data.id) {
           Cookies.set("token", response.data?.token, {
             domain: domain,
@@ -133,20 +132,40 @@ export function AuthProvider({ children }) {
       }
     }
   };
+  // Function to check permission for a given path
   function CheckPermission({ path, children }) {
-    const permissions = role ? role.permissions.client.modules : null;
+    const modules = role ? role.access : null;
 
-    return permissions !== null && permissions[path]?.view && <>{children}</>;
-  }
-  function isViewable(array) {
-    const permissions = role ? role.permissions.client.modules : null;
+    if (!modules) return null;
 
-    return (
-      permissions !== null &&
-      array.some((link) => {
-        return permissions[link]?.view;
-      })
+    // Find the module with the given path
+    const permission = modules.find(
+      (module) => module.name.toLowerCase() === path
     );
+
+    // If permission exists and has view access, render children
+    if (permission && permission.permissions[0]) {
+      return <>{children}</>;
+    }
+
+    return null;
+  }
+
+  // Function to check if any link in the array is viewable
+  function isViewable(array) {
+    const modules = role ? role.access : null;
+
+    if (!modules) return false;
+
+    // Check if any link in the array has view permission
+    return array.some((link) => {
+      const permission = modules.find(
+        (module) => module.name.toLowerCase() === link
+      );
+      console.log(permission);
+
+      return permission && permission.permissions[0];
+    });
   }
   const value = {
     user,
