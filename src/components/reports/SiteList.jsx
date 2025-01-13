@@ -1,13 +1,29 @@
 /* eslint-disable react/prop-types */
+import { Button } from "flowbite-react";
 import { useMemo } from "react";
+import { AiOutlineLoading } from "react-icons/ai";
 import { useFunction } from "~config/functions";
 import { useMap } from "~config/MapsContext";
 import { useReport } from "~config/ReportContext";
+import { mainButtonTheme } from "~config/themes";
 
 const SiteList = ({ setSites, query }) => {
   const { reports, sites, addReport, filters } = useReport();
   const { landmarks } = useMap();
   const { haversineDistance, capitalizeFirst } = useFunction();
+
+  const onSelectAll = () => {
+    const newSites = [...filteredSites];
+    setSites((prev) => {
+      const newItems = newSites.filter(
+        (newSite) => !prev.some((item) => item.unis_code === newSite.unis_code)
+      );
+      return [...prev, ...newItems];
+    });
+    newSites.forEach((site) => {
+      addReport(site);
+    });
+  };
 
   const filteredSites = useMemo(() => {
     if (!sites) return [];
@@ -86,33 +102,48 @@ const SiteList = ({ setSites, query }) => {
   }, [sites, landmarks, filters, query, reports]);
 
   return (
-    <div className="max-h-[calc(100vh-24rem)] overflow-y-auto scrollbar-thin">
-      {/* <pre>{JSON.stringify(filteredSites.map(site => site.site), null, 2)}</pre> */}
-      {filteredSites.map((site) => {
-        return (
-          <div
-            role="checkbox"
-            key={site.site}
-            className="p-2 hover:bg-slate-50 cursor-pointer"
-            onClick={() => {
-              setSites((prev) => {
-                if (prev.includes(site)) {
-                  return prev.filter(
-                    (item) => item.unis_code !== site.unis_code
-                  );
-                } else {
-                  return [...prev, site];
-                }
-              });
-              addReport(site);
-            }}
-          >
-            <p className="font-bold">{site.unis_code}</p>
-            <p className="text-xs">{capitalizeFirst(site.address)}</p>
-          </div>
-        );
-      })}
-    </div>
+    <>
+      <Button
+        type="button"
+        color="warning"
+        size="sm"
+        onClick={onSelectAll}
+        processingSpinner={
+          <AiOutlineLoading className="h-6 w-6 animate-spin" />
+        }
+        theme={mainButtonTheme}
+        className="bg-white hover:bg-slate-50 text-slate-700 whitespace-nowrap rounded-md"
+      >
+        Select all
+      </Button>
+      <div className="max-h-[calc(100vh-24rem)] overflow-y-auto scrollbar-thin">
+        {/* <pre>{JSON.stringify(filteredSites.map(site => site.site), null, 2)}</pre> */}
+        {filteredSites.map((site) => {
+          return (
+            <div
+              role="checkbox"
+              key={site.site}
+              className="p-2 hover:bg-slate-50 cursor-pointer"
+              onClick={() => {
+                setSites((prev) => {
+                  if (prev.includes(site)) {
+                    return prev.filter(
+                      (item) => item.unis_code !== site.unis_code
+                    );
+                  } else {
+                    return [...prev, site];
+                  }
+                });
+                addReport(site);
+              }}
+            >
+              <p className="font-bold">{site.unis_code}</p>
+              <p className="text-xs">{capitalizeFirst(site.address)}</p>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 };
 

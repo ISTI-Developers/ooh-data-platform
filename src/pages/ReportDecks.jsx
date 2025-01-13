@@ -29,87 +29,90 @@ function ReportDecks() {
           </span>
         </p>
       </div>
-      <main
-        className={classNames(
-          "relative scroll-pt-[3rem]",
-          selectedSites.length > 0 ? "grid grid-cols-[1fr_3fr] gap-4" : ""
-        )}
-      >
+      <main className="relative scroll-pt-[3rem] grid grid-cols-[1fr_3fr] gap-4">
         <div className="w-full transition-all">
           <div className="flex flex-col gap-4 sticky top-4 w-full">
             <SiteOptions setQuery={setQuery} />
-            <section className="row-[2/3] col-[1/3] bg-white p-4 rounded-md shadow">
+            <section className="row-[2/3] col-[1/3] bg-white p-4 space-y-2 rounded-md shadow">
               <SiteList setSites={setSites} query={query} />
             </section>
           </div>
         </div>
-        <section className="space-y-4 mt-2">
-          {selectedSites.length > 0 && (
-            <div className="flex gap-4 items-center sticky top-6 bg-white max-w-[62vw] rounded-md shadow z-10">
-              <Label className="whitespace-nowrap p-2">Selected Sites: </Label>
-              <div className="flex items-center gap-2 overflow-x-auto w-full p-2 scrollbar-thin rounded-md snap-x snap-mandatory">
-                {selectedSites.map((site) => {
-                  return (
-                    <div
-                      key={site.site_code}
-                      className={classNames(
-                        "flex items-center gap-2",
-                        "p-2 py-0.5 text-white rounded-md whitespace-nowrap snap-start text-xs",
-                        hash === `#${site.unis_code}`
-                          ? "bg-blue-900"
-                          : "bg-blue-500"
-                      )}
-                    >
-                      <a href={`#${site.unis_code}`}>{site.unis_code}</a>
-                      <button
-                        onClick={() => {
-                          setSites((prev) => {
-                            return prev.filter(
-                              (item) => item.unis_code !== site.unis_code
-                            );
-                          });
-                          removeReport(site.unis_code);
-                        }}
+        {selectedSites.length > 0 ? (
+          <section className="space-y-4 mt-2">
+            {selectedSites.length > 0 && (
+              <div className="flex gap-4 items-center sticky top-6 bg-white max-w-[62vw] rounded-md shadow z-10">
+                <Label className="whitespace-nowrap p-2">
+                  Selected Sites:{" "}
+                </Label>
+                <div className="flex items-center gap-2 overflow-x-auto w-full p-2 scrollbar-thin rounded-md snap-x snap-mandatory">
+                  {selectedSites.map((site) => {
+                    return (
+                      <div
+                        key={site.site_code}
+                        className={classNames(
+                          "flex items-center gap-2",
+                          "p-2 py-0.5 text-white rounded-md whitespace-nowrap snap-start text-xs",
+                          hash === `#${site.unis_code}`
+                            ? "bg-blue-900"
+                            : "bg-blue-500"
+                        )}
                       >
-                        <RiCloseLine />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              <DeckOptions />
-              <Button
-                type="button"
-                color="warning"
-                onClick={onGeneratePowerpoint}
-                size="sm"
-                processingSpinner={
-                  <AiOutlineLoading className="h-6 w-6 animate-spin" />
-                }
-                theme={mainButtonTheme}
-                className="bg-[#ec9912] whitespace-nowrap m-2 rounded-md"
-              >
-                Generate Deck
-              </Button>
-            </div>
-          )}
-          {selectedSites.map(({ area, imageURL, ...site }) => {
-            return (
-              <DeckItem
-                site={site}
-                onClose={() => {
-                  removeReport(site.unis_code);
-                  setSites((prev) => {
-                    return prev.filter(
-                      (item) => item.unis_code !== site.unis_code
+                        <a href={`#${site.unis_code}`}>{site.unis_code}</a>
+                        <button
+                          onClick={() => {
+                            setSites((prev) => {
+                              return prev.filter(
+                                (item) => item.unis_code !== site.unis_code
+                              );
+                            });
+                            removeReport(site.unis_code);
+                          }}
+                        >
+                          <RiCloseLine />
+                        </button>
+                      </div>
                     );
-                  });
-                }}
-                key={site.unis_code}
-              />
-            );
-          })}
-        </section>
+                  })}
+                </div>
+                <DeckOptions />
+                <Button
+                  type="button"
+                  color="warning"
+                  onClick={onGeneratePowerpoint}
+                  size="sm"
+                  processingSpinner={
+                    <AiOutlineLoading className="h-6 w-6 animate-spin" />
+                  }
+                  theme={mainButtonTheme}
+                  className="bg-[#ec9912] whitespace-nowrap m-2 rounded-md"
+                >
+                  Generate Deck
+                </Button>
+              </div>
+            )}
+            {selectedSites.map(({ area, imageURL, ...site }) => {
+              return (
+                <DeckItem
+                  site={site}
+                  onClose={() => {
+                    removeReport(site.unis_code);
+                    setSites((prev) => {
+                      return prev.filter(
+                        (item) => item.unis_code !== site.unis_code
+                      );
+                    });
+                  }}
+                  key={site.unis_code}
+                />
+              );
+            })}
+          </section>
+        ) : (
+          <div className="transition-all flex items-center justify-center min-h-[65vh] bg-white bg-opacity-70 rounded-md shadow-md text-slate-600 font-semibold">
+            Select a site to view its details
+          </div>
+        )}
       </main>
     </div>
   );

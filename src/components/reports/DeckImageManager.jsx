@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TbCircleCheck } from "react-icons/tb";
-import { useReport } from "~config/ReportContext.backup";
-
+import useFixedImageCrop from "~config/ImageCropper";
+import mockup from "../../assets/mockup.png";
 const DeckImageManager = ({
   siteID,
   images,

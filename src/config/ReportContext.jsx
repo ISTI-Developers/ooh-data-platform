@@ -6,7 +6,7 @@ import { devEndpoints as url } from "./endpoints";
 import Cookies from "js-cookie";
 import unai from "../assets/unai.png";
 import mockup from "../assets/mockup.png";
-import bg from "../assets/deckbg-1.png";
+import bg from "../assets/finalbg.png";
 import {
   BorderStyle,
   Document,
@@ -537,6 +537,65 @@ export function ReportProvider({ children }) {
     });
   };
 
+  const Inches = (number) => number / 2.54;
+
+  function cropImageFromURL(imageURL, cropLeft, cropRight) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+
+      img.onload = function () {
+        // Get original image dimensions
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+
+        // Calculate the new width after cropping the left and right sides
+        const cropX = cropLeft; // Pixels to crop from the left side
+        const cropWidth = imgWidth - cropLeft - cropRight; // New width after cropping both sides
+        const cropHeight = imgHeight; // Keep the original height
+
+        // Ensure valid cropping dimensions
+        if (cropWidth <= 0) {
+          reject(
+            new Error("Crop dimensions result in zero or negative width.")
+          );
+          return;
+        }
+
+        // Create a canvas
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Set the canvas size to the new width and original height
+        canvas.width = cropWidth;
+        canvas.height = cropHeight;
+
+        // Draw the image onto the canvas, cropping the left and right sides
+        ctx.drawImage(
+          img,
+          cropX,
+          0,
+          cropWidth,
+          cropHeight,
+          0,
+          0,
+          cropWidth,
+          cropHeight
+        );
+
+        // Convert the cropped image to a Data URL
+        const dataURL = canvas.toDataURL("image/png");
+        resolve(dataURL); // Resolve the Promise with the Data URL
+      };
+
+      img.onerror = function () {
+        reject(new Error("Failed to load image."));
+      };
+
+      img.src = imageURL;
+      img.crossOrigin = "anonymous"; // Ensure cross-origin compatibility for external images
+    });
+  }
+
   const onGeneratePowerpoint = async () => {
     const pres = new PptxGenJS();
     pres.defineLayout({
@@ -546,7 +605,7 @@ export function ReportProvider({ children }) {
     });
 
     pres.layout = "Widescreen";
-    reports.forEach((report) => {
+    for (const report of reports) {
       const slide = pres.addSlide();
       slide.background = { path: bg };
 
@@ -565,107 +624,101 @@ export function ReportProvider({ children }) {
       if (adjustedPrice) {
         price = price + parseFloat(adjustedPrice.price);
       }
+      const area = `Billboard Site in ${capitalizeFirst(site.city_name)}`;
+      const headerHeight = Inches(1.93);
+      const detailsSection = Inches(21.48);
+      const contentSection = headerHeight + Inches(0.8);
 
-      slide.addText(capitalizeFirst(site.city_name), {
-        w: 9,
-        h: 0.4,
-        x: margin - 0.1,
-        y: margin * 1.7,
+      slide.addText(area, {
+        w: Inches(33.23),
+        h: headerHeight,
+        x: 0,
+        y: 0,
         fontFace: "Aptos",
         fontSize: 18,
+        bold: true,
+        align: "right",
+        color: "FFFFFF",
       });
       slide.addText("AVAILABILTY: ", {
         w: 3,
         h: margin,
-        x: 10,
-        y: margin * 1.73,
+        x: detailsSection,
+        y: contentSection - Inches(0.2),
         color: "76899E",
         fontFace: "Aptos",
         fontSize: 11,
       });
       slide.addText("FEBRUARY 25, 2025", {
-        w: 3.25,
+        w: 3,
         h: margin,
-        x: 9.7,
-        y: margin * 1.7,
-        align: "right",
+        x: detailsSection + Inches(2.6),
+        y: contentSection - Inches(0.25),
         color: "d22735",
         fontFace: "Century Gothic",
         bold: true,
         fontSize: 14,
       });
 
-      slide.addImage({
-        path: images[0]?.upload_path ?? mockup,
-        x: margin,
-        y: margin * 3,
-        w: 9.21,
-        h: 4.961,
-      });
+      let imageURL = images[0].upload_path;
+      imageURL = String(imageURL).replace(
+        "unis.unitedneon.com",
+        "192.168.10.10"
+      );
+      imageURL = String(imageURL).replace("https", "http");
+      const image = await cropImageFromURL(imageURL, 150, 150).then((url) => url);
+
+      console.log(image);
 
       slide.addImage({
-        path: report.map,
-        x: 9.81,
-        y: margin * 3,
-        w: 3.11,
-        h: 3.11,
+        data: image,
+        x: Inches(0.8),
+        y: contentSection,
+        w: Inches(20.09),
+        h: Inches(15.35),
       });
 
-      const mapPosition = margin * 2.3 + 3.11;
-      const colWidth = 1.61;
+      const colWidth = Inches(5.9);
+      const lineHeight = Inches(0.4);
+      const textHeight = Inches(0.55);
+      const detailHeight = lineHeight + textHeight;
 
-      slide.addText("Google Map Link", {
-        hyperlink: {
-          url: site.ideal_view,
-        },
-        w: 3.11,
-        h: 0.287,
-        x: 9.81,
-        y: mapPosition,
-        align: "center",
-        color: "25589D",
-        fontFace: "Aptos",
-        fontSize: 11,
-        isTextBox: true,
-        fill: "F2F2F2",
-      });
       slide.addText("SITE CODE:", {
         w: colWidth,
-        h: 0.236,
-        x: 9.7,
-        y: mapPosition + 0.3,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + textHeight,
         align: "left",
         color: "76899E",
         fontFace: "Aptos",
         fontSize: 8,
       });
       slide.addText(site.unis_code, {
-        w: colWidth * 1.1,
-        h: 0.251,
-        x: 9.7,
-        y: mapPosition + 0.45,
+        w: colWidth,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + detailHeight,
         align: "left",
         color: "1E2C3C",
         bold: true,
         fontFace: "Century Gothic",
         fontSize: 10,
       });
-
-      slide.addText("SIZE:", {
+      slide.addText("SIZE (H x W):", {
         w: colWidth,
-        h: 0.236,
-        x: 9.7 + colWidth,
-        y: mapPosition + 0.3,
+        h: textHeight,
+        x: detailsSection + colWidth,
+        y: contentSection + textHeight,
         align: "left",
         color: "76899E",
         fontFace: "Aptos",
         fontSize: 8,
       });
       slide.addText(site.size, {
-        w: colWidth * 1.1,
-        h: 0.251,
-        x: 9.7 + colWidth,
-        y: mapPosition + 0.45,
+        w: colWidth,
+        h: textHeight,
+        x: detailsSection + colWidth,
+        y: contentSection + detailHeight,
         align: "left",
         color: "1E2C3C",
         bold: true,
@@ -675,9 +728,9 @@ export function ReportProvider({ children }) {
 
       slide.addText("FACING:", {
         w: colWidth,
-        h: 0.236,
-        x: 9.7,
-        y: mapPosition + 0.3 + 0.35,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + textHeight + detailHeight,
         align: "left",
         color: "76899E",
         fontFace: "Aptos",
@@ -685,20 +738,21 @@ export function ReportProvider({ children }) {
       });
       slide.addText(capitalizeFirst(site.facing), {
         w: colWidth * 2,
-        h: 0.251,
-        x: 9.7,
-        y: mapPosition + 0.45 + 0.35,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + textHeight + detailHeight + lineHeight,
         align: "left",
         color: "1E2C3C",
         bold: true,
         fontFace: "Century Gothic",
         fontSize: 10,
       });
+
       slide.addText("BOUND:", {
         w: colWidth,
-        h: 0.236,
-        x: 9.7,
-        y: mapPosition + 0.3 + 0.7,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + textHeight + detailHeight * 2,
         align: "left",
         color: "76899E",
         fontFace: "Aptos",
@@ -706,9 +760,9 @@ export function ReportProvider({ children }) {
       });
       slide.addText(capitalizeFirst(site.bound ?? "") || "N/A", {
         w: colWidth * 2,
-        h: 0.251,
-        x: 9.7,
-        y: mapPosition + 0.45 + 0.7,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + textHeight + detailHeight * 2 + lineHeight,
         align: "left",
         color: "1E2C3C",
         bold: true,
@@ -717,9 +771,9 @@ export function ReportProvider({ children }) {
       });
       slide.addText("TRAFFIC COUNT:", {
         w: colWidth,
-        h: 0.236,
-        x: 9.7,
-        y: mapPosition + 0.3 + 1.05,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + textHeight + detailHeight * 3,
         align: "left",
         color: "76899E",
         fontFace: "Aptos",
@@ -727,9 +781,9 @@ export function ReportProvider({ children }) {
       });
       slide.addText(site.traffic_count || "N/A", {
         w: colWidth * 2,
-        h: 0.251,
-        x: 9.7,
-        y: mapPosition + 0.45 + 1.05,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + textHeight + detailHeight * 3 + lineHeight,
         align: "left",
         color: "1E2C3C",
         bold: true,
@@ -738,9 +792,9 @@ export function ReportProvider({ children }) {
       });
       slide.addText("POPULATION:", {
         w: colWidth,
-        h: 0.236,
-        x: 9.7,
-        y: mapPosition + 0.3 + 1.4,
+        h: textHeight,
+        x: detailsSection + colWidth,
+        y: contentSection + textHeight + detailHeight * 3,
         align: "left",
         color: "76899E",
         fontFace: "Aptos",
@@ -748,9 +802,9 @@ export function ReportProvider({ children }) {
       });
       slide.addText(site.vicinity_population || "N/A", {
         w: colWidth * 2,
-        h: 0.251,
-        x: 9.7,
-        y: mapPosition + 0.45 + 1.4,
+        h: textHeight,
+        x: detailsSection + colWidth,
+        y: contentSection + textHeight + detailHeight * 3 + lineHeight,
         align: "left",
         color: "1E2C3C",
         bold: true,
@@ -758,54 +812,78 @@ export function ReportProvider({ children }) {
         fontSize: 10,
       });
       slide.addText("ADDRESS:", {
-        w: colWidth,
-        h: 0.236,
-        x: 0.3,
-        y: 6.15,
+        w: colWidth * 2,
+        h: textHeight,
+        x: detailsSection,
+        y: contentSection + textHeight + detailHeight * 4,
         align: "left",
         color: "76899E",
         fontFace: "Aptos",
         fontSize: 8,
       });
+      const addressHeight =
+        site.address.length > 140
+          ? textHeight * 2 + lineHeight
+          : site.address.length > 74
+          ? textHeight + lineHeight
+          : textHeight;
       slide.addText(capitalizeFirst(site.address), {
-        w: 9.5,
-        h: 0.251,
-        x: 0.3,
-        y: 6.34,
+        w: colWidth * 2,
+        h: addressHeight,
+        x: detailsSection,
+        y: contentSection + textHeight + detailHeight * 4 + lineHeight,
         align: "left",
+        valign: "top",
         color: "1E2C3C",
         bold: true,
         fontFace: "Century Gothic",
         fontSize: 9,
       });
-      slide.addText("LANDMARKS:", {
-        w: colWidth,
-        h: 0.236,
-        x: 0.3,
-        y: 6.6,
-        align: "left",
-        color: "76899E",
-        fontFace: "Aptos",
-        fontSize: 8,
-      });
+
+      const afterAddressPosition =
+        contentSection + detailHeight * 4 + lineHeight + addressHeight;
       if (landmarks) {
+        slide.addText("LANDMARKS:", {
+          w: colWidth,
+          h: textHeight,
+          x: detailsSection,
+          y: afterAddressPosition + lineHeight + Inches(0.05),
+          align: "left",
+          color: "76899E",
+          fontFace: "Aptos",
+          fontSize: 8,
+        });
         const { landmarks: lm } = landmarks;
         const landmarkArray = lm.map((lm) => lm.display_name);
         if (landmarkArray.length > 0) {
+          const landmarkHeight =
+            landmarkArray.join(" | ").length > 65
+              ? textHeight + lineHeight
+              : lineHeight;
           slide.addText(landmarkArray.join(" | "), {
-            w: 9,
-            h: 0.251,
-            x: 0.3,
-            y: 6.75,
+            w: colWidth * 2,
+            h: landmarkHeight,
+            x: detailsSection,
+            y: afterAddressPosition + Inches(0.1) + lineHeight * 2,
             align: "left",
             color: "1E2C3C",
             fontFace: "Century Gothic",
-            bold: true,
             fontSize: 9,
           });
         }
       }
 
+      const landmarksLength = landmarks
+        ? landmarks.landmarks.map((lm) => lm.display_name).join(" | ").length
+        : 0;
+      const ratesPosition =
+        afterAddressPosition +
+        detailHeight +
+        (landmarksLength != 0
+          ? landmarksLength > 65
+            ? textHeight + lineHeight
+            : lineHeight
+          : 0);
       if (showRates && rates.some((rate) => rate.discount !== 0)) {
         const rateRows = rates.map((rate) => {
           const { duration, discount, type } = rate;
@@ -850,18 +928,18 @@ export function ReportProvider({ children }) {
                 bold: true,
                 fontSize: 11,
                 fill: "F2F2F2",
-                color: "25589D",
+                color: "1E2C3C",
               },
             },
             {
-              text: "RATE/MONTH",
+              text: "MONTHLY RATE",
               options: {
                 align: "center",
                 fontFace: "Aptos",
                 bold: true,
                 fontSize: 11,
                 fill: "F2F2F2",
-                color: "25589D",
+                color: "1E2C3C",
               },
             },
           ],
@@ -869,44 +947,79 @@ export function ReportProvider({ children }) {
         ];
 
         slide.addTable(rows, {
-          w: 3.11,
+          w: Inches(11.55),
           h: 1.08,
-          x: 9.81,
-          y: 6.2,
+          x: detailsSection,
+          y: ratesPosition + Inches(0.2),
           rowH: 0.27,
           border: { color: "F2F2F2", pt: 1 },
         });
       } else {
-        slide.addText("PRICE", {
-          w: colWidth * 2,
-          h: 0.236,
-          x: 9.7,
-          y: 6.85,
-          align: "center",
-          color: "76899E",
+        slide.addText("MONTHLY RATE: ", {
+          w: colWidth,
+          h: textHeight,
+          x: detailsSection,
+          y: ratesPosition + Inches(0.2),
+          align: "left",
           bold: true,
+          color: "1E2C3C",
           fontFace: "Aptos",
-          fontSize: 12,
+          fontSize: 10,
         });
         slide.addText(
           Intl.NumberFormat("en-PH", {
             style: "currency",
             currency: "PHP",
-          }).format(price),
+          }).format(price) + " + VAT",
           {
-            w: colWidth * 2,
-            h: 0.5,
-            x: 9.7,
-            y: 6.375,
-            align: "center",
+            w: colWidth * 1.5,
+            h: textHeight + Inches(0.2),
+            x: detailsSection + Inches(3),
+            y: ratesPosition,
+            align: "left",
+            valign: "top",
             color: "1E2C3C",
             bold: true,
             fontFace: "Century Gothic",
-            fontSize: 28,
+            fontSize: 14,
           }
         );
       }
-    });
+
+      const hasMonthlyRateDuration =
+        showRates && rates.some((rate) => rate.discount !== 0);
+      const mapSize = hasMonthlyRateDuration ? Inches(5.54) : Inches(7.5);
+
+      console.log(report.map);
+      slide.addImage({
+        path: report.map,
+        x: detailsSection + Inches(0.2),
+        y: ratesPosition + detailHeight + (hasMonthlyRateDuration ? 1 : 0),
+        w: mapSize,
+        h: mapSize,
+      });
+
+      slide.addText("View Google Map", {
+        hyperlink: {
+          url: site.ideal_view,
+        },
+        w: mapSize,
+        h: Inches(0.68),
+        x: detailsSection + Inches(0.2),
+        y:
+          ratesPosition +
+          detailHeight +
+          mapSize -
+          Inches(0.8) +
+          (hasMonthlyRateDuration ? 1 : Inches(0.1)),
+        align: "center",
+        color: "25589D",
+        fontFace: "Aptos",
+        fontSize: 11,
+        isTextBox: true,
+        fill: "F2F2F2",
+      });
+    }
 
     pres.writeFile({ fileName: "Sales Billboard Deck" });
   };
