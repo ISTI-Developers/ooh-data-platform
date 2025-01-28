@@ -1,21 +1,20 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import banner from "~assets/banner.png";
-import digital from "~assets/digital.png";
-import classic from "~assets/classic.png";
+import bus from "~assets/bus.png";
+import airplane from "~assets/airplane.png";
+import train from "~assets/train.png";
 import { useMap } from "~config/MapsContext";
 import { Accordion } from "flowbite-react";
 import { IoMdMenu } from "react-icons/io";
 import { useFunction } from "~config/functions";
 import { accordion } from "~config/themes";
-
 function MapList({ updateMapCenter }) {
-  const { queryResults, setSelectedSite } = useMap();
+  const { setSelectedSite, queryContracts } = useMap();
   const { offsetCoordinate } = useFunction();
   const [showLocations, toggleLocations] = useState(false);
   return (
-    queryResults && (
+    queryContracts && (
       <>
         <div
           className={classNames(
@@ -26,58 +25,97 @@ function MapList({ updateMapCenter }) {
           )}
         >
           <Accordion flush theme={accordion}>
-            {[
-              ...new Set(queryResults.map((item) => item.type.toLowerCase())),
-            ].map((type) => (
-              <Accordion.Panel key={type}>
-                <Accordion.Title className="capitalize">{type}</Accordion.Title>
+            {["Available", "Unavailable"].map((status) => (
+              <Accordion.Panel key={status}>
+                <Accordion.Title className="capitalize">
+                  {status}
+                </Accordion.Title>
                 <Accordion.Content>
-                  <ul className="flex flex-col max-h-[375px] overflow-y-auto">
-                    {queryResults
-                      .filter((item) => item.type.toLowerCase() === type)
-                      .map((boards, index) => {
-                        const {
-                          unis_code,
-                          site,
-                          latitude,
-                          longitude,
-                          address,
-                        } = boards;
-                        return (
-                          <li
-                            key={site + index}
-                            className="flex gap-2 transition-all cursor-pointer p-2 hover:bg-gray-300"
-                            onClick={() => {
-                              toggleLocations(false);
-                              updateMapCenter(
-                                offsetCoordinate(latitude, longitude, 20),
-                                18
-                              );
-                              setSelectedSite(boards);
-                            }}
-                          >
-                            <img
-                              src={
-                                type === "classic"
-                                  ? classic
-                                  : type === "digital"
-                                  ? digital
-                                  : banner
-                              }
-                              className="max-w-10"
-                            />
-                            <div>
-                              <p className="text-xs font-semibold">
-                                {unis_code}
-                              </p>
-                              <p className="text-[0.5rem] text-gray-500">
-                                {address}
-                              </p>
-                            </div>
-                          </li>
-                        );
-                      })}
-                  </ul>
+                  <Accordion flush>
+                    {[
+                      ...new Set(
+                        queryContracts
+                          .filter(
+                            (item) =>
+                              item.isActive ===
+                              (status === "Unavailable" ? 1 : 0)
+                          )
+                          .map((item) => item.StockName)
+                      ),
+                    ].map((stockName) => (
+                      <Accordion.Panel key={stockName}>
+                        <Accordion.Title className="capitalize">
+                          {stockName}
+                        </Accordion.Title>
+                        <Accordion.Content>
+                          <ul className="flex flex-col max-h-[375px] overflow-y-auto">
+                            {queryContracts
+                              .filter(
+                                (item) =>
+                                  item.StockName === stockName &&
+                                  item.isActive ===
+                                    (status === "Unavailable" ? 1 : 0)
+                              )
+                              .map((board, index) => {
+                                const {
+                                  SalesOrderCode,
+                                  // StockDesc,
+                                  // ProjectCode,
+                                  ProjectDesc,
+                                  Qty,
+                                  unitprice,
+                                  NetAmount,
+                                } = board;
+
+                                return (
+                                  <li
+                                    key={SalesOrderCode + index}
+                                    className="flex gap-2 transition-all cursor-pointer p-2 hover:bg-gray-300"
+                                    onClick={() => {
+                                      toggleLocations(false);
+                                      updateMapCenter(
+                                        offsetCoordinate(
+                                          board.latitude,
+                                          board.longitude,
+                                          20
+                                        ),
+                                        18
+                                      );
+                                      setSelectedSite(board);
+                                    }}
+                                  >
+                                    <img
+                                      src={
+                                        stockName === "LRT" ||
+                                        stockName === "LRT-ZR"
+                                          ? train
+                                          : stockName === "PITX" ||
+                                            stockName === "PITX - ZR"
+                                          ? bus
+                                          : airplane
+                                      }
+                                      className="max-w-10"
+                                    />
+                                    <div>
+                                      <p className="text-xs font-semibold">
+                                        {SalesOrderCode}
+                                      </p>
+                                      <p className="text-[0.5rem] text-gray-500">
+                                        {ProjectDesc}
+                                      </p>
+                                      <p className="text-[0.5rem] text-gray-500">
+                                        Quantity: {Qty} | Unit Price:{" "}
+                                        {unitprice} | Net: {NetAmount}
+                                      </p>
+                                    </div>
+                                  </li>
+                                );
+                              })}
+                          </ul>
+                        </Accordion.Content>
+                      </Accordion.Panel>
+                    ))}
+                  </Accordion>
                 </Accordion.Content>
               </Accordion.Panel>
             ))}

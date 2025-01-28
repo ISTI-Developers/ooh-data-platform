@@ -9,16 +9,12 @@ import { useAuth } from "../config/authContext";
 function Header() {
   const location = useLocation();
   const { user, logoutUser, isViewable, CheckPermission } = useAuth();
-  const pages = ["planning", "maps", "audiences", "reports"];
+  const pages = ["planning", "maps", "utasi", "audiences", "reports"];
   return (
     <>
       <Navbar theme={navbarTheme} border>
         <Navbar.Brand href="/">
-          <img
-            src={logo}
-            alt="United Neon Advertising Inc."
-            className="w-full max-w-[200px]"
-          />
+          <img src={logo} alt="United Neon Advertising Inc." className="w-full max-w-[200px]" />
         </Navbar.Brand>
         <Navbar.Toggle />
         <Navbar.Collapse>
@@ -60,10 +56,7 @@ function Header() {
 // component used to render the login and register links
 const UserAccessLink = ({ to }) => {
   return (
-    <Link
-      to={`/${to}`}
-      className="capitalize font-semibold text-lg text-main hover:text-secondary pl-3 pt-2 md:p-0"
-    >
+    <Link to={`/${to}`} className="capitalize font-semibold text-lg text-main hover:text-secondary pl-3 pt-2 md:p-0">
       {to}
     </Link>
   );

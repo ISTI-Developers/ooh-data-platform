@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { useService } from "./services";
-import useData from "./useData";
+// import useData from "./useData";
 import { useFunction } from "./functions";
 
 const MapContext = React.createContext();
@@ -11,7 +11,13 @@ export function useMap() {
 }
 
 export default function MapProvider({ children }) {
-  const { retrieveSites, retrieveLandmarks } = useService();
+  const {
+    retrieveSites,
+    retrieveLandmarks,
+    retrieveContracts,
+    retrieveAllStationDetails,
+  } = useService();
+
   const { toUnderscored, haversineDistance } = useFunction();
   const [sites, setSites] = useState([]);
   const [landmarks, setLandmarks] = useState([]);
@@ -20,6 +26,8 @@ export default function MapProvider({ children }) {
   const [selectedSite, setSelectedSite] = useState(null);
   const [visibleLandmarks, setVisibleLandmarks] = useState(null);
   const [selectedLandmark, setSelectedLandmark] = useState(null);
+  const [contracts, setContracts] = useState([]);
+  const [stationData, setStationData] = useState([]);
 
   const queryResults = useMemo(() => {
     if (!sites) return [];
@@ -35,6 +43,16 @@ export default function MapProvider({ children }) {
     return sites.filter(includesQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, sites]);
+
+  const queryContracts = useMemo(() => {
+    if (!contracts) return [];
+    return contracts.data;
+  }, [contracts]);
+
+  const queryAllStationsData = useMemo(() => {
+    if (!stationData || !stationData.data) return [];
+    return stationData.data;
+  }, [stationData]);
 
   const nearbyLandmarks = useMemo(() => {
     if (!selectedSite || !landmarks) return [];
@@ -52,6 +70,8 @@ export default function MapProvider({ children }) {
     const setup = async () => {
       const data = await retrieveSites();
       const lms = await retrieveLandmarks();
+      const contracts = await retrieveContracts();
+      const stationData = await retrieveAllStationDetails();
 
       const modLms = lms.map((lm) => {
         let types = lm.types;
@@ -68,6 +88,8 @@ export default function MapProvider({ children }) {
       });
 
       setLandmarks(modLms);
+      setContracts(contracts);
+      setStationData(stationData);
 
       setSites([
         ...data.map((item) => ({
@@ -85,6 +107,8 @@ export default function MapProvider({ children }) {
     sites,
     landmarks,
     queryResults,
+    queryContracts,
+    queryAllStationsData,
     selectedSite,
     nearbyLandmarks,
     selectedLandmark,

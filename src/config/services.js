@@ -4,6 +4,35 @@ import { format } from "date-fns";
 import Cookies from "js-cookie";
 import addresses from "./output.json";
 
+const retrieveContracts = async () => {
+  try {
+    const response = await axios.get(url.contracts, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error retrieving contract data:", error);
+    throw error;
+  }
+};
+
+const retrieveAllStationDetails = async () => {
+  try {
+    const response = await axios.get(url.stations + "/details", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error retrieving station details:", error.message);
+    throw error;
+  }
+};
 const retrievePlanning = async (get, options = null) => {
   try {
     // console.log(JSON.stringify(options));
@@ -194,5 +223,7 @@ export const useService = () => {
     retrieveSiteImages,
     retrieveAreas,
     retrieveAdditionalSiteDetails,
+    retrieveContracts,
+    retrieveAllStationDetails,
   };
 };

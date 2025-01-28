@@ -1,5 +1,9 @@
-let server = "https://oohplatformapi.retailgate.tech:20601";
-server = "http://localhost:20601";
+const server =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:20601"
+    : "https://oohplatformapi.retailgate.tech:20601";
+export default server;
+
 export const devEndpoints = {
   login: server + "/user/login",
   roles: server + "/user/roles",
@@ -10,5 +14,7 @@ export const devEndpoints = {
   sites: server + "/dashboard/sites",
   behaviors: server + "/dashboard/behaviors",
   landmarks: server + "/dashboard/landmarks",
-  siteImages: server + "/dashboard/site_images"
+  siteImages: server + "/dashboard/site_images",
+  contracts: server + "/utasi/contracts",
+  stations: server + "/utasi/stations",
 };

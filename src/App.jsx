@@ -1,12 +1,5 @@
 import { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-  Outlet,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Outlet, Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import classNames from "classnames";
 import { Alert } from "flowbite-react";
@@ -24,6 +17,7 @@ import Reports from "~pages/Reports";
 import { ReportProvider } from "~config/ReportContext";
 // import ReportDecks from "~pages/ReportDecks";
 import MapProvider from "~config/MapsContext";
+import Utasi from "~pages/Utasi";
 
 // Main App Component
 function App() {
@@ -63,9 +57,7 @@ function AppRoutes() {
     <div
       className={classNames(
         "bg-default h-full min-h-[calc(100vh_-_110px)] p-4 2xl:px-40 flex flex-col gap-4 relative",
-        ["/login", "/register"].includes(location.pathname)
-          ? "justify-center"
-          : ""
+        ["/login", "/register"].includes(location.pathname) ? "justify-center" : ""
       )}
     >
       {/* Display alert if present */}
@@ -92,37 +84,30 @@ function AppRoutes() {
         <Routes>
           <Route element={<ProtectedRoutes />}>
             {hasUser &&
-              ["planning", "maps", "audiences", "reports"].map(
-                (route, index) => {
-                  const Component = {
-                    planning: Planning,
-                    maps: Map,
-                    audiences: Audience,
-                    reports: Reports,
-                  }[route];
+              ["planning", "maps", "utasi", "audiences", "reports"].map((route, index) => {
+                const Component = {
+                  planning: Planning,
+                  maps: Map,
+                  utasi: Utasi,
+                  audiences: Audience,
+                  reports: Reports,
+                }[route];
 
-                  return CheckPermission({
-                    path: route,
-                    children: (
-                      <Route
-                        path={index === 0 ? `/` : `/${route}/*`}
-                        element={<Component />}
-                      />
-                    ),
-                  });
+                return CheckPermission({
+                  path: route,
+                  children: <Route path={index === 0 ? `/` : `/${route}/*`} element={<Component />} />,
+                });
+              })}
+            {hasUser && ["sales", "superadmin"].includes(hasUser.name.toLowerCase()) && (
+              <Route
+                path="/old_reports"
+                element={
+                  <ReportProvider>
+                    <Reports />
+                  </ReportProvider>
                 }
-              )}
-            {hasUser &&
-              ["sales", "superadmin"].includes(hasUser.name.toLowerCase()) && (
-                <Route
-                  path="/old_reports"
-                  element={
-                    <ReportProvider>
-                      <Reports />
-                    </ReportProvider>
-                  }
-                />
-              )}
+              />
+            )}
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password/*" element={<ForgotPassword />} />

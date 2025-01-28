@@ -9,7 +9,7 @@ import { defaultTextTheme } from "~config/themes";
 import LandMarkers from "./LandMarkers";
 import { useMap } from "~config/MapsContext";
 import MapList from "./MapList";
-import MapSiteOverview from "./MapSIteOverview";
+import MapSiteOverview from "./MapSiteOverview";
 function MapLocation() {
   const {
     queryResults,
@@ -65,11 +65,7 @@ function MapLocation() {
       <span className="hidden" />
       <div>
         <Label value="Search site" />
-        <TextInput
-          type="search"
-          theme={defaultTextTheme}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+        <TextInput type="search" theme={defaultTextTheme} onChange={(e) => setQuery(e.target.value)} />
       </div>
       <div className="relative flex gap-4 overflow-hidden">
         {/* LIST OF SITES */}
