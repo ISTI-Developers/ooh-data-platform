@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Badge } from "flowbite-react";
 import { useReport } from "~config/ReportContext";
+import { badge } from "~config/themes";
 
 const NearbyLandmarks = ({ nearbyLandmarks, site, asBadge = false }) => {
   const { selectedLandmarks, setLandmarks } = useReport();
@@ -19,6 +20,7 @@ const NearbyLandmarks = ({ nearbyLandmarks, site, asBadge = false }) => {
               : -1;
           return asBadge ? (
             <Badge
+              theme={badge}
               key={landmark.l_id}
               onClick={() =>
                 setLandmarks((prev) => {

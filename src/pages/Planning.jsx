@@ -2,7 +2,7 @@
 import { Button, Accordion, ToggleSwitch } from "flowbite-react";
 import Title from "../fragments/Title";
 import { useEffect, useState } from "react";
-import { lightButtonTheme } from "../config/themes";
+import { lightButtonTheme, toggleSwitch } from "../config/themes";
 import classNames from "classnames";
 import { MdChecklist } from "react-icons/md";
 import PlanningModal from "../components/planning/PlanningModal";
@@ -131,7 +131,7 @@ function Planning() {
           trigger={profile}
           toggle={setProfile}
           header={<ProfileHeader {...{ profile }} />}
-          isProfile 
+          isProfile
           body={
             <ProfileBody
               {...{
@@ -352,6 +352,7 @@ const ProfileBody = ({
         <div className="flex flex-col border-b p-2 gap-1 w-full max-w-[350px]">
           <ToggleSwitch
             label="Show Exact Match"
+            theme={toggleSwitch}
             checked={allowedMultiple.find((key) => key === profile.key)}
             onChange={(checked) => {
               const profileKeyIndex = allowedMultiple.findIndex(

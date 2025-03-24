@@ -11,6 +11,9 @@ import { useService } from "~config/services";
 import NearbyLandmarks from "./NearbyLandmarks";
 import LandmarkMap from "./LandmarkMap";
 import DeckImageManager from "./DeckImageManager";
+import { format } from "date-fns";
+import axios from "axios";
+import { MdOutlineArrowRightAlt } from "react-icons/md";
 
 const DeckItem = ({ site, onClose, ...props }) => {
   const { addImages, priceDetails, rates, showRates } = useReport();
@@ -35,29 +38,49 @@ const DeckItem = ({ site, onClose, ...props }) => {
     });
   }, [coordinates, landmarks, haversineDistance]);
 
+  const fetchImage = async (imageLink) => {
+    try {
+      const response = await axios.get(imageLink, {
+        responseType: "blob", // This ensures binary data is received
+      });
+
+      const imgUrl = URL.createObjectURL(response.data);
+      return imgUrl;
+    } catch (error) {
+      console.error("Error fetching image:", error);
+    }
+  };
+
   useEffect(() => {
     const setup = async () => {
-      const response = await retrieveSiteImages(site.unis_code);
+      const response = await retrieveSiteImages(site.site_code);
       if (response.status) {
         return;
       }
-      setSiteImages(
-        response.map((item) => {
-          return {
-            ...item,
-            upload_path: "http://unis.unitedneon.com/unis/" + item.upload_path,
-          };
-        })
-      );
+
+      const processedImages = [];
+
+      for (const image of response) {
+        const upload_path =
+          "https://unis.unitedneon.com/unis/" + image.upload_path;
+        const imageBlob = await fetchImage(upload_path);
+        processedImages.push({
+          ...image,
+          upload_path: upload_path,
+          blob: imageBlob,
+        });
+      }
+      setSiteImages(processedImages);
     };
     setup();
   }, [site]);
 
   useEffect(() => {
     if (selectedImages.length <= 2) {
-      addImages(site.unis_code, selectedImages);
+      console.log();
+      addImages(site.site_code, selectedImages);
     }
-  }, [selectedImages, site.unis_code]);
+  }, [selectedImages, site.site_code]);
 
   const detail = useMemo(() => {
     if (priceDetails.length === 0) return site;
@@ -68,7 +91,20 @@ const DeckItem = ({ site, onClose, ...props }) => {
     );
 
     if (adjustedPrice) {
-      price = price + parseFloat(adjustedPrice.price);
+      let finalPrice = isNaN(adjustedPrice.price)
+        ? 0
+        : parseFloat(adjustedPrice.price);
+      if (adjustedPrice.action === "+") {
+        price =
+          adjustedPrice.type === "--"
+            ? price + finalPrice
+            : price * (1 + finalPrice / 100);
+      } else {
+        price =
+          adjustedPrice.type === "--"
+            ? price - finalPrice
+            : price * (1 - finalPrice / 100);
+      }
     }
 
     return { ...site, updatedPrice: price };
@@ -97,11 +133,12 @@ const DeckItem = ({ site, onClose, ...props }) => {
   return (
     site && (
       <div
-        id={site.unis_code}
+        id={site.site_code}
         {...props}
         className="bg-white p-4 rounded-md shadow"
         data-target="deck-item"
       >
+        {/* {console.log(site)} */}
         <header
           role="button"
           onClick={() => toggleShow((prev) => !prev)}
@@ -109,7 +146,8 @@ const DeckItem = ({ site, onClose, ...props }) => {
         >
           <Icon className="text-xl mr-4" />
           <h1 className="font-semibold text-lg text-black mr-auto">
-            <span className="font-bold">{site.unis_code}</span> ({site.site})
+            <span className="font-bold">{site.site_code}</span>{" "}
+            {/* {site.site_code !== site.site && `(${site.site})`} */}
           </h1>
           <Tooltip content="Remove" arrow={false}>
             <button
@@ -130,7 +168,12 @@ const DeckItem = ({ site, onClose, ...props }) => {
             <DeckField label="type" value={site.type} />
             <DeckField label="size" value={site.size} />
             <DeckField label="area" value={capitalizeFirst(site.city_name)} />
-            <DeckField label="address" value={capitalizeFirst(site.address)} />
+            <DeckField
+              label="address"
+              value={capitalizeFirst(
+                site.address ?? `${site.city}, ${site.region}`
+              )}
+            />
             <DeckField label="facing" value={capitalizeFirst(site.facing)} />
             <DeckField
               label="bound"
@@ -145,7 +188,7 @@ const DeckItem = ({ site, onClose, ...props }) => {
                   : site.vicinity_population ?? "N/A"
               }
             />
-            <DeckField label="availability" value="-TBD-" />
+            <Availability date={site.availability} />
 
             {siteRates.length === 3 && showRates ? (
               <DeckField label="price">
@@ -176,10 +219,37 @@ const DeckItem = ({ site, onClose, ...props }) => {
             ) : (
               <DeckField
                 label="price"
-                value={Intl.NumberFormat("en-PH", {
-                  style: "currency",
-                  currency: "PHP",
-                }).format(detail.updatedPrice ?? site.price)}
+                value={
+                  <p className="flex items-center gap-1">
+                    <span
+                      className={classNames(
+                        detail.updatedPrice &&
+                          parseInt(detail.updatedPrice) !== parseInt(site.price)
+                          ? "text-xs text-gray-400"
+                          : ""
+                      )}
+                    >
+                      {Intl.NumberFormat("en-PH", {
+                        style: "currency",
+                        currency: "PHP",
+                      }).format(site.price)}
+                    </span>
+                    {console.log(detail)}
+                    {detail.updatedPrice &&
+                      parseInt(detail.updatedPrice) !==
+                        parseInt(site.price) && (
+                        <>
+                          <MdOutlineArrowRightAlt className="text-gray-400" />
+                          <span className="text-green-500 font-semibold">
+                            {Intl.NumberFormat("en-PH", {
+                              style: "currency",
+                              currency: "PHP",
+                            }).format(detail.updatedPrice)}
+                          </span>
+                        </>
+                      )}
+                  </p>
+                }
               />
             )}
           </section>
@@ -194,7 +264,7 @@ const DeckItem = ({ site, onClose, ...props }) => {
               </div>
               <NearbyLandmarks
                 nearbyLandmarks={nearbyLandmarks}
-                site={site.unis_code}
+                site={site.site_code}
                 asBadge
               />
             </div>
@@ -206,7 +276,7 @@ const DeckItem = ({ site, onClose, ...props }) => {
             </div>
           </section>
           <DeckImageManager
-            siteID={site.unis_code}
+            siteID={site.site_code}
             images={siteImages}
             setSelectedImages={setSelectedImages}
             selectedImages={selectedImages}
@@ -217,6 +287,17 @@ const DeckItem = ({ site, onClose, ...props }) => {
   );
 };
 
+const Availability = ({ date }) => {
+  const availableDate = useMemo(() => {
+    if (!date) return "TBD";
+
+    return format(
+      new Date(new Date(date).setDate(new Date(date).getDate() + 1)),
+      "MMMM d, yyyy"
+    );
+  }, [date]);
+  return <DeckField label="availability" value={availableDate} />;
+};
 const DeckField = ({ label, value, children = null }) => {
   return (
     <div className="grid grid-cols-[1.75fr_7fr] gap-2">

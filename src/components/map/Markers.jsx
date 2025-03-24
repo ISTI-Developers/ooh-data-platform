@@ -18,7 +18,7 @@ function Markers({ center, setCenter }) {
     zoom,
   } = useMap();
 
-  return queryResults.map((item) => {
+  return queryResults.map((item, index) => {
     const position = { lat: item.latitude, lng: item.longitude };
     const offsetPosition = offsetCoordinate(item.latitude, item.longitude, 20);
 
@@ -30,7 +30,7 @@ function Markers({ center, setCenter }) {
     return (
       <AdvancedMarker
         position={position}
-        key={item.site}
+        key={item.site_code + "_" + index}
         onClick={(e) => {
           setZoom(18);
           const newCenter = offsetCoordinate(

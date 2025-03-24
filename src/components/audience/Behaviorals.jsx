@@ -28,7 +28,6 @@ function Behaviorals({ audienceData, isFetching }) {
   const categories = [...new Set(audienceData.map((data) => data.category))];
   return (
     <Tabs
-      style="default"
       ref={tabs}
       className="w-full bg-white p-2 border-b-2 border-default animate-fade"
       theme={tabTheme}

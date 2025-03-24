@@ -23,9 +23,10 @@ import {
   WidthType,
 } from "docx";
 import { saveAs } from "file-saver";
+import { useCampaigns } from "~config/Campaigns";
 
 export default function ReportModal() {
-  const { show, toggleModal, reports, charts, generateReport } = useReport();
+  const { show, toggleModal, reports, charts, generateReport } = useCampaigns();
   const [title, setTitle] = useState("");
   const [client, setClient] = useState("");
   const [currentChart, setCurrentChart] = useState([]);
@@ -38,6 +39,7 @@ export default function ReportModal() {
 
   useEffect(() => {
     const tempReport = reports[show];
+    console.log(charts)
     if (show !== null && tempReport) {
       setCurrentChart(Object.values(charts[show].charts));
 
@@ -131,14 +133,15 @@ export default function ReportModal() {
   // };
   const onPrint = async () => {
     if (!currentReport) return;
+    console.log(currentReport)
     const { site, details } = currentReport;
 
     const image = await loadImageAsBase64(unai).then((img) => img);
     const siteImage = await loadImageAsBase64(mockup).then((img) => img);
     console.log(siteImage);
     const doc = new Document({
-      description: `Site Report of ${site.unis_code}`,
-      title: `${site.unis_code} Report`,
+      description: `Site Report of ${site.site_code}`,
+      title: `${site.site_code} Report`,
       styles: {
         paragraphStyles: [
           {
@@ -171,7 +174,7 @@ export default function ReportModal() {
               children: [
                 new Paragraph({
                   children: [
-                    Text(`${site.unis_code} Specifications`, 14, true),
+                    Text(`${site.site_code} Specifications`, 14, true),
                   ],
                 }),
               ],
@@ -229,7 +232,7 @@ export default function ReportModal() {
               rows: [
                 Row(
                   "Name: ",
-                  site.unis_code,
+                  site.site_code,
                   "Price: ",
                   Intl.NumberFormat("en-PH", {
                     style: "currency",

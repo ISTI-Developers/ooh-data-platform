@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { TbCircleCheck } from "react-icons/tb";
-import useFixedImageCrop from "~config/ImageCropper";
-import mockup from "../../assets/mockup.png";
+// import useFixedImageCrop from "~config/ImageCropper";
+// import mockup from "../../assets/mockup.png";
 const DeckImageManager = ({
   siteID,
   images,
@@ -26,9 +26,8 @@ const DeckImageManager = ({
       <div className="flex flex-wrap gap-4">
         {siteImages.map((image) => {
           const imageIndex = selectedImages.findIndex(
-            (img) => JSON.stringify(img) === JSON.stringify(image)
+            (img) => img.upload_id === image.upload_id
           );
-
           return (
             <div
               role="checkbox"
@@ -55,89 +54,70 @@ const DeckImageManager = ({
   );
 };
 
-const ImageItem = ({
-  hasSelected,
-  setSelected,
-  image,
-  setSelectedImages,
-  imageIndex,
-}) => {
-  const canvasRef = useRef(null);
+const ImageItem = ({ setSelected, image, setSelectedImages, imageIndex }) => {
+  // useEffect(() => {
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  //   const ctx = canvas.getContext("2d");
+  //   if (!ctx) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  //   const img = new Image();
+  //   img.src = imagePath;
+  //   // img.crossOrigin = "anonymous"; // Ensure CORS compliance if needed
 
-    // Create a new Image object and load the image into it
-    const img = new Image();
-    img.src = image.upload_path;
-    img.crossOrigin = "anonymous"; // Ensure CORS compliance if needed
+  //   img.onload = () => {
+  //     canvas.width = img.width;
+  //     canvas.height = img.height;
 
-    img.onload = () => {
-      // Set canvas dimensions to match the image
-      canvas.width = img.width;
-      canvas.height = img.height;
+  //     ctx.drawImage(img, 0, 0);
 
-      // Draw the image onto the canvas
-      ctx.drawImage(img, 0, 0);
+  //     try {
+  //       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-      // Get pixel data
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const pixels = imageData.data;
+  //       const pixels = imageData.data;
 
-      let lightPixelCount = 0;
-      let mapColorPixelCount = 0;
-      let totalPixelCount = 0;
+  //       let lightPixelCount = 0;
+  //       let mapColorPixelCount = 0;
+  //       let totalPixelCount = pixels.length / 4;
 
-      // Loop through the pixels
-      for (let i = 0; i < pixels.length; i += 4) {
-        const r = pixels[i];
-        const g = pixels[i + 1];
-        const b = pixels[i + 2];
+  //       for (let i = 0; i < pixels.length; i += 4) {
+  //         const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
 
-        // Light background pixels (white or light gray)
-        if (r > 200 && g > 200 && b > 200) {
-          lightPixelCount++;
-        }
+  //         if (r > 200 && g > 200 && b > 200) lightPixelCount++;
+  //         if ((g > 100 && b < 100) || (b > 100 && g < 100))
+  //           mapColorPixelCount++;
+  //       }
 
-        // Map-like colors (green or blue)
-        if ((g > 100 && b < 100) || (b > 100 && g < 100)) {
-          mapColorPixelCount++;
-        }
+  //       const lightRatio = lightPixelCount / totalPixelCount;
+  //       const mapColorRatio = mapColorPixelCount / totalPixelCount;
 
-        totalPixelCount++;
-      }
+  //       if (!(lightRatio > 0.5 || mapColorRatio > 0.2)) {
+  //         if (!hasSelected) {
+  //           setSelectedImages((prev) => {
+  //             const newItems = [...prev, imagePath];
+  //             return newItems.length === 1 ? newItems : prev;
+  //           });
+  //           setSelected(true);
+  //         } else {
+  //           console.log("NAKASELECT NA");
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("CORS Issue:", error);
+  //     }
+  //   };
 
-      const lightRatio = lightPixelCount / totalPixelCount;
-      const mapColorRatio = mapColorPixelCount / totalPixelCount;
-
-      if (!(lightRatio > 0.5 || mapColorRatio > 0.2)) {
-        if (!hasSelected) {
-          setSelectedImages((prev) => {
-            const newItems = [...prev, image];
-
-            if (newItems.length === 1) {
-              return newItems;
-            }
-            return prev;
-          });
-          setSelected(true);
-        } else {
-          console.log("NAKASELECT NA");
-        }
-      }
-    };
-  }, [image, hasSelected]);
-
+  //   return () => {
+  //     URL.revokeObjectURL(imagePath);
+  //   };
+  // }, [imagePath, hasSelected]);
   return (
     <>
       {/* Display the image */}
       <img
         loading="lazy"
-        src={image.upload_path}
+        src={image.blob}
         alt=""
         className="h-full max-h-[125px]"
         onClick={() => {
@@ -151,6 +131,7 @@ const ImageItem = ({
               return prev;
             }
           });
+          setSelected(true);
         }}
       />
       {/* Overlay for selected images */}
@@ -169,7 +150,6 @@ const ImageItem = ({
         </div>
       )}
       {/* Hidden canvas for image analysis */}
-      <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
     </>
   );
 };

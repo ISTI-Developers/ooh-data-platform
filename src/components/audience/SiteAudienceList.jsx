@@ -5,6 +5,7 @@ import { Pagination, Table } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "~fragments/Loader";
 import { pagination, table } from "~config/themes";
+import Cookies from "js-cookie";
 
 function SiteAudienceList({ options, query }) {
   const { retrieveSites } = useService();
@@ -23,15 +24,18 @@ function SiteAudienceList({ options, query }) {
   const navigate = useNavigate();
 
   const filteredItems = useMemo(() => {
+    if (siteList.length === 0) return siteList;
     const { type, region, city } = options;
 
     return siteList.filter((item) => {
       setCurrentPage(1);
 
+      const address = item.address ?? `${item.city}, ${item.region}`;
+
       const matchesQuery =
         item.site.toLowerCase().includes(query.toLowerCase()) ||
-        item.unis_code.toLowerCase().includes(query.toLowerCase()) ||
-        item.address.toLowerCase().includes(query.toLowerCase());
+        item.site_code.toLowerCase().includes(query.toLowerCase()) ||
+        address.toLowerCase().includes(query.toLowerCase());
       const matchesType =
         type === "all" || item.type.toLowerCase() === type.toLowerCase();
       const matchesRegion = region.length === 0 || region.includes(item.region);
@@ -43,8 +47,18 @@ function SiteAudienceList({ options, query }) {
 
   useEffect(() => {
     const setup = async () => {
-      const data = await retrieveSites();
-      console.log(data);
+      // let hasUser = Cookies.get("role");
+
+      let data = await retrieveSites();
+      // if (hasUser) hasUser = JSON.parse(hasUser);
+
+      // if (
+      //   hasUser &&
+      //   hasUser?.role_id === "a39a3b04-5772-4743-af2f-c92c563afefa"
+      // ) {
+      //   data = data.filter((site) => site.site_owner === "Nexus");
+      // }
+      // console.log(data);
       setSites(data);
     };
     setup();
@@ -81,10 +95,12 @@ function SiteAudienceList({ options, query }) {
                         className="p-2 cursor-pointer hover:bg-slate-100"
                         onClick={() => navigate(`./${site.site_code}`)}
                       >
-                        <Table.Cell>{site.unis_code}</Table.Cell>
+                        <Table.Cell>{site.site_code}</Table.Cell>
                         <Table.Cell>
                           <div>
-                            <p>{site.address}</p>
+                            <p>
+                              {site.address ?? site.city + ", " + site.region}
+                            </p>
                           </div>
                         </Table.Cell>
                         <Table.Cell>

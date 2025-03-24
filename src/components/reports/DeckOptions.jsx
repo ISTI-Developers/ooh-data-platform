@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import classNames from "classnames";
-import { Checkbox, Label, Table, TextInput, Tooltip } from "flowbite-react";
+import { Checkbox, Label, Tooltip } from "flowbite-react";
 import { useMemo, useState } from "react";
 import { IoOptions } from "react-icons/io5";
 import { useReport } from "~config/ReportContext";
@@ -9,7 +9,6 @@ import { v4 } from "uuid";
 import Select from "react-select";
 import Tabs from "~fragments/Tabs";
 import { FaMinusSquare } from "react-icons/fa";
-import { Select as FSelect } from "flowbite-react";
 
 const DeckOptions = () => {
   const { reports, priceDetails, setPriceDetails, addPriceAdjustment } =
@@ -54,6 +53,8 @@ const DeckOptions = () => {
                     {
                       id: v4(),
                       price: 0,
+                      action: "+",
+                      type: "--",
                       sites: [
                         {
                           label: "All",
@@ -246,16 +247,40 @@ const PriceAdjustmentItem = ({ details, index }) => {
   }, [index, reportOptions]);
 
   return (
-    <div className="grid grid-cols-[1fr_1.5fr_auto] gap-4">
+    <div className="grid grid-cols-[.5fr_1fr_.5fr_1.5fr_auto] gap-4">
+      <div>
+        <Label htmlFor={`action_${index}`}>Action</Label>
+        <select
+          id={`action_${index}`}
+          className="border-gray-300 rounded h-10 text-xs"
+          value={details.action}
+          onChange={(e) =>
+            setPriceDetails((prev) => {
+              console.log(prev);
+              const updatedPrev = [...prev];
+              updatedPrev[index] = {
+                ...updatedPrev[index],
+                action: e.target.value,
+              };
+
+              return updatedPrev;
+            })
+          }
+        >
+          <option value="+" className="text-xs">+ (Add)</option>
+          <option value="-" className="text-xs">— (Minus)</option>
+        </select>
+      </div>
       <div>
         <Label htmlFor={`price_${index}`}>Price</Label>
         <div className="w-full border border-gray-300 h-10 rounded flex items-center overflow-hidden">
-          <p className="border-r text-lg px-4">₱</p>
+          <p className="border-r text-lg px-2">₱</p>
           <input
             type="number"
             value={details.price}
             min={0}
-            step={50000}
+            step={details.type === "--" ? 1000 : 1}
+            max={details.type === "%" ? 100 : undefined}
             onChange={(e) =>
               setPriceDetails((prev) => {
                 // Create a new array to avoid direct mutation
@@ -273,6 +298,33 @@ const PriceAdjustmentItem = ({ details, index }) => {
             className="w-full border-none focus:ring-0 focus:outline-none focus:border-none"
           />
         </div>
+      </div>
+      <div>
+        <Label htmlFor={`type_${index}`}>Type</Label>
+        <select
+          id={`type_${index}`}
+          className="border-gray-300 rounded h-10"
+          value={details.type}
+          onChange={(e) =>
+            setPriceDetails((prev) => {
+              console.log(prev);
+              const updatedPrev = [...prev];
+              updatedPrev[index] = {
+                ...updatedPrev[index],
+                price:
+                  updatedPrev[index].price > 100
+                    ? 100
+                    : updatedPrev[index].price,
+                type: e.target.value,
+              };
+
+              return updatedPrev;
+            })
+          }
+        >
+          <option value="--">---</option>
+          <option value="%">%</option>
+        </select>
       </div>
       <div>
         <Label htmlFor={`site_${index}`}>Sites</Label>

@@ -26,6 +26,7 @@ import { saveAs } from "file-saver";
 import PptxGenJS from "pptxgenjs";
 import { v4 } from "uuid";
 import { useFunction } from "./functions";
+import { format } from "date-fns";
 
 const ReportContext = React.createContext();
 
@@ -34,11 +35,16 @@ export function useReport() {
 }
 
 export function ReportProvider({ children }) {
-  const { retrieveSites, retrieveAdditionalSiteDetails } = useService();
+  const {
+    retrieveSites,
+    retrieveAdditionalSiteDetails,
+    retrieveAvailableSites,
+  } = useService();
   const { capitalizeFirst } = useFunction();
   const [sites, setSites] = useState(null);
   const [reports, setReports] = useState([]);
   const [priceDetails, setPriceDetails] = useState([]);
+  const [showAvailable, toggleAvailable] = useState("1");
   const [rates, setRates] = useState([
     { duration: 3, discount: 0, type: "flat" },
     { duration: 6, discount: 0, type: "flat" },
@@ -92,7 +98,7 @@ export function ReportProvider({ children }) {
   const addImages = (siteCode, image) => {
     setReports((prevReports) => {
       const updatedReports = prevReports.map((report) => {
-        if (report.site.unis_code === siteCode) {
+        if (report.site.site_code === siteCode) {
           // Return the updated report with the new images array
           return {
             ...report,
@@ -110,7 +116,7 @@ export function ReportProvider({ children }) {
   const addMapImage = (siteCode, image) => {
     setReports((prevReports) => {
       const updatedReports = prevReports.map((report) => {
-        if (report.site.unis_code === siteCode) {
+        if (report.site.site_code === siteCode) {
           // Return the updated report with the new images array
           return {
             ...report,
@@ -177,7 +183,7 @@ export function ReportProvider({ children }) {
   };
   const removeReport = (code) => {
     setReports((prev) => {
-      return prev.filter((report) => report.site.unis_code !== code);
+      return prev.filter((report) => report.site.site_code !== code);
     });
     setPriceDetails((prev) => {
       return prev.filter((report) => report.site !== code);
@@ -303,7 +309,7 @@ export function ReportProvider({ children }) {
 
   const onPrint = async (siteCode, title = undefined) => {
     const currentReport = reports.find(
-      (report) => report.site.unis_code === siteCode
+      (report) => report.site.site_code === siteCode
     );
 
     const { site, images, map } = currentReport;
@@ -322,8 +328,8 @@ export function ReportProvider({ children }) {
     );
 
     const doc = new Document({
-      description: `Site Report of ${site.unis_code}`,
-      title: `${site.unis_code} Report`,
+      description: `Site Report of ${site.site_code}`,
+      title: `${site.site_code} Report`,
       styles: {
         paragraphStyles: [
           {
@@ -357,7 +363,7 @@ export function ReportProvider({ children }) {
               children: [
                 new Paragraph({
                   children: [
-                    Text(`${site.unis_code} Specifications`, 14, true),
+                    Text(`${site.site_code} Specifications`, 14, true),
                   ],
                 }),
               ],
@@ -445,7 +451,7 @@ export function ReportProvider({ children }) {
                             insideVertical: invisibleBorder,
                           },
                           rows: [
-                            Row("Name: ", site.unis_code),
+                            Row("Name: ", site.site_code),
                             Row("Type: ", site.type),
                             Row("Size: ", site.size),
                             Row("Segments: ", site.segments),
@@ -592,7 +598,7 @@ export function ReportProvider({ children }) {
       };
 
       img.src = imageURL;
-      img.crossOrigin = "anonymous"; // Ensure cross-origin compatibility for external images
+      // img.crossOrigin = "anonymous"; // Ensure cross-origin compatibility for external images
     });
   }
 
@@ -612,7 +618,7 @@ export function ReportProvider({ children }) {
       const { site, images } = report;
 
       const landmarks = selectedLandmarks.find(
-        (lm) => site.unis_code === lm.site
+        (lm) => site.site_code === lm.site
       );
 
       let price = parseFloat(site.price);
@@ -622,12 +628,36 @@ export function ReportProvider({ children }) {
       );
 
       if (adjustedPrice) {
-        price = price + parseFloat(adjustedPrice.price);
+        let finalPrice = isNaN(adjustedPrice.price)
+          ? 0
+          : parseFloat(adjustedPrice.price);
+        if (adjustedPrice.action === "+") {
+          price =
+            adjustedPrice.type === "--"
+              ? price + finalPrice
+              : price * (1 + finalPrice / 100);
+        } else {
+          price =
+            adjustedPrice.type === "--"
+              ? price - finalPrice
+              : price * (1 - finalPrice / 100);
+        }
       }
       const area = `Billboard Site in ${capitalizeFirst(site.city_name)}`;
       const headerHeight = Inches(1.93);
       const detailsSection = Inches(21.48);
       const contentSection = headerHeight + Inches(0.8);
+
+      const availability = site.availability
+        ? format(
+            new Date(
+              new Date(site.availability).setDate(
+                new Date(site.availability).getDate() + 1
+              )
+            ),
+            "MMMM d, yyyy"
+          )
+        : "N/A";
 
       slide.addText(area, {
         w: Inches(33.23),
@@ -640,7 +670,7 @@ export function ReportProvider({ children }) {
         align: "right",
         color: "FFFFFF",
       });
-      slide.addText("AVAILABILTY: ", {
+      slide.addText("AVAILABILITY: ", {
         w: 3,
         h: margin,
         x: detailsSection,
@@ -649,7 +679,7 @@ export function ReportProvider({ children }) {
         fontFace: "Aptos",
         fontSize: 11,
       });
-      slide.addText("FEBRUARY 25, 2025", {
+      slide.addText(availability, {
         w: 3,
         h: margin,
         x: detailsSection + Inches(2.6),
@@ -660,15 +690,15 @@ export function ReportProvider({ children }) {
         fontSize: 14,
       });
 
-      let imageURL = images[0].upload_path;
-      imageURL = String(imageURL).replace(
-        "unis.unitedneon.com",
-        "192.168.10.10"
-      );
-      imageURL = String(imageURL).replace("https", "http");
-      const image = await cropImageFromURL(imageURL, 150, 150).then((url) => url);
+      let imageURL = mockup;
 
-      console.log(image);
+      if (images[0]) {
+        console.log(images[0]);
+        imageURL = images[0].blob;
+      }
+      const image = await cropImageFromURL(imageURL, 150, 150).then(
+        (url) => url
+      );
 
       slide.addImage({
         data: image,
@@ -693,7 +723,7 @@ export function ReportProvider({ children }) {
         fontFace: "Aptos",
         fontSize: 8,
       });
-      slide.addText(site.unis_code, {
+      slide.addText(site.site_code, {
         w: colWidth,
         h: textHeight,
         x: detailsSection,
@@ -990,7 +1020,6 @@ export function ReportProvider({ children }) {
         showRates && rates.some((rate) => rate.discount !== 0);
       const mapSize = hasMonthlyRateDuration ? Inches(5.54) : Inches(7.5);
 
-      console.log(report.map);
       slide.addImage({
         path: report.map,
         x: detailsSection + Inches(0.2),
@@ -1028,36 +1057,44 @@ export function ReportProvider({ children }) {
     const setup = async () => {
       const results = await retrieveSites();
       const additionalSiteDetails = await retrieveAdditionalSiteDetails();
+      const availableSites = await retrieveAvailableSites();
 
-      if (results && additionalSiteDetails) {
+      if (results && additionalSiteDetails && availableSites) {
         const sitesWithAddedDetails = results.map((item) => {
           const structure = additionalSiteDetails.filter((s) =>
-            item.unis_code.includes(s.structure_code)
+            item.site_code.includes(s.site_code)
           );
+          const available = availableSites.find(
+            (s) => item.site_code === s.site
+          );
+
           if (structure.length > 0) {
-            const segment = structure.find(
-              (s) => s.site_code === item.unis_code
-            );
-            // console.log(segment);
-            if (segment) {
-              return {
-                ...item,
-                ...segment,
-              };
-            } else {
-              return {
-                ...item,
-                ...structure[0],
-              };
-            }
+            const availability = available
+              ? available.adjusted_end_date ?? available.end_date
+              : null;
+            const updatedItem = {
+              ...item,
+              ...structure[0],
+              available: available ? 1 : 2,
+              availability: availability,
+              division_id: available ? available.division_id : 6,
+            };
+
+            return updatedItem;
+          } else {
+            return item;
           }
         });
-        setSites(sitesWithAddedDetails);
+        setSites(
+          sitesWithAddedDetails.sort((a, b) => {
+            return a?.division_id - b?.division_id;
+          })
+        );
       }
       // setSites(results);
     };
     setup();
-  }, [retrieveAdditionalSiteDetails, retrieveSites]);
+  }, []);
 
   const values = {
     sites,
@@ -1071,6 +1108,8 @@ export function ReportProvider({ children }) {
     addChart,
     addImages,
     addMapImage,
+    showAvailable,
+    toggleAvailable,
     updateChart,
     removeChart,
     show,

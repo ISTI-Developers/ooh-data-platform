@@ -19,9 +19,9 @@ const LandmarkMap = ({ site }) => {
 
   const selectedLandmark = useMemo(() => {
     return selectedLandmarks.find(
-      (landmark) => landmark.site === site.unis_code
+      (landmark) => landmark.site === site.site_code
     );
-  }, [selectedLandmarks, site.unis_code]);
+  }, [selectedLandmarks, site.site_code]);
 
   const onMapGenerate = () => {
     const baseURL = "https://maps.googleapis.com/maps/api/staticmap";
@@ -48,7 +48,7 @@ const LandmarkMap = ({ site }) => {
 
     // Full URL for the static map image
     const mapURL = `${baseURL}?${params.toString()}`;
-    addMapImage(site.unis_code, mapURL);
+    addMapImage(site.site_code, mapURL);
   };
 
   useEffect(() => {

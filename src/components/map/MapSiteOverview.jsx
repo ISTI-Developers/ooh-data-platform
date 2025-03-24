@@ -45,7 +45,7 @@ function MapSiteOverview(props) {
               alt=""
               className="w-full"
             />
-            <p className="font-bold">{selectedSite.unis_code}</p>
+            <p className="font-bold">{selectedSite.site_code}</p>
             <p className="text-xs">{selectedSite.address}</p>
           </div>
           <div className="bg-default space-y-2 p-2 rounded-md">
@@ -99,7 +99,7 @@ function MapSiteOverview(props) {
               </div>
             )} */}
           <Link
-            to={`/audience/${toUnderscored(selectedSite.site_code)}`}
+            to={`/audiences/${toUnderscored(selectedSite.site_code)}`}
             className="underline text-main-300"
           >
             View full information

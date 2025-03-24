@@ -1,14 +1,14 @@
 import { Button, Label, Modal, TextInput } from "flowbite-react";
 import { useRef } from "react";
-import { useReport } from "~config/ReportContext";
 import { defaultTextTheme, mainButtonTheme } from "~config/themes";
 import { format } from "date-fns";
 import "jspdf-autotable";
 import { AiOutlineLoading } from "react-icons/ai";
 import jsPDF from "jspdf";
+import { useCampaigns } from "~config/Campaigns";
 
 export default function PrintAllModal() {
-  const { show, toggleModal, reports, charts, generateReport } = useReport();
+  const { show, toggleModal, reports, charts, generateReport } = useCampaigns();
   const title = useRef();
   const client = useRef();
 

@@ -37,7 +37,7 @@ function MapList({ updateMapCenter }) {
                       .filter((item) => item.type.toLowerCase() === type)
                       .map((boards, index) => {
                         const {
-                          unis_code,
+                          site_code,
                           site,
                           latitude,
                           longitude,
@@ -68,10 +68,10 @@ function MapList({ updateMapCenter }) {
                             />
                             <div>
                               <p className="text-xs font-semibold">
-                                {unis_code}
+                                {site_code}
                               </p>
                               <p className="text-[0.5rem] text-gray-500">
-                                {address}
+                                {address ?? `${boards.city}, ${boards.region}`}
                               </p>
                             </div>
                           </li>

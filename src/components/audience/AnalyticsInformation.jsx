@@ -14,7 +14,7 @@ import { format } from "date-fns";
 
 function AnalyticsInformation() {
   const [dates, setDateRange] = useState({
-    from: new Date("11-01-2023"),
+    from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   });
 
@@ -44,7 +44,7 @@ function SiteAnalytics({ dates, setDateRange }) {
       console.log(response);
       if (response) {
         setImpressions(response.analytics);
-        console.log(response.analytics)
+        console.log(response.analytics);
         toggleFetching(false);
       }
     };
@@ -112,6 +112,7 @@ function SiteBehaviors({ dates }) {
         to: format(new Date(to), "MM-dd-yyyy"),
         category: "Profile",
       });
+      console.log(response);
       setAudiences(response);
 
       toggleFetching(false);
@@ -177,6 +178,7 @@ function BehaviorSearch({ questions, audiences, searchQuestion }) {
 }
 
 function Card({ title, count }) {
+  if (count === null) return;
   const countLength = count.toString().split(".")[0].length;
   let amount = count;
   if (countLength > 3 && countLength < 7) {

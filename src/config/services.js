@@ -2,7 +2,6 @@ import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
-import addresses from "./output.json";
 
 const retrievePlanning = async (get, options = null) => {
   try {
@@ -54,18 +53,23 @@ const retrieveSites = async (type = null) => {
     });
 
     if (response.data) {
-      const sites = response.data;
+      return response.data;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+const retrieveAvailableSites = async () => {
+  try {
+    const response = await axios.get(url.sites + "/available", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("token")}`,
+      },
+    });
 
-      const data = sites.map((item) => {
-        const site = addresses.find((site) => site.site === item.site);
-        return {
-          ...item,
-          address: site ? site.address : null,
-          unis_code: site.site_id,
-        };
-      });
-
-      return data;
+    if (response.data) {
+      return response.data;
     }
   } catch (e) {
     console.log(e);
@@ -188,6 +192,7 @@ export const useService = () => {
     retrieveSite,
     retrieveSites,
     retrieveSitesCount,
+    retrieveAvailableSites,
     retrieveSiteAnalytics,
     retrieveSitesBehaviors,
     retrieveLandmarks,

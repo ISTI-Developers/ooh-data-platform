@@ -12,6 +12,7 @@ import { defaultTextTheme } from "~config/themes";
 import { useFunction } from "~config/functions";
 import { useLocation, useNavigate } from "react-router-dom";
 import addresses from "../config/output.json";
+import Cookies from "js-cookie";
 
 function AudienceOptions({ filterOptions, setQuery }) {
   const { retrieveSites } = useService();
@@ -48,10 +49,20 @@ function AudienceOptions({ filterOptions, setQuery }) {
   useEffect(() => {
     const setup = async () => {
       let data = await retrieveSites();
+      // let hasUser = Cookies.get("role");
+
+      // if (hasUser) hasUser = JSON.parse(hasUser);
+
+      // if (
+      //   hasUser &&
+      //   hasUser?.role_id === "a39a3b04-5772-4743-af2f-c92c563afefa"
+      // ) {
+      //   data = data.filter((site) => site.site_owner === "Nexus");
+      // }
       data = data.map((item) => {
         const addr = addresses.find((site) => site.site === item.site);
 
-        return { ...item, address: addr.address };
+        return { ...item, address: addr?.address ?? `${item.city}, ${item.region}` };
       });
       if (filter.value !== "all") {
         setSiteNames(

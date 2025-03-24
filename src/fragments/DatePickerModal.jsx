@@ -14,6 +14,8 @@ function DatePickerModal({ show, onClose, setDate, showLoader, currentDates }) {
   const onChangeDate = (e) => {
     const date = e.value;
     const id = e.id;
+
+    console.log(e);
     setDates((prev) => ({ ...prev, [id]: new Date(date) }));
   };
   const onSelectPreset = (length) => {
@@ -27,6 +29,7 @@ function DatePickerModal({ show, onClose, setDate, showLoader, currentDates }) {
   };
 
   const onSubmit = () => {
+    console.log(selectedDate);
     if (
       format(new Date(currentDates.from), "MMMM dd yyyy") ===
         format(new Date(selectedDate.from), "MMMM dd yyyy") &&
@@ -67,8 +70,8 @@ function DatePickerModal({ show, onClose, setDate, showLoader, currentDates }) {
               id="from"
               inline
               theme={inlineDatePickerTheme}
-              defaultDate={new Date(selectedDate.from)}
-              onSelectedDateChanged={(date) =>
+              value={new Date(selectedDate.from)}
+              onChange={(date) =>
                 onChangeDate({ value: date, id: "from" })
               }
               showTodayButton={false}
@@ -83,8 +86,8 @@ function DatePickerModal({ show, onClose, setDate, showLoader, currentDates }) {
               id="to"
               inline
               theme={inlineDatePickerTheme}
-              defaultDate={new Date(selectedDate.to)}
-              onSelectedDateChanged={(date) =>
+              value={new Date(selectedDate.to)}
+              onChange={(date) =>
                 onChangeDate({ value: date, id: "to" })
               }
               showTodayButton={false}

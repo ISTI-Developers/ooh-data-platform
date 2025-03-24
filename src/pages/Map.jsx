@@ -3,7 +3,7 @@ import MapLocation from "../components/map/MapLocation";
 import BillboardGraph from "../components/map/BillboardGraph";
 import { useEffect, useState } from "react";
 import { useService } from "../config/services";
-import MapProvider from "~config/MapsContext";
+// import MapProvider from "~config/MapsContext";
 
 function Map() {
   const [billboards, setBillboards] = useState(null);
@@ -11,7 +11,7 @@ function Map() {
 
   useEffect(() => {
     const setup = async () => {
-      const data = await retrieveSitesCount("demographics");
+      const data = await retrieveSitesCount();
       // console.log(data);
       setBillboards(
         data.map((item) => ({

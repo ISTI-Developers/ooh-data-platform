@@ -75,7 +75,7 @@ const SiteOptions = ({ setQuery }) => {
     <div
       ref={componentRef}
       id="siteOptions"
-      className="grid grid-cols-[fit-content(100px)_1fr] items-center transition-all pt-2"
+      className="grid grid-cols-[fit-content(100px)_1fr] items-center transition-all pt-2 z-[2]"
     >
       <section className="relative">
         <Tooltip theme={tooltip} content="Filter" arrow={false}>

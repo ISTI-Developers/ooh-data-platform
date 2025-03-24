@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { useService } from "./services";
-import useData from "./useData";
 import { useFunction } from "./functions";
 
 const MapContext = React.createContext();
@@ -23,13 +22,22 @@ export default function MapProvider({ children }) {
 
   const queryResults = useMemo(() => {
     if (!sites) return [];
-    if (query.length < 4) return sites;
+    // let hasUser = Cookies.get("role");
 
+    // if (hasUser) hasUser = JSON.parse(hasUser);
+
+    // const companyFilter = (item) => {
+    //   if (hasUser.role_id === "a39a3b04-5772-4743-af2f-c92c563afefa") {
+    //     return item.site_owner === "Nexus";
+    //   }
+    // };
+    
+    if (query.length < 4) return sites;
     const normalizedQuery = toUnderscored(query.toLowerCase());
 
     const includesQuery = (item) =>
-      [item.site, item.unis_code, item.region, item.city, item.address]
-        .map((field) => toUnderscored(field.toLowerCase()))
+      [item.site ?? item.site_code, item.region, item.city, item?.address]
+        .map((field) => toUnderscored(field?.toLowerCase() ?? ""))
         .some((field) => field.includes(normalizedQuery));
 
     return sites.filter(includesQuery);

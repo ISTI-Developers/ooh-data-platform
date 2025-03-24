@@ -53,20 +53,20 @@ function ReportDecks() {
                         className={classNames(
                           "flex items-center gap-2",
                           "p-2 py-0.5 text-white rounded-md whitespace-nowrap snap-start text-xs",
-                          hash === `#${site.unis_code}`
+                          hash === `#${site.site_code}`
                             ? "bg-blue-900"
                             : "bg-blue-500"
                         )}
                       >
-                        <a href={`#${site.unis_code}`}>{site.unis_code}</a>
+                        <a href={`#${site.site_code}`}>{site.site_code}</a>
                         <button
                           onClick={() => {
                             setSites((prev) => {
                               return prev.filter(
-                                (item) => item.unis_code !== site.unis_code
+                                (item) => item.site_code !== site.site_code
                               );
                             });
-                            removeReport(site.unis_code);
+                            removeReport(site.site_code);
                           }}
                         >
                           <RiCloseLine />
@@ -96,14 +96,14 @@ function ReportDecks() {
                 <DeckItem
                   site={site}
                   onClose={() => {
-                    removeReport(site.unis_code);
+                    removeReport(site.site_code);
                     setSites((prev) => {
                       return prev.filter(
-                        (item) => item.unis_code !== site.unis_code
+                        (item) => item.site_code !== site.site_code
                       );
                     });
                   }}
-                  key={site.unis_code}
+                  key={site.site_code}
                 />
               );
             })}

@@ -16,15 +16,15 @@ export default function SiteQuery({ query, setSite, sites: siteList }) {
     );
 
     const results = sites.filter(
-      ({ site, city, region, address, unis_code }) =>
+      (item) =>
         [
-          site.toLowerCase(),
-          city.toLowerCase(),
-          region.toLowerCase(),
-          address.toLowerCase(),
-          unis_code.toLowerCase(),
-        ].some((value) => value.includes(sq)) &&
-        !siteWithReports.includes(site.toLowerCase())
+          item.site.toLowerCase(),
+          item.city.toLowerCase(),
+          item.region.toLowerCase(),
+          item.address?.toLowerCase(),
+          item.site_code?.toLowerCase(),
+        ].some((value) => value && value.includes(sq)) &&
+        !siteWithReports.includes(item.site.toLowerCase())
     );
     return results.length > 0 ? results : "No results found.";
   }, [query, siteList, sites]);
@@ -46,8 +46,12 @@ export default function SiteQuery({ query, setSite, sites: siteList }) {
                 setSite(item);
               }}
             >
-              <p className="font-semibold">{item.unis_code}</p>
-              <p className="text-sm">{item.address}</p>
+              <p className="font-semibold">
+                {item.site_code ?? item.site_code}
+              </p>
+              <p className="text-sm">
+                {item.address ?? item.city + ", " + item.region}
+              </p>
             </li>
           );
         })}
