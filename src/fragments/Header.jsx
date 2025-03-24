@@ -5,11 +5,33 @@ import logo from "../assets/scmi.png";
 import PropTypes from "prop-types";
 import { navbarTheme } from "../config/themes";
 import { useAuth } from "../config/authContext";
+import { useEffect, useMemo, useState } from "react";
 
 function Header() {
   const location = useLocation();
-  const { user, logoutUser, isViewable, CheckPermission } = useAuth();
-  const pages = ["planning", "maps", "audiences", "reports"];
+  const { user, logoutUser, CheckPermission, role, retrieveRoleModules } =
+    useAuth();
+  const [modules, setModules] = useState(null);
+
+  useEffect(() => {
+    if (!role) return;
+    const retrieve = async () => {
+      const response = await retrieveRoleModules();
+      setModules(response);
+    };
+    retrieve();
+  }, [role]);
+
+  const pages = useMemo(() => {
+    if (!modules) return [];
+    return modules
+      .filter((module) => module.view === "client" && module.is_parent)
+      .filter((module) => {
+        return CheckPermission({
+          path: module.name.toLowerCase(),
+        });
+      });
+  }, [CheckPermission, modules]);
   return (
     <>
       <Navbar theme={navbarTheme} border>
@@ -24,22 +46,27 @@ function Header() {
         <Navbar.Collapse>
           {/* Mapping of links for navigation bar */}
           {user &&
-            isViewable(pages) &&
-            pages.map((item, index) => (
-              <CheckPermission key={index} path={item}>
-                <NavLink
-                  to={index === 0 ? "/" : `/${item}`}
-                  className={({ isActive }) =>
-                    classNames(
-                      "capitalize font-semibold text-lg hover:text-secondary",
-                      isActive ? "text-secondary" : "text-main"
-                    )
-                  }
+            pages.map((item, index) => {
+              const pathName = item.name.toLowerCase();
+              return (
+                <CheckPermission
+                  key={`${index}_${item.module_id}`}
+                  path={pathName}
                 >
-                  {item === "" ? "planning" : item}
-                </NavLink>
-              </CheckPermission>
-            ))}
+                  <NavLink
+                    to={index === 0 ? "/" : `/${pathName}`}
+                    className={({ isActive }) =>
+                      classNames(
+                        "capitalize font-semibold text-lg hover:text-secondary",
+                        isActive ? "text-secondary" : "text-main"
+                      )
+                    }
+                  >
+                    {pathName}
+                  </NavLink>
+                </CheckPermission>
+              );
+            })}
           {/* conditional rendering if user has logged in or not */}
           {user ? (
             <button
@@ -49,7 +76,9 @@ function Header() {
               Logout
             </button>
           ) : (
-            <UserAccessLink to={location.pathname !== "/login" ? "login" : "register"} />
+            <UserAccessLink
+              to={location.pathname !== "/login" ? "login" : "register"}
+            />
           )}
         </Navbar.Collapse>
       </Navbar>

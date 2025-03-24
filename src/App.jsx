@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,7 +7,6 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
-import Cookies from "js-cookie";
 import classNames from "classnames";
 import { Alert } from "flowbite-react";
 import { RiInformationFill } from "react-icons/ri";
@@ -20,10 +19,11 @@ import Header from "~fragments/Header";
 import ForgotPassword from "~pages/ForgotPassword";
 import PasswordRecovery from "~pages/PasswordRecovery";
 import { AuthProvider, useAuth } from "~config/authContext";
-import Reports from "~pages/Reports";
+import ReportDecks from "~pages/ReportDecks";
 import { ReportProvider } from "~config/ReportContext";
-// import ReportDecks from "~pages/ReportDecks";
 import MapProvider from "~config/MapsContext";
+import Reports from "~pages/Reports";
+import { CampaignProvider } from "~config/Campaigns";
 
 // Main App Component
 function App() {
@@ -31,8 +31,12 @@ function App() {
     <>
       <Router>
         <AuthProvider>
-          <Header />
-          <AppRoutes />
+          <ReportProvider>
+            <CampaignProvider>
+              <Header />
+              <AppRoutes />
+            </CampaignProvider>
+          </ReportProvider>
         </AuthProvider>
       </Router>
     </>
@@ -42,10 +46,17 @@ function App() {
 // AppRoutes Component handles top-level routing and layout
 function AppRoutes() {
   const location = useLocation();
-  const { alert, setAlert, CheckPermission } = useAuth();
-  let hasUser = Cookies.get("role");
+  const { alert, setAlert, CheckPermission, role, retrieveRoleModules } =
+    useAuth();
+  const componentMap = {
+    planning: Planning,
+    maps: Map,
+    audiences: Audience,
+    reports: ReportDecks,
+    campaigns: Reports,
+  };
 
-  if (hasUser) hasUser = JSON.parse(hasUser);
+  const [modules, setModules] = useState(null);
   // Auto-dismiss alert after 3 seconds
   useEffect(() => {
     if (alert.isOn) {
@@ -58,6 +69,26 @@ function AppRoutes() {
       }, 3000);
     }
   }, [alert, setAlert]);
+
+  useEffect(() => {
+    if (!role) return;
+    const retrieve = async () => {
+      const response = await retrieveRoleModules();
+      setModules(response);
+    };
+    retrieve();
+  }, [role]);
+
+  const moduleList = useMemo(() => {
+    if (!modules) return [];
+    return modules
+      .filter((module) => module.view === "client" && module.is_parent)
+      .filter((module) => {
+        return CheckPermission({
+          path: module.name.toLowerCase(),
+        });
+      });
+  }, [CheckPermission, modules]);
 
   return (
     <div
@@ -87,42 +118,25 @@ function AppRoutes() {
           </span>
         </Alert>
       )}
-
       <MapProvider>
         <Routes>
           <Route element={<ProtectedRoutes />}>
-            {hasUser &&
-              ["planning", "maps", "audiences", "reports"].map(
-                (route, index) => {
-                  const Component = {
-                    planning: Planning,
-                    maps: Map,
-                    audiences: Audience,
-                    reports: Reports,
-                  }[route];
+            {moduleList &&
+              moduleList.map((module, index) => {
+                const route = module.name.toLowerCase();
+                const Component = componentMap[route];
 
-                  return CheckPermission({
-                    path: route,
-                    children: (
-                      <Route
-                        path={index === 0 ? `/` : `/${route}/*`}
-                        element={<Component />}
-                      />
-                    ),
-                  });
-                }
-              )}
-            {hasUser &&
-              ["sales", "superadmin"].includes(hasUser.name.toLowerCase()) && (
-                <Route
-                  path="/old_reports"
-                  element={
-                    <ReportProvider>
-                      <Reports />
-                    </ReportProvider>
-                  }
-                />
-              )}
+                return CheckPermission({
+                  path: route,
+                  children: (
+                    <Route
+                      key={module.module_id}
+                      path={index === 0 ? `/` : `/${route}/*`}
+                      element={<Component />}
+                    />
+                  ),
+                });
+              })}
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password/*" element={<ForgotPassword />} />
@@ -137,7 +151,10 @@ function AppRoutes() {
 
 // ProtectedRoutes Component to handle authentication checks
 function ProtectedRoutes() {
-  const isAuthenticated = Cookies.get("user") && Cookies.get("role");
+  const { user, role } = useAuth();
+  const isAuthenticated = useMemo(() => {
+    return (user && role) ?? false;
+  }, [user, role]);
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 }
 

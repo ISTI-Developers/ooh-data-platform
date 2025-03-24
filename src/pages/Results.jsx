@@ -127,7 +127,7 @@ function Results() {
                   className="hover:bg-slate-200 transition-all cursor-pointer"
                   onClick={() => {
                     localStorage.setItem("location", item.site_code);
-                    navigate(`/audience/${toUnderscored(item.site_code)}`);
+                    navigate(`/audiences/${toUnderscored(item.site_code)}`);
                   }}
                 >
                   <Table.Cell>

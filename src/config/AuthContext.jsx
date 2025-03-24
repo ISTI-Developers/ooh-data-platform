@@ -20,6 +20,8 @@ export function AuthProvider({ children }) {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
+  const [roleID, setRoleID] = useState(null);
+  const [modules, setModules] = useState([]);
   const [alert, setAlert] = useState({
     isOn: false,
     type: "info",
@@ -39,16 +41,19 @@ export function AuthProvider({ children }) {
             domain: domain,
           });
           const { role_id } = response.data;
-          const role = await retrieveRole(role_id);
+          try {
+            Cookies.set("role", role_id, {
+              domain: domain === "localhost" ? domain : "." + domain,
+            });
 
-          Cookies.set("role", JSON.stringify(role), {
-            domain: "." + domain,
-          });
-          Cookies.set("user", JSON.stringify(response.data), {
-            domain: "." + domain,
-          });
-          setUser(response.data);
-          return { acknowledged: true, role: role };
+            Cookies.set("user", JSON.stringify(response.data), {
+              domain: domain === "localhost" ? domain : "." + domain,
+            });
+            setUser(response.data);
+            return { acknowledged: true, role: role_id };
+          } catch (error) {
+            console.error("Error setting cookies:", error);
+          }
         }
       }
     } catch (e) {
@@ -84,7 +89,21 @@ export function AuthProvider({ children }) {
       console.log(e);
     }
   };
+  const retrieveRoleModules = async () => {
+    try {
+      const response = await axios.get(url.modules, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      });
+      return response.data;
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const logoutUser = () => {
+    console.log(Cookies.get("user"), Cookies.get("role"));
     Cookies.remove("user", { domain: domain });
     Cookies.remove("role", { domain: domain });
     Cookies.remove("siteCache", { domain: domain });
@@ -162,7 +181,6 @@ export function AuthProvider({ children }) {
       const permission = modules.find(
         (module) => module.name.toLowerCase() === link
       );
-      console.log(permission);
 
       return permission && permission.permissions[0];
     });
@@ -177,25 +195,15 @@ export function AuthProvider({ children }) {
     logoutUser,
     verifyEmail,
     changePassword,
+    retrieveRoleModules,
     CheckPermission,
     isViewable,
   };
 
   useEffect(() => {
-    // console.log(Cookies.get("user"), Cookies.get("role"));
     if (Cookies.get("user") && Cookies.get("role")) {
       setUser(JSON.parse(Cookies.get("user")));
-      setRole(JSON.parse(Cookies.get("role")));
-      // const modules = JSON.parse(Cookies.get("role")).permissions.client
-      //   .modules;
-      // const filteredResults = {};
-      // for (const [key, value] of Object.entries(modules)) {
-      //   if (value.view) {
-      //     filteredResults[key] = value;
-      //   }
-      // }
-
-      // console.log(Object.keys(filteredResults).length !== 0);
+      setRoleID(Cookies.get("role"));
     } else {
       if (
         !["/login", "/register", "/forgot-password", "/password-recovery"].some(
@@ -206,5 +214,17 @@ export function AuthProvider({ children }) {
       }
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    // console.log(roleID);
+
+    const getRole = async () => {
+      const userRole = await retrieveRole(roleID);
+      setRole(userRole);
+    };
+    if (roleID) {
+      getRole();
+    }
+  }, [roleID]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

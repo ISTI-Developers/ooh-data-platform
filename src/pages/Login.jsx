@@ -8,10 +8,9 @@ import {
   passwordFieldTheme,
 } from "../config/themes";
 import { useAuth } from "../config/authContext";
-import Cookies from "js-cookie";
 
 function Login() {
-  const { user, signInUser, setAlert } = useAuth();
+  const { user, role, signInUser, setAlert } = useAuth();
   const navigate = useNavigate();
 
   const [show, toggleShow] = useState(false);
@@ -19,11 +18,6 @@ function Login() {
   const [isSending, toggleSending] = useState(false);
   const username = useRef(null);
   const password = useRef(null);
-  // const domain = window.location.hostname;
-  const adminURL =
-    window.location.hostname === "localhost"
-      ? "http://localhost:5174"
-      : "https://ooh-ad.scmiph.com";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,31 +27,8 @@ function Login() {
 
     const response = await signInUser(uname, pass);
     if (response?.acknowledged) {
-      const { admin } = response.role;
-      if (admin) {
-        window.location.href = adminURL;
-      } else {
-        window.location.href = "/";
-      }
-      // if (response.role.permissions.admin.access) {
-      //   window.location.href = adminURL;
-      // } else {
-      //   const pages = response.role.permissions.client.modules;
-      //   const filteredResults = {};
-      //   for (const [key, value] of Object.entries(pages)) {
-      //     if (value.view) {
-      //       filteredResults[key] = value;
-      //     }
-      //   }
-      //   const page = Object.keys(filteredResults);
-      //   if (page.length !== 0) {
-      //     if (page[0] === "planning") {
-      //       navigate("/");
-      //     } else {
-      //       navigate(`/${page[0].substring(0, page[0].length - 1)}`);
-      //     }
-      //   }
-      // }
+      console.log(response);
+      navigate(0);
     } else {
       setAlert({
         isOn: true,
@@ -69,19 +40,20 @@ function Login() {
   };
 
   useEffect(() => {
-    if (user) {
-      const roleCookie = Cookies.get("role") || null;
-      if (roleCookie) {
-        if (JSON.parse(Cookies.get("role")).admin) {
-          window.location.href = adminURL;
-        } else {
-          navigate("/");
-        }
-      } else {
-        navigate("/");
+    const adminURL =
+      window.location.hostname === "localhost"
+        ? "http://localhost:5174"
+        : "https://ooh-ad.scmiph.com";
+
+    if (user && role) {
+      if (role.admin) {
+        console.log("navigating to role");
+        window.location.href = adminURL;
+        return;
       }
+      navigate("/");
     }
-  }, [navigate, user]);
+  }, [navigate, role, user]);
   return (
     !user && (
       <div className="flex items-center justify-center h-full -translate-y-[75px]">

@@ -15,9 +15,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCampaigns } from "~config/Campaigns";
 
 export default function Impressions({ title, impressions, site }) {
-  const { addChart } = useReport();
+  const { addChart } = useCampaigns();
   const [average, data] = impressions;
   const chartRef = useRef(null);
 
@@ -44,7 +45,7 @@ export default function Impressions({ title, impressions, site }) {
     const timeout = setTimeout(captureChart, 1500);
 
     return () => clearTimeout(timeout);
-  }, [addChart, site, title]);
+  }, [site, title]);
   return (
     <div className="bg-white p-4 flex flex-col gap-4" ref={chartRef}>
       <section>

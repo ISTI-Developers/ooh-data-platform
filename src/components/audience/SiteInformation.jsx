@@ -61,7 +61,7 @@ function SiteInformation() {
   }, [id, retrieveSite]);
   return siteData ? (
     <div className="flex flex-col gap-2 w-full">
-      <Link to={"/audience"} className="w-fit underline">
+      <Link to={"/audiences"} className="w-fit underline">
         &#60; Back to List
       </Link>
       <div className="w-full flex flex-col gap-4">

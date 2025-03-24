@@ -8,7 +8,7 @@ import {
 import { useEffect, useState } from "react";
 import { FaArrowsRotate, FaChartLine } from "react-icons/fa6";
 import { useReport } from "~config/ReportContext";
-import { defaultTextTheme, mainButtonTheme } from "~config/themes";
+import { mainButtonTheme } from "~config/themes";
 import PropTypes from "prop-types";
 import { format } from "date-fns";
 import classNames from "classnames";
@@ -18,9 +18,10 @@ import PrintAllModal from "~components/reports/PrintAllModal";
 import ReportModal from "~components/reports/ReportModal";
 import SiteQuery from "~components/reports/SiteQuery";
 import Impressions from "~components/reports/Impressions";
+import { useCampaigns } from "~config/Campaigns";
 
 function Reports() {
-  const { reports, addReport, toggleModal } = useReport();
+  const { reports, addReport, toggleModal } = useCampaigns();
   const [enable, togglePrint] = useState(false);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ function Reports() {
       return () => clearTimeout(timeout);
     }
   }, [reports]);
+
   return (
     <>
       <div className="w-full py-4">
@@ -86,13 +88,13 @@ function Reports() {
 }
 
 function Report({ index, reportData, sites, count }) {
-  const { updateReport, removeReport, clearSite, fetchReport } = useReport();
+  const { updateReport, removeReport, clearSite, fetchReport } = useCampaigns();
   const [active, setActive] = useState(true);
   const [query, setQuery] = useState("");
   const [site, setSite] = useState(null);
   const [details, setDetails] = useState(null);
   const [dates, setDates] = useState({
-    from: new Date().setDate(new Date().getDate() - 30),
+    from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   });
   const onDateChange = (id, value) => {
@@ -131,7 +133,7 @@ function Report({ index, reportData, sites, count }) {
     const { daily } = impressions;
     const size = daily.length;
     const actualDates = {
-      from: new Date(daily[0].period),
+      from: new Date(new Date(daily[0].period)),
       to: new Date(daily[size - 1].period),
     };
     const finalAnalytics = {
@@ -139,7 +141,6 @@ function Report({ index, reportData, sites, count }) {
       entries: impressions,
       dates: actualDates,
     };
-
 
     setQuery("");
     setDetails(finalAnalytics);
@@ -194,19 +195,24 @@ function Report({ index, reportData, sites, count }) {
         </section>
         <div>
           <Label htmlFor="from" value="From: " />
-          {/* <input
-            type="date"
-            id="from"
-            required
-            value={format(new Date(dates.from), "yyyy-MM-dd")}
-            className="border-gray-300"
-            onChange={onDateChange}
-          /> */}
           <Datepicker
             id="to"
+            icon={null}
             required
-            value={format(new Date(dates.from), "MMM dd, yyyy")}
-            onSelectedDateChanged={(date) =>
+            value={new Date(dates.from)}
+            className="min-w-[200px]"
+            theme={{
+              views: {
+                days: {
+                  items: {
+                    item: {
+                      selected: "bg-[#1F487E] text-white",
+                    },
+                  },
+                },
+              },
+            }}
+            onChange={(date) =>
               onDateChange("from", format(new Date(date), "yyyy-MM-dd"))
             }
           />
@@ -215,27 +221,30 @@ function Report({ index, reportData, sites, count }) {
           <Label htmlFor="to" value="To: " />
           <Datepicker
             id="to"
+            icon={null}
             required
-            value={format(new Date(dates.to), "MMM dd, yyyy")}
+            value={new Date(dates.to)}
+            className="min-w-[200px]"
+            theme={{
+              views: {
+                days: {
+                  items: {
+                    item: {
+                      selected: "bg-[#1F487E] text-white",
+                    },
+                  },
+                },
+              },
+            }}
             minDate={new Date(dates.from)}
-            onSelectedDateChanged={(date) =>
+            onChange={(date) =>
               onDateChange("to", format(new Date(date), "yyyy-MM-dd"))
             }
           />
-          {/* <input
-            type="date"
-            id="to"
-            required
-            value={format(new Date(dates.to), "yyyy-MM-dd")}
-            className="border-gray-300"
-            min={format(new Date(dates.from), "yyyy-MM-dd")}
-            onChange={onDateChange}
-          /> */}
         </div>
         <Button
           type="submit"
           color="light"
-          // disabled={query === ""}
           theme={mainButtonTheme}
           className="bg-[#1F487E] w-[200px]"
         >
@@ -247,8 +256,8 @@ function Report({ index, reportData, sites, count }) {
             color="failure"
             theme={mainButtonTheme}
             onClick={() => {
-              // setSite(null);
-              // setDetails(null);
+              setSite(null);
+              setDetails(null);
               removeReport(index);
             }}
             className="bg-red-700 w-[150px]"
@@ -302,7 +311,7 @@ function Report({ index, reportData, sites, count }) {
 
 function PrintButton({ index }) {
   const [active, setActive] = useState(false);
-  const { toggleModal } = useReport();
+  const { toggleModal } = useCampaigns();
 
   useEffect(() => {
     const timeout = setTimeout(() => setActive(true), 1500);
