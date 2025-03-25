@@ -1069,6 +1069,7 @@ export function ReportProvider({ children }) {
           );
 
           if (structure.length > 0) {
+            console.log(available);
             const availability = available
               ? available.adjusted_end_date ?? available.end_date
               : null;
@@ -1076,6 +1077,7 @@ export function ReportProvider({ children }) {
               ...item,
               ...structure[0],
               available: available ? 1 : 2,
+              end_date: available?.end_date ?? null,
               availability: availability,
               division_id: available ? available.division_id : 6,
             };

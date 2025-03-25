@@ -11,7 +11,7 @@ import { useService } from "~config/services";
 import NearbyLandmarks from "./NearbyLandmarks";
 import LandmarkMap from "./LandmarkMap";
 import DeckImageManager from "./DeckImageManager";
-import { format } from "date-fns";
+import { format, isDate } from "date-fns";
 import axios from "axios";
 import { MdOutlineArrowRightAlt } from "react-icons/md";
 
@@ -188,7 +188,7 @@ const DeckItem = ({ site, onClose, ...props }) => {
                   : site.vicinity_population ?? "N/A"
               }
             />
-            <Availability date={site.availability} />
+            <Availability site={site} />
 
             {siteRates.length === 3 && showRates ? (
               <DeckField label="price">
@@ -234,7 +234,6 @@ const DeckItem = ({ site, onClose, ...props }) => {
                         currency: "PHP",
                       }).format(site.price)}
                     </span>
-                    {console.log(detail)}
                     {detail.updatedPrice &&
                       parseInt(detail.updatedPrice) !==
                         parseInt(site.price) && (
@@ -287,16 +286,54 @@ const DeckItem = ({ site, onClose, ...props }) => {
   );
 };
 
-const Availability = ({ date }) => {
-  const availableDate = useMemo(() => {
-    if (!date) return "TBD";
+const Availability = ({ site }) => {
+  const [endDate, availableDate] = useMemo(() => {
+    if (!site.availability) return [site.end_date, null];
 
-    return format(
-      new Date(new Date(date).setDate(new Date(date).getDate() + 1)),
-      "MMMM d, yyyy"
-    );
-  }, [date]);
-  return <DeckField label="availability" value={availableDate} />;
+    return [
+      format(
+        new Date(
+          new Date(site.end_date).setDate(new Date(site.end_date).getDate() + 1)
+        ),
+        "MMMM d, yyyy"
+      ),
+      format(
+        new Date(
+          new Date(site.availability).setDate(
+            new Date(site.availability).getDate() + 1
+          )
+        ),
+        "MMMM d, yyyy"
+      ),
+    ];
+  }, [site]);
+  return (
+    <DeckField
+      label="availability"
+      value={
+        <p className="flex items-center gap-1">
+          <span
+            className={classNames(
+              isDate(availableDate) ? "text-xs text-gray-400" : ""
+            )}
+          >
+            {endDate}
+          </span>
+          {availableDate ? (
+            <>
+             {endDate !== availableDate &&  <>
+              <MdOutlineArrowRightAlt className="text-gray-400" />
+              <span className="text-green-500 font-semibold">
+                {availableDate}
+              </span></>}
+            </>
+          ) : (
+            "TBD"
+          )}
+        </p>
+      }
+    />
+  );
 };
 const DeckField = ({ label, value, children = null }) => {
   return (
