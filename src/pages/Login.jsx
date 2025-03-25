@@ -7,7 +7,7 @@ import {
   mainButtonTheme,
   passwordFieldTheme,
 } from "../config/themes";
-import { useAuth } from "../config/authContext";
+import { useAuth } from "~config/AuthContext";
 
 function Login() {
   const { user, role, signInUser, setAlert } = useAuth();
