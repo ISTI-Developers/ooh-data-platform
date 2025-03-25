@@ -11,7 +11,7 @@ import makeAnimated from "react-select/animated";
 import { defaultTextTheme } from "~config/themes";
 import { useFunction } from "~config/functions";
 import { useLocation, useNavigate } from "react-router-dom";
-import addresses from "../config/output.json";
+import addresses from "~config/output.json";
 import Cookies from "js-cookie";
 
 function AudienceOptions({ filterOptions, setQuery }) {

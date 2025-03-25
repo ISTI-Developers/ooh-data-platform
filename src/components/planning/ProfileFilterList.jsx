@@ -1,7 +1,7 @@
 import PlanningList from "./PlanningList";
 import { useEffect, useState } from "react";
-import { useService } from "../../config/services";
-import Tabs from "../../fragments/Tabs";
+import { useService } from "~config/services";
+import Tabs from "~fragments/Tabs";
 import Loader from "~fragments/Loader";
 
 function ProfileFilterList() {

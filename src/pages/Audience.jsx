@@ -1,7 +1,7 @@
 import { FaUsers } from "react-icons/fa";
 import { useState } from "react";
-import AudienceOptions from "../fragments/AudienceOptions";
-import SiteInformation from "../components/audience/SiteInformation";
+import AudienceOptions from "~fragments/AudienceOptions";
+import SiteInformation from "~components/audience/SiteInformation";
 import { Route, Routes } from "react-router-dom";
 import SiteAudienceList from "~components/audience/SiteAudienceList";
 

@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { TbCircleCheck } from "react-icons/tb";
 // import useFixedImageCrop from "~config/ImageCropper";
-// import mockup from "../../assets/mockup.png";
+// import mockup from "~assets/mockup.png";
 const DeckImageManager = ({
   siteID,
   images,

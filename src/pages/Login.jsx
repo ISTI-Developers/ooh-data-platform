@@ -6,7 +6,7 @@ import {
   defaultTextTheme,
   mainButtonTheme,
   passwordFieldTheme,
-} from "../config/themes";
+} from "~config/themes";
 import { useAuth } from "~config/AuthContext";
 
 function Login() {

@@ -2,8 +2,8 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import { TextInput } from "flowbite-react";
-import { useFunction } from "../config/functions";
-import { passwordFieldTheme } from "../config/themes";
+import { useFunction } from "~config/functions";
+import { passwordFieldTheme } from "~config/themes";
 
 function PasswordField({ id, item, onChange }) {
   const { capitalize } = useFunction();

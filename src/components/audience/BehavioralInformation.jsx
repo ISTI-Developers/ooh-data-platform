@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import PropTypes from "prop-types";
-import { useFunction } from "../../config/functions";
+import { useFunction } from "~config/functions";
 import {
   Bar,
   BarChart,

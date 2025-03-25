@@ -6,8 +6,8 @@ import { format } from "date-fns";
 import "jspdf-autotable";
 import { AiOutlineLoading } from "react-icons/ai";
 import jsPDF from "jspdf";
-import unai from "../../assets/unai.png";
-import mockup from "../../assets/mockup.png";
+import unai from "~assets/unai.png";
+import mockup from "~assets/mockup.png";
 import {
   BorderStyle,
   Document,

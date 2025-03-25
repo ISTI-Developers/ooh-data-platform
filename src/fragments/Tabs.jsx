@@ -2,8 +2,8 @@ import { useRef } from "react";
 import PropTypes from "prop-types";
 import { Button } from "flowbite-react";
 import classNames from "classnames";
-import { baseButtonTheme } from "../config/themes";
-import { useFunction } from "../config/functions";
+import { baseButtonTheme } from "~config/themes";
+import { useFunction } from "~config/functions";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 
 function Tabs({ tabs, content, activeTab, setActiveTab }) {

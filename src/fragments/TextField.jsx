@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { TextInput } from "flowbite-react";
-import { useFunction } from "../config/functions";
-import { defaultTextTheme } from "../config/themes";
+import { useFunction } from "~config/functions";
+import { defaultTextTheme } from "~config/themes";
 
 function TextField({ id, type = "text", item, onChange }) {
   const { capitalize } = useFunction();

@@ -1,15 +1,15 @@
 /* eslint-disable react/prop-types */
 import { Button, Accordion, ToggleSwitch } from "flowbite-react";
-import Title from "../fragments/Title";
+import Title from "~fragments/Title";
 import { useEffect, useState } from "react";
-import { lightButtonTheme, toggleSwitch } from "../config/themes";
+import { lightButtonTheme, toggleSwitch } from "~config/themes";
 import classNames from "classnames";
 import { MdChecklist } from "react-icons/md";
-import PlanningModal from "../components/planning/PlanningModal";
-import AreaSelectionList from "../components/planning/AreaSelectionList";
-import ProfileFilterList from "../components/planning/ProfileFilterList";
+import PlanningModal from "~components/planning/PlanningModal";
+import AreaSelectionList from "~components/planning/AreaSelectionList";
+import ProfileFilterList from "~components/planning/ProfileFilterList";
 import Results from "./Results";
-import { useFunction } from "../config/functions";
+import { useFunction } from "~config/functions";
 import { PlanningProvider, usePlanning } from "~config/PlanningContext";
 function Planning() {
   const [onProfileFilters, toggleProfileFilters] = useState(false);

@@ -1,6 +1,6 @@
 import { Tabs } from "flowbite-react";
 import PropTypes from "prop-types";
-import { tabTheme } from "../../config/themes";
+import { tabTheme } from "~config/themes";
 import BehavioralInformation from "./BehavioralInformation";
 import Loader from "~fragments/Loader";
 import { useEffect, useRef } from "react";

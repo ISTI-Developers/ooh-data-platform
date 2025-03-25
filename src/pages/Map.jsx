@@ -1,8 +1,8 @@
 import { FaMapMarkerAlt } from "react-icons/fa";
-import MapLocation from "../components/map/MapLocation";
-import BillboardGraph from "../components/map/BillboardGraph";
+import MapLocation from "~components/map/MapLocation";
+import BillboardGraph from "~components/map/BillboardGraph";
 import { useEffect, useState } from "react";
-import { useService } from "../config/services";
+import { useService } from "~config/services";
 // import MapProvider from "~config/MapsContext";
 
 function Map() {

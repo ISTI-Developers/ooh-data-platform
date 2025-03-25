@@ -1,10 +1,10 @@
 import classNames from "classnames";
 import { Navbar } from "flowbite-react";
 import { Link, useLocation, NavLink } from "react-router-dom";
-import logo from "../assets/scmi.png";
+import logo from "~assets/scmi.png";
 import PropTypes from "prop-types";
-import { navbarTheme } from "../config/themes";
-import { useAuth } from "../config/authContext";
+import { navbarTheme } from "~config/themes";
+import { useAuth } from "~config/authContext";
 import { useEffect, useMemo, useState } from "react";
 
 function Header() {

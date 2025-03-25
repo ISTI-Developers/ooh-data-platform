@@ -1,7 +1,7 @@
 import { Button, Label } from "flowbite-react";
 import { Datepicker } from "flowbite-react";
 import PropTypes from "prop-types";
-import { inlineDatePickerTheme, lightButtonTheme } from "../config/themes";
+import { inlineDatePickerTheme, lightButtonTheme } from "~config/themes";
 import { useState } from "react";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
 

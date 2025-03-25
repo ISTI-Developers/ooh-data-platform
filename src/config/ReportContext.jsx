@@ -4,9 +4,9 @@ import { useService } from "./services";
 import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
 import Cookies from "js-cookie";
-import unai from "../assets/unai.png";
-import mockup from "../assets/mockup.png";
-import bg from "../assets/finalbg.png";
+import unai from "~assets/unai.png";
+import mockup from "~assets/mockup.png";
+import bg from "~assets/finalbg.png";
 import {
   BorderStyle,
   Document,

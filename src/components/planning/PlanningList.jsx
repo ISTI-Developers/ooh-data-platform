@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import { TextInput } from "flowbite-react";
-import { useFunction } from "../../config/functions";
+import { useFunction } from "~config/functions";
 import { usePlanning } from "~config/PlanningContext";
 function PlanningList({ category, data }) {
   const [demographics, setDemographics] = useState(null);

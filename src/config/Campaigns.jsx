@@ -4,7 +4,7 @@ import { useService } from "./services";
 import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
 import Cookies from "js-cookie";
-import unai from "../assets/unai.png";
+import unai from "~assets/unai.png";
 
 const CampaignContext = React.createContext();
 

@@ -1,8 +1,8 @@
 import { Button } from "flowbite-react";
 import { useState } from "react";
-import { mainButtonTheme } from "../config/themes";
-import PasswordField from "../fragments/PasswordField";
-import TextField from "../fragments/TextField";
+import { mainButtonTheme } from "~config/themes";
+import PasswordField from "~fragments/PasswordField";
+import TextField from "~fragments/TextField";
 import { useAuth } from "~config/AuthContext";
 function Register() {
   const { registerUser } = useAuth();
