@@ -9,7 +9,7 @@ import { defaultTextTheme } from "~config/themes";
 import LandMarkers from "./LandMarkers";
 import { useMap } from "~config/MapsContext";
 import MapList from "./MapList";
-import MapSiteOverview from "./MapSIteOverview";
+import MapSiteOverview from "./MapSiteOverview";
 function MapLocation() {
   const {
     queryResults,
