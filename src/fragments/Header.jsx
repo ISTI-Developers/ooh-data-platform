@@ -4,7 +4,7 @@ import { Link, useLocation, NavLink } from "react-router-dom";
 import logo from "~assets/scmi.png";
 import PropTypes from "prop-types";
 import { navbarTheme } from "~config/themes";
-import { useAuth } from "~config/authContext";
+import { useAuth } from "~config/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 
 function Header() {

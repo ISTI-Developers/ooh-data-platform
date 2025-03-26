@@ -18,7 +18,7 @@ import Register from "~pages/Register";
 import Header from "~fragments/Header";
 import ForgotPassword from "~pages/ForgotPassword";
 import PasswordRecovery from "~pages/PasswordRecovery";
-import { AuthProvider, useAuth } from "~config/authContext";
+import { AuthProvider, useAuth } from "~config/AuthContext";
 import ReportDecks from "~pages/ReportDecks";
 import { ReportProvider } from "~config/ReportContext";
 import MapProvider from "~config/MapsContext";
