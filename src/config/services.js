@@ -5,7 +5,8 @@ import Cookies from "js-cookie";
 
 const retrievePlanning = async (get, options = null) => {
   try {
-    // console.log(JSON.stringify(options));
+    if (!Cookies.get("token")) return;
+
     const response = await axios.get(url.planning, {
       params: {
         get: get,
@@ -22,9 +23,9 @@ const retrievePlanning = async (get, options = null) => {
     console.log(e);
   }
 };
-
 const retrieveSite = async (id) => {
   try {
+    if (!Cookies.get("token")) return;
     return await fetchSiteInformation(id);
   } catch (e) {
     console.log(e);
@@ -32,6 +33,7 @@ const retrieveSite = async (id) => {
 };
 const retrieveSiteAnalytics = async (id, option) => {
   try {
+    if (!Cookies.get("token")) return;
     return await fetchSiteInformation(id, option);
   } catch (e) {
     if (e) {
@@ -42,6 +44,8 @@ const retrieveSiteAnalytics = async (id, option) => {
 };
 const retrieveSites = async (type = null) => {
   try {
+    if (!Cookies.get("token")) return;
+
     const response = await axios.get(url.sites, {
       params: {
         type: type,
@@ -60,6 +64,8 @@ const retrieveSites = async (type = null) => {
   }
 };
 const retrieveAvailableSites = async () => {
+  if (!Cookies.get("token")) return;
+
   try {
     const response = await axios.get(url.sites + "/available", {
       headers: {
@@ -76,6 +82,8 @@ const retrieveAvailableSites = async () => {
   }
 };
 const retrieveSitesCount = async () => {
+  if (!Cookies.get("token")) return;
+
   try {
     const response = await axios.get(url.sites, {
       params: {
@@ -129,6 +137,8 @@ const retrieveSitesBehaviors = async (data) => {
   }
 };
 const retrieveLandmarks = async () => {
+  if (!Cookies.get("token")) return;
+
   try {
     const response = await axios.get(url.landmarks, {
       headers: {
@@ -172,6 +182,8 @@ const retrieveAreas = async () => {
   }
 };
 const retrieveAdditionalSiteDetails = async () => {
+  if (!Cookies.get("token")) return;
+
   try {
     const response = await axios.get(url.sites + "/unis", {
       headers: {

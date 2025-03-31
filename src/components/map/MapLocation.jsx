@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
-import { useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import Markers from "./Markers";
 import { Label, TextInput } from "flowbite-react";
 
@@ -9,7 +9,8 @@ import { defaultTextTheme } from "~config/themes";
 import LandMarkers from "./LandMarkers";
 import { useMap } from "~config/MapsContext";
 import MapList from "./MapList";
-import MapSiteOverview from "./MapSiteOverview";
+
+const MapSiteOverview = lazy(() => import("./MapSiteOverview"));
 function MapLocation() {
   const {
     queryResults,
@@ -94,7 +95,9 @@ function MapLocation() {
               <Markers center={center} setCenter={setCenter} />
               {visibleLandmarks && <LandMarkers />}
             </Map>
-            <MapSiteOverview />
+            <Suspense fallback={<>Loading...</>}>
+              <MapSiteOverview />
+            </Suspense>
           </div>
         </APIProvider>
       </div>

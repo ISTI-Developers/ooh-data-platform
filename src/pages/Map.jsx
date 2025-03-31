@@ -3,27 +3,30 @@ import MapLocation from "~components/map/MapLocation";
 import BillboardGraph from "~components/map/BillboardGraph";
 import { useEffect, useState } from "react";
 import { useService } from "~config/services";
-// import MapProvider from "~config/MapsContext";
+import Cookies from "js-cookie";
 
 function Map() {
   const [billboards, setBillboards] = useState(null);
   const { retrieveSitesCount } = useService();
+  const loggedIn = Cookies.get("token");
 
   useEffect(() => {
-    const setup = async () => {
-      const data = await retrieveSitesCount();
-      // console.log(data);
-      setBillboards(
-        data.map((item) => ({
-          ...item,
-          digital: parseInt(item.digital),
-          classic: parseInt(item.classic),
-          banner: parseInt(item.banner),
-        }))
-      );
-    };
-    setup();
-  }, []);
+    if (loggedIn) {
+      const setup = async () => {
+        const data = await retrieveSitesCount();
+        // console.log(data);
+        setBillboards(
+          data.map((item) => ({
+            ...item,
+            digital: parseInt(item.digital),
+            classic: parseInt(item.classic),
+            banner: parseInt(item.banner),
+          }))
+        );
+      };
+      setup();
+    }
+  }, [loggedIn]);
   return (
     billboards && (
       <>

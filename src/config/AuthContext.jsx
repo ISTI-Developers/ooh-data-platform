@@ -21,7 +21,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [roleID, setRoleID] = useState(null);
-  const [modules, setModules] = useState([]);
   const [alert, setAlert] = useState({
     isOn: false,
     type: "info",
@@ -107,9 +106,9 @@ export function AuthProvider({ children }) {
     Cookies.remove("user", { domain: domain });
     Cookies.remove("role", { domain: domain });
     Cookies.remove("siteCache", { domain: domain });
+    Cookies.remove("token", { domain: domain });
     setUser(null);
     setRole(null);
-    console.log(Cookies.get("user"), Cookies.get("role"));
     navigate("/login");
   };
   const verifyEmail = async (email) => {
