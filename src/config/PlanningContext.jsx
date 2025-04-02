@@ -12,7 +12,7 @@ export function usePlanning() {
 export function PlanningProvider({ children }) {
   const [dates, setDates] = useState({
     // from: new Date().setDate(new Date().getDate() - 30),
-    from: new Date("11-01-2023"),
+    from: new Date("11-01-2024"),
     to: new Date(),
   });
   const [profiles, setProfiles] = useState([]); //selected profiles
@@ -88,6 +88,7 @@ export function PlanningProvider({ children }) {
         },
       };
       const response = await retrievePlanning("areas", options);
+      console.log(response)
       setSiteResults(response);
     };
     setup();

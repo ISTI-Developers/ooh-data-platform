@@ -43,37 +43,11 @@ function PlanningTable({ filter }) {
     }
 
     return groupedData;
-    // console.log(siteData);
-    // const groupedData = siteData.reduce((result, current) => {
-    //   const areaKey = current.area;
-    //   if (!result[areaKey]) {
-    //     result[areaKey] = {
-    //       area: areaKey,
-    //       siteCount: 0,
-    //       region: current.region,
-    //       fits_no: 0,
-    //       fits_rate: 0,
-    //       avg_monthly_impressions: 0,
-    //     };
-    //   }
-
-    //   // Summing up values
-    //   result[areaKey].siteCount++;
-    //   result[areaKey].fits_no += current.fits_no;
-    //   result[areaKey].fits_rate += current.fits_rate;
-    //   result[areaKey].avg_monthly_impressions +=
-    //     current.avg_monthly_impressions;
-
-    //   return result;
-    // }, {});
-
-    // return Object.values(groupedData);
   };
 
   useEffect(() => {
     const setup = async () => {
       if (siteResults) {
-        // const siteData = [...Object.values(siteResults) /*, ...filterSites()*/];
         const siteData = siteResults;
 
         setSites(
@@ -91,8 +65,17 @@ function PlanningTable({ filter }) {
   return (
     sites && (
       <>
-        <Table className="bg-white rounded-md ">
-          <Table.Head className="shadow-md">
+        <Table
+          className="bg-white rounded-md"
+          theme={{
+            head: {
+              cell: {
+                base: "bg-gray-100 px-4 py-3 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700",
+              },
+            },
+          }}
+        >
+          <Table.Head className="">
             {headers.map((header, index) => {
               return (
                 <Table.HeadCell

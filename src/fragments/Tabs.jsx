@@ -10,7 +10,7 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
   const tabList = useRef(null);
   const { toSpaced } = useFunction();
   return (
-    <div className="relative p-1">
+    <div className="relative">
       <header
         ref={tabList}
         className="group flex overflow-x-auto border-b-2 scrollbar-none p-2 gap-2 snap-x snap-mandatory scroll-px-2 scroll-smooth"
@@ -20,7 +20,7 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
             <Button
               key={index}
               className={classNames(
-                "ring-0 focus:ring-0 whitespace-nowrap uppercase snap-start hover:text-secondary ",
+                "ring-0 focus:ring-0 whitespace-nowrap uppercase snap-start hover:text-secondary",
                 activeTab === category && "text-secondary-hover"
               )}
               size="xs"
@@ -36,7 +36,7 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
           <>
             <button
               className={classNames(
-                "absolute top-[24px] left-0 h-full -translate-y-1/2 transition-all bg-gradient-to-r from-white from-50% to-transparent px-2 outline-none"
+                "absolute top-[24px] left-0 h-10 -translate-y-1/2 transition-all bg-gradient-to-r from-white from-75% to-transparent px-2 outline-none"
               )}
               onClick={() => {
                 if (tabList.current) {
@@ -48,7 +48,7 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
             </button>
             <button
               className={classNames(
-                "absolute top-[24px] right-0 -translate-y-1/2 transition-all bg-gradient-to-l from-white from-50% to-transparent px-2 outline-none"
+                "absolute top-[24px] right-0 h-10 -translate-y-1/2 transition-all bg-gradient-to-l from-white from-75% to-transparent px-2 outline-none"
               )}
               onClick={() => {
                 if (tabList.current) {
@@ -61,7 +61,7 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
           </>
         )}
       </header>
-      <main className="p-1">{content}</main>
+      <main>{content}</main>
     </div>
   );
 }

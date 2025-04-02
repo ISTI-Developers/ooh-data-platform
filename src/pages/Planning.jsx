@@ -83,10 +83,10 @@ function Planning() {
               <div className="relative flex gap-4">
                 <div className="w-[75%] flex flex-col gap-4">
                   <div className="flex flex-row items-start gap-4">
-                    <div className="bg-white w-2/5 min-h-[425px] max-h-[425px] overflow-y-auto shadow">
+                    <div className="bg-white w-2/5 min-h-[450px] max-h-[450px] overflow-y-auto shadow-md rounded-lg">
                       <ProfileFilterList />
                     </div>
-                    <div className="bg-white w-3/5 min-h-[425px] max-h-[425px] overflow-y-auto shadow">
+                    <div className="bg-white w-3/5 min-h-[450px] max-h-[450px] overflow-y-auto shadow-md rounded-lg">
                       <AreaSelectionList allowedMultiple={allowedMultiple} />
                     </div>
                   </div>
@@ -170,6 +170,7 @@ function Planning() {
       </>
     );
   }
+
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);

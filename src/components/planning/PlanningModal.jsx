@@ -19,7 +19,7 @@ function PlanningModal({
         content: { base: "relative h-auto w-full p-4 animate-fade" },
         body: { base: "p-2" },
         footer: {
-          base: "flex items-center justify-end space-x-2 rounded-b border-gray-200 p-4 dark:border-gray-600",
+          base: "flex items-center justify-end space-x-2 border-gray-200 p-4 dark:border-gray-600",
         },
       }}
       onClose={() => {
