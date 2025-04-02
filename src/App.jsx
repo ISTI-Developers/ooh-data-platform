@@ -33,7 +33,9 @@ function App() {
         <AuthProvider>
           <ReportProvider>
             <CampaignProvider>
-              <Header />
+              <nav className="shadow-md border-b-2">
+                <Header />
+              </nav>
               <AppRoutes />
             </CampaignProvider>
           </ReportProvider>
