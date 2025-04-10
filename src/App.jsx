@@ -20,7 +20,6 @@ import ForgotPassword from "~pages/ForgotPassword";
 import PasswordRecovery from "~pages/PasswordRecovery";
 import { AuthProvider, useAuth } from "~config/AuthContext";
 import ReportDecks from "~pages/ReportDecks";
-import { ReportProvider } from "~config/ReportContext";
 import MapProvider from "~config/MapsContext";
 import Reports from "~pages/Reports";
 import { CampaignProvider } from "~config/Campaigns";
@@ -31,14 +30,12 @@ function App() {
     <>
       <Router>
         <AuthProvider>
-          <ReportProvider>
-            <CampaignProvider>
+          <CampaignProvider>
               <nav className="shadow-md border-b-2">
                 <Header />
               </nav>
               <AppRoutes />
-            </CampaignProvider>
-          </ReportProvider>
+          </CampaignProvider>
         </AuthProvider>
       </Router>
     </>

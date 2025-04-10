@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Table } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "~fragments/Loader";
 import {
@@ -12,8 +12,7 @@ import { useFunction } from "~config/functions";
 import { usePlanning } from "~config/PlanningContext";
 
 function Results() {
-  const { profiles, areas, siteResults } = usePlanning();
-  const [sites, setSites] = useState(null);
+  const { profiles, areas, siteResults, impressions } = usePlanning();
   const [sort, setSort] = useState("# fits profile");
   const [order, setOrder] = useState(false);
   const { toUnderscored } = useFunction();
@@ -25,52 +24,58 @@ function Results() {
     "% fits profile",
     "site owner",
   ];
-  useEffect(() => {
-    const setup = async () => {
-      if ((profiles === null || profiles?.length === 0) && areas.length === 0) {
-        setSites([]);
-        return;
+
+  const results = useMemo(() => {
+    if ((profiles === null || profiles?.length === 0) && areas.length === 0) {
+      return [];
+    }
+    console.log(profiles, areas);
+    const siteData = Object.values(siteResults).flatMap((item) => item);
+
+    let filteredSites = siteData;
+
+    if (areas.length > 0) {
+      filteredSites = siteData.filter((site) =>
+        areas.some((area) => area.city === site.mmda)
+      );
+    }
+
+    const sitesWithFITs = filteredSites.map((site) => {
+      const areaImpression = impressions.find((imp) => imp.area === site.area);
+      const siteImpression = Math.round(areaImpression?.avg ?? 0);
+      const fitsNo = Math.round((site.fits_rate * siteImpression) / 100);
+
+      return {
+        ...site,
+        fits_no: fitsNo,
+        avg_monthly_impressions: siteImpression,
+      };
+    });
+
+    return sitesWithFITs.sort((area1, area2) => {
+      const sortOption =
+        sort === "# fits profile"
+          ? "fits_no"
+          : sort === "% fits profile"
+          ? "fits_rate"
+          : sort;
+      const value1 = area1[sortOption];
+      const value2 = area2[sortOption];
+
+      // Determine sorting order based on the 'order' variable
+      const sortOrder = order ? 1 : -1;
+
+      // Check if the values are numbers
+      if (typeof value1 === "number" && typeof value2 === "number") {
+        return (value1 - value2) * sortOrder; // Adjust order for numbers
       }
 
-      if (siteResults) {
-        const siteData = Object.values(siteResults).flatMap((item) => item);
+      // Use localeCompare for strings
+      return String(value1).localeCompare(String(value2)) * sortOrder;
+    });
+  }, [profiles, areas, siteResults, impressions, sort, order]);
 
-        setSites([
-          ...siteData
-            .filter((data) =>
-              areas.length > 0
-                ? areas.some((result) => result.city === data.city)
-                : true
-            )
-            .sort((area1, area2) => {
-              const sortOption =
-                sort === "# fits profile"
-                  ? "fits_no"
-                  : sort === "% fits profile"
-                  ? "fits_rate"
-                  : sort;
-              const value1 = area1[sortOption];
-              const value2 = area2[sortOption];
-
-              // Determine sorting order based on the 'order' variable
-              const sortOrder = order ? 1 : -1;
-
-              // Check if the values are numbers
-              if (typeof value1 === "number" && typeof value2 === "number") {
-                return (value1 - value2) * sortOrder; // Adjust order for numbers
-              }
-
-              // Use localeCompare for strings
-              return String(value1).localeCompare(String(value2)) * sortOrder;
-            }),
-        ]);
-      }
-    };
-
-    setup();
-  }, [areas, order, profiles, siteResults, sort]);
-
-  return sites !== null ? (
+  return results !== null ? (
     <div className="overflow-x-auto h-full max-h-[92vh]">
       <Table className="bg-white rounded-md w-full">
         <Table.Head className="shadow-md sticky top-0">
@@ -118,22 +123,22 @@ function Results() {
           })}
         </Table.Head>
         <Table.Body>
-          {sites.length !== 0 ? (
-            sites.map((item, index) => {
-              // console.log(item);
+          {results.length !== 0 ? (
+            results.map((item, index) => {
+              console.log(item)
               return (
                 <Table.Row
                   key={index}
                   className="hover:bg-slate-200 transition-all cursor-pointer"
                   onClick={() => {
-                    localStorage.setItem("location", item.site);
-                    navigate(`/audiences/${toUnderscored(item.site)}`);
+                    localStorage.setItem("location", item.site_code);
+                    navigate(`/audiences/${toUnderscored(item.site_code)}`);
                   }}
                 >
                   <Table.Cell>
                     <p className="flex flex-col text-main whitespace-nowrap">
                       <span className="font-semibold text-lg ">
-                        {item.site}
+                        {item.site_code}
                       </span>
                       <span>
                         Avg Monthly Impressions: {item.avg_monthly_impressions}

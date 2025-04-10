@@ -14,6 +14,7 @@ export const devEndpoints = {
   planning: server + "/dashboard/planning",
   sites: server + "/dashboard/sites",
   behaviors: server + "/dashboard/behaviors",
+  impressions: server + "/dashboard/impressions",
   landmarks: server + "/dashboard/landmarks",
   siteImages: server + "/dashboard/site_images",
 };

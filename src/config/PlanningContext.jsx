@@ -1,8 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useService } from "./services";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { useFunction } from "./functions";
+import axios from "axios";
+import { devEndpoints as url } from "./endpoints";
+import Cookies from "js-cookie";
 const PlanningContext = React.createContext();
 
 export function usePlanning() {
@@ -12,7 +15,7 @@ export function usePlanning() {
 export function PlanningProvider({ children }) {
   const [dates, setDates] = useState({
     // from: new Date().setDate(new Date().getDate() - 30),
-    from: new Date("11-01-2024"),
+    from: new Date("01-01-2025"),
     to: new Date(),
   });
   const [profiles, setProfiles] = useState([]); //selected profiles
@@ -20,6 +23,7 @@ export function PlanningProvider({ children }) {
   const [profile, setProfile] = useState(null); //specific profile
   const [siteResults, setSiteResults] = useState(null);
   const [allowedMultiple, toggleMultiple] = useState([]);
+  const [impressions, setImpressions] = useState(null);
   const { toUnderscored } = useFunction();
   const { retrievePlanning } = useService();
 
@@ -51,6 +55,29 @@ export function PlanningProvider({ children }) {
         )
     );
   };
+  const getImpressions = async (dates) => {
+    try {
+      const response = await axios.get(url.impressions + `?dates=${JSON.stringify(dates)}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      });
+      if (response.data) {
+        return response.data;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    const setup = async () => {
+      const response = await getImpressions(dates);
+      setImpressions(response);
+    };
+    setup();
+  }, [dates]);
 
   useEffect(() => {
     const groupFilters = () => {
@@ -88,7 +115,6 @@ export function PlanningProvider({ children }) {
         },
       };
       const response = await retrievePlanning("areas", options);
-      console.log(response)
       setSiteResults(response);
     };
     setup();
@@ -113,6 +139,7 @@ export function PlanningProvider({ children }) {
     toggleMultiple,
     addDemographics,
     findDemographics,
+    impressions,
   };
 
   return (
