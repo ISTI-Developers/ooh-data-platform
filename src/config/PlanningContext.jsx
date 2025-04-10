@@ -120,11 +120,6 @@ export function PlanningProvider({ children }) {
     setup();
   }, [profiles, dates, allowedMultiple]);
 
-  // useEffect(() => {
-  //   const profileCookie = Cookies.get("profiles");
-
-  //     Cookies.set("profiles", JSON.stringify(profiles));
-  // }, [profiles]);
   const value = {
     areas,
     dates,

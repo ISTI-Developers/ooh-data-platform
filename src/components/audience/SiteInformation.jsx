@@ -53,6 +53,7 @@ function SiteInformation() {
     const setup = async () => {
       setSiteData(null);
       const data = await retrieveSite(id);
+      console.log(data);
       if (data) {
         setSiteData(data);
       }

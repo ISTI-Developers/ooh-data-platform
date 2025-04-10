@@ -4,7 +4,7 @@ import Title from "~fragments/Title";
 import { useEffect, useState } from "react";
 import { lightButtonTheme, toggleSwitch } from "~config/themes";
 import classNames from "classnames";
-import { MdChecklist } from "react-icons/md";
+import { MdChecklist, MdDelete } from "react-icons/md";
 import PlanningModal from "~components/planning/PlanningModal";
 import AreaSelectionList from "~components/planning/AreaSelectionList";
 import ProfileFilterList from "~components/planning/ProfileFilterList";
@@ -94,7 +94,7 @@ function Planning() {
                   <Results />
                 </div>
                 <div className="w-[25%] h-full flex flex-col gap-4 sticky top-4">
-                  <div className="bg-white w-full shadow p-2 hidden lg:flex flex-col gap-4">
+                  <div className="bg-white w-full shadow-md p-2 py-4 hidden lg:flex flex-col gap-1 rounded-lg">
                     <Header
                       filter={profiles}
                       setFilter={setProfiles}
@@ -102,7 +102,7 @@ function Planning() {
                     />
                     <ProfileFilterBody {...{ profiles, setProfiles }} />
                   </div>
-                  <div className="bg-white w-full shadow p-2 hidden lg:flex flex-col gap-4">
+                  <div className="bg-white w-full shadow-md p-2 py-4 hidden lg:flex flex-col rounded-lg">
                     <Header
                       filter={areas}
                       setFilter={setAreas}
@@ -205,38 +205,35 @@ const SelectedAreasBody = ({ areas, setAreas }) => {
     <>
       {areas?.length > 0 ? (
         <>
-          <ul className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+          <ul className="p-2 lg:py-0 max-h-[300px] overflow-y-auto flex flex-col gap-2">
             {areas.map((item, index) => {
               return (
                 <li
                   key={index}
-                  className="relative group flex transition-all flex-col p-2 px-4 border-b-2 hover:bg-slate-100"
+                  className="flex transition-all items-center justify-between p-2 px-4 bg-slate-50 rounded-lg"
                 >
-                  <p className="font-semibold text-sm ">{item.city}</p>
-                  <p className="text-xs">{item.region}</p>
-                  <div className="absolute top-0 right-0 h-full w-1/4 flex items-center justify-end bg-gradient-to-l from-white from-90% to-[#ffffff00] transition-all ">
-                    <button
-                      className={classNames(
-                        "mr-4 p-1 px-2.5 text-sm border-2 border-red-400 text-red-600 hover:bg-red-300 rounded-md bg-white",
-                        "transition-all"
-                      )}
-                      onClick={() => {
-                        const updatedAreas = [...areas];
-                        updatedAreas.splice(areas.indexOf(item), 1);
+                  <p className="font-semibold text-sm">{item.city}</p>
+                  <button
+                    className={classNames(
+                      "p-1 px-2.5 text-xs border-2 border-red-400 text-red-600 hover:bg-red-300 rounded-md",
+                      "transition-all"
+                    )}
+                    onClick={() => {
+                      const updatedAreas = [...areas];
+                      updatedAreas.splice(areas.indexOf(item), 1);
 
-                        setAreas(updatedAreas);
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
+                      setAreas(updatedAreas);
+                    }}
+                  >
+                    <MdDelete />
+                  </button>
                 </li>
               );
             })}
           </ul>
         </>
       ) : (
-        <p className="w-full text-center font-semibold text-slate-400 p-6 min-h-[calc(195px-3rem)]">
+        <p className="w-full text-center font-semibold text-slate-400 p-6">
           No areas selected.
         </p>
       )}
@@ -249,7 +246,7 @@ const Header = ({ filter, headerName, setFilter }) => {
       <p className="font-semibold text-main text-lg flex gap-1 px-2 items-center justify-center lg:text-sm">
         {headerName}
         {filter && filter.length > 0 && (
-          <span className="hidden min-h-6  min-w-6 lg:flex items-center justify-center bg-secondary text-white text-xs rounded-full">
+          <span className="hidden min-h-5 min-w-5 lg:flex items-center justify-center bg-secondary text-white text-xs rounded-full">
             {filter.length}
           </span>
         )}
@@ -280,7 +277,7 @@ const ProfileFilterBody = ({ profiles, setProfiles }) => {
             {[...new Set(profiles.map((keys) => keys.question))].map(
               (head, index) => {
                 return (
-                  <li key={index} className="border-b-2">
+                  <li key={index} className="space-y-2">
                     <header className="text-sm font-semibold">
                       {capitalize(head, "_")}
                     </header>
@@ -290,26 +287,24 @@ const ProfileFilterBody = ({ profiles, setProfiles }) => {
                         .map((item) => (
                           <li
                             key={item.key}
-                            className="relative group flex transition-all flex-col p-2 px-4 hover:bg-slate-100"
+                            className="flex transition-all items-center justify-between p-2 px-4 bg-slate-50 rounded-lg"
                           >
                             <p className="font-semibold text-sm text-slate-600">
                               {capitalize(item.key)}
                             </p>
-                            <div className="absolute top-0 right-0 h-full w-1/4 flex items-center justify-end bg-gradient-to-l from-white from-55% to-[#ffffff00] transition-all ">
-                              <button
-                                className={classNames(
-                                  "mr-4 p-1 px-2.5 text-xs border-2 border-red-400 text-red-600 hover:bg-red-300 rounded-md",
-                                  "transition-all"
-                                )}
-                                onClick={() => {
-                                  const filters = [...profiles];
-                                  filters.splice(filters.indexOf(item), 1);
-                                  setProfiles(filters);
-                                }}
-                              >
-                                Remove
-                              </button>
-                            </div>
+                            <button
+                              className={classNames(
+                                "p-1 px-2.5 text-xs border-2 border-red-400 text-red-600 hover:bg-red-300 rounded-md",
+                                "transition-all"
+                              )}
+                              onClick={() => {
+                                const filters = [...profiles];
+                                filters.splice(filters.indexOf(item), 1);
+                                setProfiles(filters);
+                              }}
+                            >
+                              <MdDelete />
+                            </button>
                           </li>
                         ))}
                     </ul>
@@ -320,7 +315,7 @@ const ProfileFilterBody = ({ profiles, setProfiles }) => {
           </ul>
         </>
       ) : (
-        <p className="w-full text-center font-semibold text-slate-400 p-6 min-h-[calc(190px-2rem)]">
+        <p className="w-full text-center font-semibold text-slate-400 p-6 flex items-center justify-center text-sm">
           No profiles selected. Create your profile now!
         </p>
       )}

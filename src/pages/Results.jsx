@@ -26,10 +26,12 @@ function Results() {
   ];
 
   const results = useMemo(() => {
-    if ((profiles === null || profiles?.length === 0) && areas.length === 0) {
+    if (
+      ((profiles === null || profiles?.length === 0) && areas.length === 0) ||
+      !siteResults
+    ) {
       return [];
     }
-    console.log(profiles, areas);
     const siteData = Object.values(siteResults).flatMap((item) => item);
 
     let filteredSites = siteData;
@@ -76,7 +78,7 @@ function Results() {
   }, [profiles, areas, siteResults, impressions, sort, order]);
 
   return results !== null ? (
-    <div className="overflow-x-auto h-full max-h-[92vh]">
+    <div className="overflow-x-auto h-full max-h-[92vh] rounded-lg shadow-md">
       <Table className="bg-white rounded-md w-full">
         <Table.Head className="shadow-md sticky top-0">
           {headers.map((header, index) => {
@@ -125,7 +127,6 @@ function Results() {
         <Table.Body>
           {results.length !== 0 ? (
             results.map((item, index) => {
-              console.log(item)
               return (
                 <Table.Row
                   key={index}
