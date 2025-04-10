@@ -27,11 +27,11 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Deploy via FTP
+      - name: Deploy via FTP on /home/dh_8qdac2/ooh.scmiph.com/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: dist/
-          server-dir: /home/dh_8qdac2/ooh.scmiph.com/
+          server-dir: /ooh.scmiph.com/
