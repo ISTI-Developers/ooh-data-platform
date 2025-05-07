@@ -96,38 +96,34 @@ const StationAssets = ({ onBackStations }) => {
           </div>
         </div>
       )} */}
-      <div className="flex justify-between">
-        <div className="flex container">
-          <Template
-            key={currentStation.station_id}
-            station_id={currentStation.station_id}
-            station_name={currentStation?.station_name || "Sample Station"}
-            backLitsSB={currentStation.backlits?.filter((b) => b.asset_distinction.startsWith("SB")) || []}
-            backLitsNB={currentStation.backlits?.filter((b) => b.asset_distinction.startsWith("NB")) || []}
-            parapetSB={currentStation.parapets?.filter((p) => p.asset_distinction.startsWith("SB")) || []}
-            parapetNB={currentStation.parapets?.filter((p) => p.asset_distinction.startsWith("NB")) || []}
-            SBentryExitButton={currentStation.south_ee || []}
-            NBentryExitButton={currentStation.north_ee || []}
-            southBound={currentStation.next_south_station || ""}
-            northBound={currentStation.next_north_station || ""}
-            handleSouthClick={handlePreviousStation}
-            handleNorthClick={handleNextStation}
-          />
-        </div>
+      <Template
+        key={currentStation.station_id}
+        station_id={currentStation.station_id}
+        station_name={currentStation?.station_name || "Sample Station"}
+        backLitsSB={currentStation.backlits?.filter((b) => b.asset_distinction.startsWith("SB")) || []}
+        backLitsNB={currentStation.backlits?.filter((b) => b.asset_distinction.startsWith("NB")) || []}
+        parapetSB={currentStation.parapets?.filter((p) => p.asset_distinction.startsWith("SB")) || []}
+        parapetNB={currentStation.parapets?.filter((p) => p.asset_distinction.startsWith("NB")) || []}
+        SBentryExitButton={currentStation.south_ee || []}
+        NBentryExitButton={currentStation.north_ee || []}
+        southBound={currentStation.next_south_station || ""}
+        northBound={currentStation.next_north_station || ""}
+        handleSouthClick={handlePreviousStation}
+        handleNorthClick={handleNextStation}
+      />
 
-        {currentStation.details?.length > 0 && (
-          <div className="flex flex-col">
-            {currentStation.details[0]?.details?.map((detail, index) => (
-              <AssetDetailCard
-                key={index}
-                station_id={currentStation.station_id}
-                station_name={currentStation.station_name}
-                detail={detail}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {currentStation.details?.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {currentStation.details[0]?.details?.map((detail, index) => (
+            <AssetDetailCard
+              key={index}
+              station_id={currentStation.station_id}
+              station_name={currentStation.station_name}
+              detail={detail}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

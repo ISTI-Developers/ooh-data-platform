@@ -6,12 +6,16 @@ import { IoMdMenu } from "react-icons/io";
 import { useFunction } from "~config/functions";
 import { accordion } from "~config/themes";
 import { useStations } from "~config/LRTContext";
-import pillar from "~assets/pillar.png";
+// import pillar from "~assets/pillar.png";
 
 function PillarMapList({ updateMapCenter }) {
-  const { queryResults, setSelectedPillar } = useStations();
+  const { queryResults, setSelectedPillar, queryAssetContracts } = useStations();
   const { offsetCoordinate } = useFunction();
   const [showLocations, toggleLocations] = useState(false);
+
+  const contractedPillar = queryAssetContracts
+    .filter((cp) => cp.pillar_id !== null && cp.pillar_id !== undefined)
+    .map((cp) => cp.pillar_id);
 
   return (
     queryResults && (
@@ -32,6 +36,7 @@ function PillarMapList({ updateMapCenter }) {
                       .filter((item) => item.asset_direction.toLowerCase() === type)
                       .map((boards, index) => {
                         const { viaduct_name, asset_type, latitude, longitude, asset_direction } = boards;
+                        const isBooked = contractedPillar.includes(boards.id);
                         return (
                           <li
                             key={asset_type + index}
@@ -42,12 +47,17 @@ function PillarMapList({ updateMapCenter }) {
                               setSelectedPillar(boards);
                             }}
                           >
-                            <img src={pillar} className="max-w-10" />
+                            <div
+                              className={classNames(
+                                "w-10 h-5",
+                                boards.asset_direction?.toLowerCase()?.includes("south bound")
+                                  ? `rounded-b-full ${isBooked ? "bg-black" : "bg-red-500"}`
+                                  : `rounded-t-full ${isBooked ? "bg-black" : "bg-green-500"}`
+                              )}
+                            />
                             <div>
                               <p className="text-xs font-semibold">{viaduct_name}</p>
-                              <p className="text-[0.5rem] text-gray-500">
-                                {asset_direction ?? `${boards.city}, ${boards.region}`}
-                              </p>
+                              <p className="text-[0.5rem] text-gray-500">{asset_direction}</p>
                             </div>
                           </li>
                         );

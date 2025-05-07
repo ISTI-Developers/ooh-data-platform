@@ -29,9 +29,29 @@ const ExternalAssets = ({ onBackExternal }) => {
   return (
     <div className="container p-6">
       <div className="flex justify-between mb-4">
-        <div className="flex">
-          <Button onClick={() => setIsViaduct(true)}>Viaduct</Button>
-          <Button onClick={() => setIsViaduct(false)}>Pillar</Button>
+        <div className="flex space-x-2">
+          <Button
+            color="none"
+            onClick={() => setIsViaduct(true)}
+            className={`rounded-full px-4 ${
+              isViaduct
+                ? "bg-green-500 text-white"
+                : "border border-green-500 text-green-500 bg-transparent hover:bg-green-100"
+            }`}
+          >
+            Viaduct
+          </Button>
+          <Button
+            color="none"
+            onClick={() => setIsViaduct(false)}
+            className={`rounded-full px-4 ${
+              !isViaduct
+                ? "bg-green-500 text-white"
+                : "border border-green-500 text-green-500 bg-transparent hover:bg-green-100"
+            }`}
+          >
+            Pillar
+          </Button>
         </div>
         <button onClick={onBackExternal} className="flex items-center px-4 py-2 rounded hover:bg-gray-400">
           <FaArrowLeft />
