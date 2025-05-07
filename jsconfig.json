@@ -22,6 +22,18 @@
       ],
       "~reports/*": [
         "src/components/reports/*"
+      ],
+      "~Utasi/*": [
+        "src/pages/Utasi/*"
+      ],
+      "~buttons/*": [
+        "src/components/buttons/*"
+      ],
+      "~misc/*": [
+        "src/misc/*"
+      ],
+      "~pillarMap/*": [
+        "src/components/pillarMap/*"
       ]
     }
   }
