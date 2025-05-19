@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-  Outlet,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Outlet, Navigate } from "react-router-dom";
 import classNames from "classnames";
 import { Alert } from "flowbite-react";
 import { RiInformationFill } from "react-icons/ri";
@@ -24,7 +17,8 @@ import MapProvider from "~config/MapsContext";
 import Reports from "~pages/Reports";
 import { CampaignProvider } from "~config/Campaigns";
 import { ReportProvider } from "~config/ReportContext";
-
+import LandingPage from "~pages/Utasi/LandingPage";
+import { StationProvider } from "~config/LRTContext";
 // Main App Component
 function App() {
   return (
@@ -46,14 +40,14 @@ function App() {
 // AppRoutes Component handles top-level routing and layout
 function AppRoutes() {
   const location = useLocation();
-  const { alert, setAlert, CheckPermission, role, retrieveRoleModules } =
-    useAuth();
+  const { alert, setAlert, CheckPermission, role, retrieveRoleModules } = useAuth();
   const componentMap = {
     planning: Planning,
     maps: Map,
     audiences: Audience,
     reports: ReportDecks,
     campaigns: Reports,
+    utasi_lrt: LandingPage,
   };
 
   const [modules, setModules] = useState(null);
@@ -120,35 +114,32 @@ function AppRoutes() {
       )}
       <MapProvider>
         <ReportProvider>
+          <StationProvider>
           <Routes>
-            <Route element={<ProtectedRoutes />}>
-              {moduleList &&
-                moduleList.map((module, index) => {
-                  const route = module.name.toLowerCase();
-                  const Component = componentMap[route];
+              <Route element={<ProtectedRoutes />}>
+                {moduleList &&
+                  moduleList.map((module, index) => {
+                    const route = module.name.toLowerCase();
+                    const Component = componentMap[route];
 
-                  return CheckPermission({
-                    path: route,
-                    children: (
-                      <Route
-                        key={module.module_id}
-                        path={index === 0 ? `/` : `/${route}/*`}
-                        element={<Component />}
-                      />
-                    ),
-                  });
-                })}
-            </Route>
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password/*" element={<ForgotPassword />} />
-            <Route path="/password-recovery/" element={<EmptyPage />} />
-            <Route
-              path="/password-recovery/:id"
-              element={<PasswordRecovery />}
-            />
-            <Route path="/register" element={<Register />} />
-          </Routes>
-        </ReportProvider>
+                return CheckPermission({
+                  path: route,
+                  children: (
+                    <Route
+                      key={module.module_id}
+                      path={index === 0 ? `/` : `/${route}/*`}
+                      element={<Component />}
+                    />
+                  ),
+                });
+              })}
+          </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password/*" element={<ForgotPassword />} />
+          <Route path="/password-recovery/" element={<EmptyPage />} />
+          <Route path="/password-recovery/:id" element={<PasswordRecovery />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
       </MapProvider>
     </div>
   );
