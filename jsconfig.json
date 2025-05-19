@@ -20,12 +20,6 @@
       "~/*": [
         "src/*"
       ],
-      "~reports/*": [
-        "src/components/reports/*"
-      ],
-      "~Utasi/*": [
-        "src/pages/Utasi/*"
-      ],
       "~buttons/*": [
         "src/components/buttons/*"
       ],
@@ -33,6 +27,14 @@
         "src/misc/*"
       ],
       "~pillarMap/*": [
+        "src/components/pillarMap/*"
+      ],
+      "~Utasi/*": [
+        "src/pages/Utasi/*"
+      ]
+    }
+  }
+}Map/*": [
         "src/components/pillarMap/*"
       ]
     }
