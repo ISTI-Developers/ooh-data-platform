@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation, Outlet, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  Outlet,
+  Navigate,
+} from "react-router-dom";
 import classNames from "classnames";
 import { Alert } from "flowbite-react";
 import { RiInformationFill } from "react-icons/ri";
@@ -40,7 +47,8 @@ function App() {
 // AppRoutes Component handles top-level routing and layout
 function AppRoutes() {
   const location = useLocation();
-  const { alert, setAlert, CheckPermission, role, retrieveRoleModules } = useAuth();
+  const { alert, setAlert, CheckPermission, role, retrieveRoleModules } =
+    useAuth();
   const componentMap = {
     planning: Planning,
     maps: Map,
@@ -115,31 +123,36 @@ function AppRoutes() {
       <MapProvider>
         <ReportProvider>
           <StationProvider>
-          <Routes>
+            <Routes>
               <Route element={<ProtectedRoutes />}>
                 {moduleList &&
                   moduleList.map((module, index) => {
                     const route = module.name.toLowerCase();
                     const Component = componentMap[route];
 
-                return CheckPermission({
-                  path: route,
-                  children: (
-                    <Route
-                      key={module.module_id}
-                      path={index === 0 ? `/` : `/${route}/*`}
-                      element={<Component />}
-                    />
-                  ),
-                });
-              })}
-          </Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password/*" element={<ForgotPassword />} />
-          <Route path="/password-recovery/" element={<EmptyPage />} />
-          <Route path="/password-recovery/:id" element={<PasswordRecovery />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
+                    return CheckPermission({
+                      path: route,
+                      children: (
+                        <Route
+                          key={module.module_id}
+                          path={index === 0 ? `/` : `/${route}/*`}
+                          element={<Component />}
+                        />
+                      ),
+                    });
+                  })}
+              </Route>
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password/*" element={<ForgotPassword />} />
+              <Route path="/password-recovery/" element={<EmptyPage />} />
+              <Route
+                path="/password-recovery/:id"
+                element={<PasswordRecovery />}
+              />
+              <Route path="/register" element={<Register />} />
+            </Routes>
+          </StationProvider>
+        </ReportProvider>
       </MapProvider>
     </div>
   );
