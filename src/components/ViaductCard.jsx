@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 export const ViaductCard = ({ viaduct, onDetailsClick }) => {
   return (
     <div
-      className={`relative bg-white rounded-lg shadow-md p-4 transition-opacity ${
-        viaduct.isBooked ? "opacity-50 pointer-events-none" : "hover:shadow-lg"
+      className={`relative cursor-pointer bg-white rounded-lg shadow-md p-4 transition-opacity ${
+        viaduct.isBooked ? "opacity-50" : "hover:shadow-lg"
       }`}
     >
       {/* "BOOKED" Stamp */}
@@ -15,7 +15,12 @@ export const ViaductCard = ({ viaduct, onDetailsClick }) => {
       )}
 
       {/* Image */}
-      <img className="w-full h-40 rounded-md mb-3 object-cover" src={viaduct.picture} alt="" />
+      <img
+        className="w-full h-40 rounded-md mb-3 object-cover"
+        src={viaduct.picture}
+        alt=""
+        onClick={() => onDetailsClick(viaduct)}
+      />
 
       {/* Viaduct Info */}
       <h3 className="text-lg font-bold">{viaduct.viaduct_name}</h3>
@@ -24,10 +29,8 @@ export const ViaductCard = ({ viaduct, onDetailsClick }) => {
       {/* Details Button (Disabled if booked) */}
       <button
         onClick={() => onDetailsClick(viaduct)}
-        className={`text-blue-500 mt-2 inline-block ${
-          viaduct.isBooked ? "opacity-50 cursor-not-allowed" : "hover:underline"
-        }`}
-        disabled={viaduct.isBooked}
+        className={`text-blue-500 mt-2 inline-block ${viaduct.isBooked ? "opacity-50" : "hover:underline"}`}
+        // disabled={viaduct.isBooked}
       >
         Details →
       </button>

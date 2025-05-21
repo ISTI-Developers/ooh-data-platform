@@ -8,8 +8,6 @@ export const ParapetBookButton = ({
   isDisabled,
   isBlocked,
   isLargeParapet,
-  isPending,
-  isSelected,
   widthLabel,
   heightLabel,
 }) => {
@@ -27,11 +25,10 @@ export const ParapetBookButton = ({
         {/* Button */}
         <button
           onClick={onClick}
-          className={`${isPending ? "bg-yellow-700 hover:bg-yellow-800" : ""}
-          ${isSelected ? "bg-green-400 hover:bg-green-500" : ""} 
+          className={`
           ${isDisabled ? "bg-gray-500 hover:bg-gray-600 cursor-not-allowed" : ""} 
           ${isBlocked ? "bg-custom-gray cursor-not-allowed" : "bg-blue-700 hover:bg-blue-800"} 
-          ${isLargeParapet ? "h-[92px] w-[147px]" : "h-[46px] min-w-[70px] max-w-[100px]"} 
+          ${isLargeParapet ? "h-[5.75rem] w-[7rem]" : "h-[2.875rem] min-w-[3.3rem]"}
           relative overflow-hidden text-white font-bold ${className}`}
         >
           {isBlocked && (
@@ -68,30 +65,30 @@ ParapetBookButton.propTypes = {
   heightLabel: PropTypes.string,
 };
 
-export const BacklitBookButton = ({ onClick, text, className, isDisabled, isSelected }) => {
+export const BacklitBookButton = ({ onClick, text, className, isDisabled }) => {
+  const baseClasses = "h-[3.125rem] w-[12.0625rem] text-white font-bold rounded";
+  const enabledClasses = "bg-pink-700 hover:bg-pink-800";
+  const disabledClasses = "bg-gray-500 hover:bg-gray-600 cursor-not-allowed";
+
   return (
     <button
       onClick={onClick}
-      // disabled={isDisabled}
-      className={`${
-        isSelected ? "bg-green-400 hover:bg-green-500" : "bg-blue-700 hover:bg-blue-800"
-      } h-[50px] w-[257px] text-white font-bold 
-       ${isDisabled ? "bg-gray-500 hover:bg-gray-600 cursor-not-allowed" : ""} ${className}`}
+      className={`${baseClasses} ${isDisabled ? disabledClasses : enabledClasses} ${className}`}
     >
       {text}
     </button>
   );
 };
+
 BacklitBookButton.propTypes = {
   onClick: PropTypes.func,
   text: PropTypes.string,
   className: PropTypes.string,
   isDisabled: PropTypes.bool,
-  isSelected: PropTypes.bool,
 };
 export const EntryExitButton = ({ className, onClick }) => {
   return (
-    <button onClick={onClick} className={`bg-black h-[92px] w-[168px] text-white font-bold ${className}`}>
+    <button onClick={onClick} className={`bg-black h-[5.75rem] w-[10.5rem] text-white font-bold ${className}`}>
       ENTRY/EXIT
     </button>
   );

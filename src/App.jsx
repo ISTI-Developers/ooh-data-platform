@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-  Outlet,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Outlet, Navigate } from "react-router-dom";
 import classNames from "classnames";
 import { Alert } from "flowbite-react";
 import { RiInformationFill } from "react-icons/ri";
@@ -26,6 +19,7 @@ import { CampaignProvider } from "~config/Campaigns";
 import { ReportProvider } from "~config/ReportContext";
 import LandingPage from "~pages/Utasi/LandingPage";
 import { StationProvider } from "~config/LRTContext";
+import AssetAvailability from "~pages/Utasi/AssetAvailability";
 // Main App Component
 function App() {
   return (
@@ -47,8 +41,7 @@ function App() {
 // AppRoutes Component handles top-level routing and layout
 function AppRoutes() {
   const location = useLocation();
-  const { alert, setAlert, CheckPermission, role, retrieveRoleModules } =
-    useAuth();
+  const { alert, setAlert, CheckPermission, role, retrieveRoleModules } = useAuth();
   const componentMap = {
     planning: Planning,
     maps: Map,
@@ -56,6 +49,7 @@ function AppRoutes() {
     reports: ReportDecks,
     campaigns: Reports,
     utasi_lrt: LandingPage,
+    asset_availability_client: AssetAvailability,
   };
 
   const [modules, setModules] = useState(null);
@@ -96,9 +90,7 @@ function AppRoutes() {
     <div
       className={classNames(
         "bg-default h-full min-h-[calc(100vh_-_92px)] p-4 2xl:px-40 flex flex-col gap-4 relative",
-        ["/login", "/register"].includes(location.pathname)
-          ? "justify-center"
-          : ""
+        ["/login", "/register"].includes(location.pathname) ? "justify-center" : ""
       )}
     >
       {/* Display alert if present */}
@@ -145,10 +137,7 @@ function AppRoutes() {
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password/*" element={<ForgotPassword />} />
               <Route path="/password-recovery/" element={<EmptyPage />} />
-              <Route
-                path="/password-recovery/:id"
-                element={<PasswordRecovery />}
-              />
+              <Route path="/password-recovery/:id" element={<PasswordRecovery />} />
               <Route path="/register" element={<Register />} />
             </Routes>
           </StationProvider>

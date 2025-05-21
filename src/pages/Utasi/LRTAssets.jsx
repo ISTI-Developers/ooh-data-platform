@@ -44,7 +44,7 @@ const LRTAssets = ({ onBack }) => {
           </div>
 
           {/* Asset Selection Cards */}
-          <div className="container flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <div className="flex space-x-6">
               {assetsData.map((asset, index) => (
                 <div
