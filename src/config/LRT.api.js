@@ -50,9 +50,12 @@ const updateParapetStatus = async (station_id, asset_distinction, asset_id, stat
     }
   }
 };
-const retrieveContracts = async () => {
+const retrieveContracts = async (page = 1, limit = 10, search = "") => {
   try {
-    const response = await axios.get(devEndpoints.contracts, headers);
+    const response = await axios.get(devEndpoints.contracts, {
+      params: { page, limit, search },
+      ...headers,
+    });
     return response.data;
   } catch (error) {
     console.error("Error retrieving contracts:", error.message);
@@ -135,9 +138,24 @@ const updateTrainAsset = async (id, avlbl, ood) => {
     throw error;
   }
 };
-const unTagContract = async (id) => {
+const updateAssetSpecs = async (id, payload) => {
   try {
-    const response = await axios.delete(`${devEndpoints.contracts}/${id}`, headers);
+    const response = await axios.put(`${devEndpoints.specs}/edit/${id}`, payload, { headers });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error booking updating asset:",
+      error.response ? `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}` : error.message
+    );
+    throw error;
+  }
+};
+const unTagContract = async (id, backlitId, trainAssetId, qty) => {
+  try {
+    const response = await axios.delete(`${devEndpoints.contracts}/${id}`, {
+      data: { backlitId, trainAssetId, qty },
+      headers,
+    });
     return response.data;
   } catch (error) {
     console.error(
@@ -156,6 +174,42 @@ const retrieveLandmarks = async () => {
     console.log(e);
   }
 };
+
+const retrieveParapetsAvailability = async () => {
+  try {
+    const response = await axios.get(devEndpoints.availability + "/parapets", headers);
+    return response.data;
+  } catch (error) {
+    console.error("Error retrieving parapets availability:", error.message);
+  }
+};
+const retrieveBacklitsAvailability = async () => {
+  try {
+    const response = await axios.get(devEndpoints.availability + "/backlits", headers);
+    return response.data;
+  } catch (error) {
+    console.error("Error retrieving parapets availability:", error.message);
+  }
+};
+
+const addViaduct = async (data) => {
+  try {
+    const response = await axios.post(`${devEndpoints.trains}/external/addViaduct`, data, headers);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding viaduct:", error.message);
+    throw error;
+  }
+};
+const deleteViaduct = async (id, spec_id) => {
+  try {
+    const response = await axios.delete(`${devEndpoints.trains}/external/deleteViaduct/${id}/${spec_id}`, headers);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting viaduct:", error.message);
+    throw error;
+  }
+};
 export const useLRTapi = () => {
   return {
     retrieveAllStationDetails,
@@ -172,5 +226,10 @@ export const useLRTapi = () => {
     updateTrainAsset,
     retrieveLandmarks,
     unTagContract,
+    retrieveParapetsAvailability,
+    retrieveBacklitsAvailability,
+    updateAssetSpecs,
+    addViaduct,
+    deleteViaduct,
   };
 };

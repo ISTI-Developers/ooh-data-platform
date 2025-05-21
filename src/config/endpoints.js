@@ -5,12 +5,12 @@ import Cookies from "js-cookie";
 const server = window.location.hostname.includes("localhost")
   ? "http://localhost:20601"
   : "https://oohplatformapi.retailgate.tech:20601";
-  export const headers = {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${Cookies.get("token")}`,
-    },
-  };
+export const headers = {
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${Cookies.get("token")}`,
+  },
+};
 export const devEndpoints = {
   login: server + "/user/login",
   roles: server + "/user/roles",
@@ -24,9 +24,11 @@ export const devEndpoints = {
   impressions: server + "/dashboard/impressions",
   landmarks: server + "/dashboard/landmarks",
   siteImages: server + "/dashboard/site_images",
-  parapets: server + "/utasi/parapets",
   assets: server + "/utasi/asset",
-  stations: server + "/utasi/stations",
   contracts: server + "/utasi/contracts",
+  stations: server + "/utasi/stations",
   trains: server + "/utasi/train",
+  parapets: server + "/utasi/parapets",
+  availability: server + "/utasi/availability",
+  specs: server + "/utasi/specs",
 };

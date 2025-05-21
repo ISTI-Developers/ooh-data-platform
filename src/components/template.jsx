@@ -1,15 +1,16 @@
-import { useState, useRef, Fragment, useEffect } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { BacklitBookButton, ParapetBookButton, EntryExitButton } from "./buttons/bookButtons";
-import { SIZE, STATUS } from "~misc/generalAssets";
+import { format } from "date-fns";
+import { Modal } from "flowbite-react";
 import { RouteDisplay } from "~misc/RouteDisplay";
 import Legend from "./legend";
-import backlitPic from "../assets/backlit_pic.jpg";
-import { useStations } from "~/config/LRTContext";
-import ContractTable from "./contractTable";
-import { format } from "date-fns";
+import Backlits from "./Backlits";
+import Parapets from "./Parapets";
+import parapet_pic from "../assets/parapet_pic.jpg";
+import backlit_pic from "../assets/backlit_pic.jpg";
+import { useStations } from "~config/LRTContext";
+
 const Template = ({
-  station_id,
   station_name,
   backLitsSB,
   backLitsNB,
@@ -21,100 +22,184 @@ const Template = ({
   northBound,
   handleSouthClick,
   handleNorthClick,
+  stations,
+  currentStationId,
+  onChange,
 }) => {
-  const { updateAsset, queryContracts, attachContract, queryAssetContracts, attachedContract } = useStations();
+  const { queryAssetContracts, contracts, fetchContracts } = useStations();
+  const [isParapet, setIsParapet] = useState(false);
 
+  const [isBacklit, setIsBacklit] = useState(false);
+  const [selectedBacklit, setSelectedBacklit] = useState(null);
+
+  const handleParapetClick = () => {
+    setIsParapet(true);
+  };
+
+  const closeParapet = () => {
+    setIsParapet(false);
+  };
+
+  const handleBacklitClick = (backlit) => {
+    setSelectedBacklit(backlit);
+    setIsBacklit(true);
+  };
+
+  const closeBacklit = () => {
+    setIsBacklit(false);
+  };
+  const matchedContract = queryAssetContracts?.find((contract) => contract.backlit_id === selectedBacklit?.asset_id);
+  const matchedContractFinal = contracts?.find(
+    (contract) => contract.SalesOrderCode === matchedContract?.asset_sales_order_code
+  );
+  const SBbookable = parapetSB.filter((item) => item.asset_status === "AVAILABLE").length;
+  const NBbookable = parapetNB.filter((item) => item.asset_status === "AVAILABLE").length;
+  useEffect(() => {
+    fetchContracts(1, 10000);
+  }, []);
   return (
-    <div className="container">
-      <header className="flex justify-center items-center mb-5">
-        <h1 className="text-2xl font-bold text-center">{station_name} Station</h1>
-      </header>
-      <hr className="h-[3px] bg-black border-none" />
-      <div>
-        <h1 className="text-2xl font-bold text-center">SOUTH BOUND</h1>
-        <div className="flex justify-evenly gap-1 mb-5">
-          {backLitsSB.map((sbBackLit) => {
-            return (
-              <BacklitBookButton
-                key={sbBackLit.asset_id}
-                text={sbBackLit.asset_sales_order_code === "" ? sbBackLit.asset_id : sbBackLit.asset_sales_order_code}
-                isDisabled={sbBackLit.asset_status === STATUS.TAKEN ? true : false}
-              />
-            );
-          })}
-        </div>
-        <div className="flex items-end justify-center gap-1">
-          {parapetSB.map((parapet, index) => (
-            <Fragment key={parapet.asset_id}>
-              <ParapetBookButton
-                text={
-                  parapet.asset_status === STATUS.BLOCKED
-                    ? ""
-                    : parapet.asset_status === STATUS.TAKEN
-                    ? parapet.owner
-                    : parapet.owner === ""
-                    ? parapet.asset_id
-                    : parapet.owner
-                }
-                isBlocked={parapet.asset_status === STATUS.BLOCKED ? true : false}
-                isDisabled={parapet.asset_status === STATUS.TAKEN ? true : false}
-                isLargeParapet={parapet.asset_size === SIZE.LARGE}
-                isPending={parapet.asset_status === STATUS.PENDING ? true : false}
-                widthLabel={parapet.asset_dimension_width}
-                heightLabel={parapet.asset_dimension_height}
-              />
-              {SBentryExitButton.includes(index) && <EntryExitButton key={`entry-exit-button-${index}`} />}
-            </Fragment>
-          ))}
-        </div>
-        <div className="w-full flex justify-center my-4">
-          <RouteDisplay
-            SouthBound={southBound}
-            NorthBound={northBound}
-            handleNorth={handleNorthClick}
-            handleSouth={handleSouthClick}
-          />
-        </div>
-        <div className="flex items-start justify-center gap-1">
-          {parapetNB.map((parapet, index) => (
-            <Fragment key={parapet.asset_id}>
-              <ParapetBookButton
-                text={
-                  parapet.asset_status === STATUS.BLOCKED
-                    ? ""
-                    : parapet.asset_status === STATUS.TAKEN
-                    ? parapet.owner
-                    : parapet.owner === ""
-                    ? parapet.asset_id
-                    : parapet.owner
-                }
-                isBlocked={parapet.asset_status === STATUS.BLOCKED ? true : false}
-                isDisabled={parapet.asset_status === STATUS.TAKEN ? true : false}
-                isLargeParapet={parapet.asset_size === SIZE.LARGE}
-                isPending={parapet.asset_status === STATUS.PENDING ? true : false}
-                widthLabel={parapet.asset_dimension_width}
-                heightLabel={parapet.asset_dimension_height}
-              />
-              {NBentryExitButton.includes(index) && <EntryExitButton key={`entry-exit-button-${index}`} />}
-            </Fragment>
-          ))}
+    <div>
+      <div className="relative flex items-center justify-between mb-5">
+        <div>
+          <select
+            name="station"
+            id="station-select"
+            value={currentStationId}
+            onChange={(e) => onChange(parseInt(e.target.value, 10))}
+            className="py-2 px-4 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+          >
+            {stations.map((station) => (
+              <option key={station.station_id} value={station.station_id}>
+                {station.station_name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="flex justify-evenly gap-1 mt-5">
-          {backLitsNB.map((nbBackLit) => {
-            return (
-              <BacklitBookButton
-                key={nbBackLit.asset_id}
-                text={nbBackLit.asset_sales_order_code === "" ? nbBackLit.asset_id : nbBackLit.asset_sales_order_code}
-                isDisabled={nbBackLit.asset_status === STATUS.TAKEN ? true : false}
-              />
-            );
-          })}
-        </div>
+        {/* Centered Station Name */}
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold text-center">
+          {station_name} Station
+        </h1>
       </div>
+
+      <hr className="h-[3px] bg-black border-none" />
+      <h1 className="text-2xl font-bold text-center">SOUTH BOUND</h1>
+
+      <Backlits direction="SOUTH" backlitData={backLitsSB} icon="▲" onClick={handleBacklitClick} />
+
+      <Parapets
+        direction="SOUTH"
+        parapetData={parapetSB}
+        entryExitIndexes={SBentryExitButton}
+        onClick={handleParapetClick}
+      />
+      {SBbookable ? (
+        <p className="bg-green-100 text-green-800 font-medium px-4 py-2 rounded-md text-center shadow-md my-4">
+          South Bound Parapets that can be booked: {SBbookable}
+        </p>
+      ) : null}
+
+      <div className="w-full flex justify-center my-4">
+        <RouteDisplay
+          SouthBound={southBound}
+          NorthBound={northBound}
+          handleNorth={handleNorthClick}
+          handleSouth={handleSouthClick}
+        />
+      </div>
+      {NBbookable ? (
+        <p className="bg-green-100 text-green-800 font-medium px-4 py-2 rounded-md text-center shadow-md my-4">
+          North Bound Parapets that can be booked: {NBbookable}
+        </p>
+      ) : null}
+
+      <Parapets
+        direction="NORTH"
+        parapetData={parapetNB}
+        entryExitIndexes={NBentryExitButton}
+        onClick={handleParapetClick}
+      />
+
+      <Backlits direction="NORTH" backlitData={backLitsNB} icon="▼" onClick={handleBacklitClick} />
+
       <h1 className="text-2xl font-bold text-center">NORTH BOUND</h1>
       <hr className="h-[3px] bg-black border-none" />
       <Legend />
+
+      <Modal show={isParapet} onClose={closeParapet} size="xl" popup dismissible>
+        <Modal.Body className="relative flex justify-center items-center p-0">
+          {/* Close Button (top-right corner) */}
+          <button
+            onClick={closeParapet}
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+
+          {/* Image */}
+          <img src={parapet_pic} alt="Parapet" className="max-h-[80vh] w-auto rounded-lg shadow-lg" />
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={isBacklit} onClose={closeBacklit} size="xl" popup dismissible>
+        <Modal.Body>
+          <div className="w-full max-w-xl p-4 relative">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {station_name}
+                {!matchedContractFinal && " - " + selectedBacklit?.asset_distinction}
+              </h2>
+            </div>
+            {matchedContractFinal ? (
+              <>
+                <h3 className="text-lg text-gray-600 mt-1">{selectedBacklit?.asset_distinction} Backlit Details</h3>
+                <div className="space-y-3 text-sm text-gray-800">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Sales Order Code:</span>
+                    <span className="text-gray-900">{matchedContractFinal.SalesOrderCode}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Start Date:</span>
+                    <span className="text-gray-900">
+                      {format(new Date(matchedContractFinal.DateRef1), "MMMM dd, yyyy")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">End Date:</span>
+                    <span className="text-gray-900">
+                      {format(new Date(matchedContractFinal.DateRef2), "MMMM dd, yyyy")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Owner:</span>
+                    <span className="text-gray-900">{matchedContractFinal.DebtorName} </span>
+                  </div>
+                  <div className="pt-4 text-right">
+                    <button
+                      onClick={closeBacklit}
+                      className="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="relative flex justify-center items-center">
+                <button
+                  onClick={closeBacklit}
+                  className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+                  aria-label="Close"
+                >
+                  &times;
+                </button>
+                <img src={backlit_pic} alt="Backlit" className="max-h-[70vh] w-auto rounded-lg shadow-lg" />
+              </div>
+            )}
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
@@ -133,6 +218,9 @@ Template.propTypes = {
   handleSouthClick: PropTypes.func,
   handleNorthClick: PropTypes.func,
   onParapetClick: PropTypes.func,
+  currentStationId: PropTypes.number.isRequired,
+  stations: PropTypes.array,
+  onChange: PropTypes.func,
 };
 
 export default Template;

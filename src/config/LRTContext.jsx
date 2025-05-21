@@ -27,6 +27,8 @@ export function StationProvider({ children }) {
   const [stationData, setStationData] = useState([]);
   const [specs, setSpecs] = useState([]);
   const [contracts, setContracts] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 0 });
+
   const [assetContracts, setAssetContracts] = useState([]);
   const [externalAssetSpecs, setExternalAssetSpecs] = useState([]);
   const [attachedContract, setAttachedContract] = useState(null);
@@ -82,29 +84,27 @@ export function StationProvider({ children }) {
     return specs.data;
   }, [specs]);
 
-  const queryContracts = useMemo(() => {
-    if (!contracts || !contracts.data) return [];
-    return contracts.data;
-  }, [contracts]);
-
   const queryAssetContracts = useMemo(() => {
     if (!assetContracts || !assetContracts.data) return [];
     return assetContracts.data;
   }, [assetContracts]);
 
+  const fetchContracts = async (page = 1, limit = 10, search = "") => {
+    const result = await retrieveContracts(page, limit, search);
+    setContracts(result.data);
+    setPagination(result.pagination);
+  };
   useEffect(() => {
     const setup = async () => {
-      const contract = await retrieveContracts();
       const stationData = await retrieveAllStationDetails();
       const specsData = await retrieveSpecifications();
       const assetContract = await getContractFromAsset();
       const externalAssets = await getExternalAssetSpecs(8);
       setStationData(stationData);
       setSpecs(specsData);
-      setContracts(contract);
+
       setAssetContracts(assetContract);
       setExternalAssetSpecs(externalAssets);
-
       const data = await getExternalAssetSpecs(9);
       const lms = await retrieveLandmarks();
       const modLms = lms.map((lm) => {
@@ -131,9 +131,16 @@ export function StationProvider({ children }) {
   const values = {
     querySpecs,
     queryAllStationsData,
-    queryContracts,
+    // queryContracts,
+    contracts,
+    fetchContracts,
+    pagination,
+    setPagination,
     queryAssetContracts,
+    externalAssetSpecs,
+    setExternalAssetSpecs,
     queryExternalAssets,
+    // fetchExternalAssets,
     attachedContract,
     setAttachedContract,
     updateAsset,

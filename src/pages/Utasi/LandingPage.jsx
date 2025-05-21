@@ -2,12 +2,8 @@ import { FaTrain, FaBus, FaBan } from "react-icons/fa";
 import { MdFlight } from "react-icons/md";
 import { useState } from "react";
 import LRTAssets from "./LRTAssets";
-import PropTypes from "prop-types";
-import { FaArrowLeft } from "react-icons/fa";
-import { useStations } from "~config/LRTContext";
-const LandingPage = ({ backToContracts }) => {
+const LandingPage = () => {
   const [selectedTransport, setSelectedTransport] = useState(null);
-  const { attachedContract } = useStations();
 
   const transportOptions = [
     {
@@ -26,21 +22,15 @@ const LandingPage = ({ backToContracts }) => {
         <>{selectedTransport}</>
       ) : (
         <>
-          {attachedContract && (
-            <div className="mb-4">
-              <button onClick={backToContracts} className="flex items-center px-4 py-2 rounded hover:bg-gray-400">
-                <FaArrowLeft />
-                Back
-              </button>
-            </div>
-          )}
-          <div className="container flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <div className="flex space-x-6">
               {transportOptions.map((item, index) => (
                 <div key={index} className="relative">
                   <div
                     className={`flex flex-col items-center justify-center p-6 rounded-lg shadow-md w-48 h-64 cursor-pointer ${
-                      item.status === "inactive" ? "bg-blue-100 opacity-50 filter blur-sm pointer-events-none" : "bg-blue-100 hover:bg-blue-200 transition"
+                      item.status === "inactive"
+                        ? "bg-blue-100 opacity-50 filter blur-sm pointer-events-none"
+                        : "bg-blue-100 hover:bg-blue-200 transition"
                     }`}
                     onClick={() => item.status === "active" && setSelectedTransport(item.component)}
                   >
@@ -62,7 +52,5 @@ const LandingPage = ({ backToContracts }) => {
     </>
   );
 };
-LandingPage.propTypes = {
-  backToContracts: PropTypes.func,
-};
+
 export default LandingPage;

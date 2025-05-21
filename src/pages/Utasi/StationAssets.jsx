@@ -1,33 +1,30 @@
 import Template from "~components/template";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AssetDetailCard from "~/components/details";
 import { useStations } from "~config/LRTContext";
-import ContractTable from "~components/contractTable";
 import { FaArrowLeft } from "react-icons/fa";
 import PropTypes from "prop-types";
+import html2canvas from "html2canvas";
 
 const StationAssets = ({ onBackStations }) => {
-  const {
-    queryAllStationsData,
-    querySpecs,
-    updateParapetStatus,
-    attachContract,
-    attachedContract,
-    // queryAssetContracts
-  } = useStations();
+  const { queryAllStationsData, querySpecs } = useStations();
   const [currentStationId, setCurrentStationId] = useState(null);
-  const [isPending, setIsPending] = useState(false);
-  const [selectedContract, setSelectedContract] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpen1, setIsModalOpen1] = useState(false);
-  const [bound, setBound] = useState("");
+  const componentRef = useRef();
+
+  const takeScreenshot = () => {
+    html2canvas(componentRef.current).then((canvas) => {
+      const link = document.createElement("a");
+      link.download = currentStation?.station_name + ".png";
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  };
 
   useEffect(() => {
     if (queryAllStationsData.length > 0 && !currentStationId) {
       setCurrentStationId(queryAllStationsData[0]?.station_id);
     }
-    setSelectedContract(attachedContract);
-  }, [attachedContract, currentStationId, queryAllStationsData]);
+  }, [currentStationId, queryAllStationsData]);
 
   const handleNextStation = () => {
     const currentIndex = queryAllStationsData.findIndex((station) => station.station_id === currentStationId);
@@ -55,62 +52,42 @@ const StationAssets = ({ onBackStations }) => {
 
   return (
     <div className="container">
-      <div className="mb-4">
-        <button onClick={onBackStations} className="flex items-center px-4 py-2 rounded hover:bg-gray-400">
-          <FaArrowLeft />
-          Back
-        </button>
-      </div>
-      <div className="flex justify-between mb-5">
+      <div className="flex justify-between">
+        <div className="mb-4">
+          <button onClick={onBackStations} className="flex items-center px-4 py-2 rounded hover:bg-gray-400">
+            <FaArrowLeft />
+            Back
+          </button>
+        </div>
         <div>
-          <select
-            name="station"
-            id="station-select"
-            value={currentStationId}
-            onChange={(e) => setCurrentStationId(parseInt(e.target.value, 10))}
-            className="py-2 px-4 rounded-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+          <button
+            onClick={takeScreenshot}
+            className="p-3 font-semibold rounded-lg shadow-lg  transition duration-300 ease-in-out transform hover:scale-105"
           >
-            {queryAllStationsData.map((station) => (
-              <option key={station.station_id} value={station.station_id}>
-                {station.station_name}
-              </option>
-            ))}
-          </select>
+            📸 Take Screenshot
+          </button>
         </div>
       </div>
-      {/* {contractStation && (
-        <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">Parapet South Bound Contract Details</h2>
-          <div className="space-y-2 text-sm text-gray-700">
-            <p>
-              <span className="font-semibold">Sales Order Code: </span> {contractStation.asset_sales_order_code}
-            </p>
-            <p>
-              <span className="font-semibold">Start Date: </span>
-              {format(new Date(contractStation.asset_date_start), "MMMM dd, yyyy")}
-            </p>
-            <p>
-              <span className="font-semibold">End Date: </span>
-              {format(new Date(contractStation.asset_date_end), "MMMM dd, yyyy")}
-            </p>
-          </div>
-        </div>
-      )} */}
-      <Template
-        key={currentStation.station_id}
-        station_id={currentStation.station_id}
-        station_name={currentStation?.station_name || "Sample Station"}
-        backLitsSB={currentStation.backlits?.filter((b) => b.asset_distinction.startsWith("SB")) || []}
-        backLitsNB={currentStation.backlits?.filter((b) => b.asset_distinction.startsWith("NB")) || []}
-        parapetSB={currentStation.parapets?.filter((p) => p.asset_distinction.startsWith("SB")) || []}
-        parapetNB={currentStation.parapets?.filter((p) => p.asset_distinction.startsWith("NB")) || []}
-        SBentryExitButton={currentStation.south_ee || []}
-        NBentryExitButton={currentStation.north_ee || []}
-        southBound={currentStation.next_south_station || ""}
-        northBound={currentStation.next_north_station || ""}
-        handleSouthClick={handlePreviousStation}
-        handleNorthClick={handleNextStation}
-      />
+      <div ref={componentRef}>
+        <Template
+          key={currentStation.station_id}
+          station_id={currentStation.station_id}
+          station_name={currentStation?.station_name || "Sample Station"}
+          backLitsSB={currentStation.backlits?.filter((b) => b.asset_distinction.startsWith("SB")) || []}
+          backLitsNB={currentStation.backlits?.filter((b) => b.asset_distinction.startsWith("NB")) || []}
+          parapetSB={currentStation.parapets?.filter((p) => p.asset_distinction.startsWith("SB")) || []}
+          parapetNB={currentStation.parapets?.filter((p) => p.asset_distinction.startsWith("NB")) || []}
+          SBentryExitButton={currentStation.south_ee || []}
+          NBentryExitButton={currentStation.north_ee || []}
+          southBound={currentStation.next_south_station || ""}
+          northBound={currentStation.next_north_station || ""}
+          handleSouthClick={handlePreviousStation}
+          handleNorthClick={handleNextStation}
+          stations={queryAllStationsData}
+          currentStationId={currentStationId}
+          onChange={setCurrentStationId}
+        />
+      </div>
 
       {currentStation.details?.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
