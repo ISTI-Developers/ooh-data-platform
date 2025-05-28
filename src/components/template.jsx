@@ -6,8 +6,11 @@ import { RouteDisplay } from "~misc/RouteDisplay";
 import Legend from "./legend";
 import Backlits from "./Backlits";
 import Parapets from "./Parapets";
-import parapet_pic from "../assets/parapet_pic.jpg";
+import TicketBooth from "./TicketBooth.jsx";
+
+import parapet_pic from "../assets/parapet_pic.png";
 import backlit_pic from "../assets/backlit_pic.jpg";
+import tb_pic from "../assets/tb_pic.png";
 import { useStations } from "~config/LRTContext";
 
 const Template = ({
@@ -25,15 +28,26 @@ const Template = ({
   stations,
   currentStationId,
   onChange,
+  sbTop,
+  sbMid,
+  sbBelow,
+  nbTop,
+  nbMid,
+  nbBelow,
 }) => {
   const { queryAssetContracts, contracts, fetchContracts } = useStations();
   const [isParapet, setIsParapet] = useState(false);
+  const [selectedParapet, setSelectedParapet] = useState(null);
 
   const [isBacklit, setIsBacklit] = useState(false);
   const [selectedBacklit, setSelectedBacklit] = useState(null);
 
-  const handleParapetClick = () => {
+  const [isTB, setIsTB] = useState(false);
+  const [selectedTB, setSelectedTB] = useState(null);
+
+  const handleParapetClick = (pp) => {
     setIsParapet(true);
+    setSelectedParapet(pp);
   };
 
   const closeParapet = () => {
@@ -48,12 +62,25 @@ const Template = ({
   const closeBacklit = () => {
     setIsBacklit(false);
   };
+  const handleTicketBoothClick = (tb) => {
+    setSelectedTB(tb);
+    setIsTB(true);
+  };
+  const closeTB = () => {
+    setIsTB(false);
+  };
   const matchedContract = queryAssetContracts?.find((contract) => contract.backlit_id === selectedBacklit?.asset_id);
   const matchedContractFinal = contracts?.find(
     (contract) => contract.SalesOrderCode === matchedContract?.asset_sales_order_code
   );
+
+  const matchedContractTB = queryAssetContracts?.find((contract) => contract.ticketbooth_id === selectedTB?.asset_id);
+  const matchedContractFinalTB = contracts?.find(
+    (contract) => contract.SalesOrderCode === matchedContractTB?.asset_sales_order_code
+  );
   const SBbookable = parapetSB.filter((item) => item.asset_status === "AVAILABLE").length;
   const NBbookable = parapetNB.filter((item) => item.asset_status === "AVAILABLE").length;
+
   useEffect(() => {
     fetchContracts(1, 10000);
   }, []);
@@ -84,14 +111,33 @@ const Template = ({
 
       <hr className="h-[3px] bg-black border-none" />
       <h1 className="text-2xl font-bold text-center">SOUTH BOUND</h1>
-
+      <TicketBooth
+        direction="SOUTH"
+        ticketBoothData={sbTop}
+        activeSpots={sbTop?.map((booth) => booth.position_index)}
+        onClick={handleTicketBoothClick}
+        icon="▲"
+      />
       <Backlits direction="SOUTH" backlitData={backLitsSB} icon="▲" onClick={handleBacklitClick} />
-
+      <TicketBooth
+        direction="SOUTH"
+        ticketBoothData={sbMid}
+        activeSpots={sbMid?.map((booth) => booth.position_index)}
+        onClick={handleTicketBoothClick}
+        icon="▲"
+      />
       <Parapets
         direction="SOUTH"
         parapetData={parapetSB}
         entryExitIndexes={SBentryExitButton}
         onClick={handleParapetClick}
+      />
+      <TicketBooth
+        direction="SOUTH"
+        ticketBoothData={sbBelow}
+        activeSpots={sbBelow?.map((booth) => booth.position_index)}
+        onClick={handleTicketBoothClick}
+        icon="▲"
       />
       {SBbookable ? (
         <p className="bg-green-100 text-green-800 font-medium px-4 py-2 rounded-md text-center shadow-md my-4">
@@ -112,33 +158,56 @@ const Template = ({
           North Bound Parapets that can be booked: {NBbookable}
         </p>
       ) : null}
-
+      <TicketBooth
+        direction="NORTH"
+        ticketBoothData={nbBelow}
+        activeSpots={nbBelow?.map((booth) => booth.position_index)}
+        onClick={handleTicketBoothClick}
+        icon="▼"
+      />
       <Parapets
         direction="NORTH"
         parapetData={parapetNB}
         entryExitIndexes={NBentryExitButton}
         onClick={handleParapetClick}
       />
-
+      <TicketBooth
+        direction="NORTH"
+        ticketBoothData={nbMid}
+        activeSpots={nbMid?.map((booth) => booth.position_index)}
+        onClick={handleTicketBoothClick}
+        icon="▼"
+      />
       <Backlits direction="NORTH" backlitData={backLitsNB} icon="▼" onClick={handleBacklitClick} />
-
+      <TicketBooth
+        direction="NORTH"
+        ticketBoothData={nbTop}
+        activeSpots={nbTop?.map((booth) => booth.position_index)}
+        icon="▼"
+        onClick={handleTicketBoothClick}
+      />
       <h1 className="text-2xl font-bold text-center">NORTH BOUND</h1>
       <hr className="h-[3px] bg-black border-none" />
       <Legend />
 
       <Modal show={isParapet} onClose={closeParapet} size="xl" popup dismissible>
-        <Modal.Body className="relative flex justify-center items-center p-0">
-          {/* Close Button (top-right corner) */}
-          <button
-            onClick={closeParapet}
-            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none"
-            aria-label="Close"
-          >
-            &times;
-          </button>
-
-          {/* Image */}
-          <img src={parapet_pic} alt="Parapet" className="max-h-[80vh] w-auto rounded-lg shadow-lg" />
+        <Modal.Body>
+          <div className="w-full max-w-xl p-4 relative">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {station_name}
+                {!matchedContractFinal && " - " + selectedParapet?.asset_distinction}
+              </h2>
+            </div>
+            <button
+              onClick={closeParapet}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <img src={parapet_pic} alt="Parapet" className="max-h-[70vh] w-auto rounded-lg shadow-lg" />
+          </div>
         </Modal.Body>
       </Modal>
 
@@ -186,7 +255,7 @@ const Template = ({
                 </div>
               </>
             ) : (
-              <div className="relative flex justify-center items-center">
+              <>
                 <button
                   onClick={closeBacklit}
                   className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none"
@@ -195,7 +264,66 @@ const Template = ({
                   &times;
                 </button>
                 <img src={backlit_pic} alt="Backlit" className="max-h-[70vh] w-auto rounded-lg shadow-lg" />
-              </div>
+              </>
+            )}
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={isTB} onClose={closeTB} size="xl" popup dismissible>
+        <Modal.Body>
+          <div className="w-full max-w-xl p-4 relative">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {station_name}
+                {!matchedContractFinalTB && " - " + selectedTB?.asset_distinction}
+              </h2>
+            </div>
+            {matchedContractFinalTB ? (
+              <>
+                <h3 className="text-lg text-gray-600 mt-1">{selectedTB?.asset_distinction} Ticket Booth Details</h3>
+                <div className="space-y-3 text-sm text-gray-800">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Sales Order Code:</span>
+                    <span className="text-gray-900">{matchedContractFinalTB.SalesOrderCode}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Start Date:</span>
+                    <span className="text-gray-900">
+                      {format(new Date(matchedContractFinalTB.DateRef1), "MMMM dd, yyyy")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">End Date:</span>
+                    <span className="text-gray-900">
+                      {format(new Date(matchedContractFinalTB.DateRef2), "MMMM dd, yyyy")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Owner:</span>
+                    <span className="text-gray-900">{matchedContractFinalTB.DebtorName} </span>
+                  </div>
+                  <div className="pt-4 text-right">
+                    <button
+                      onClick={closeTB}
+                      className="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={closeTB}
+                  className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+                  aria-label="Close"
+                >
+                  &times;
+                </button>
+                <img src={tb_pic} alt="TicketBooth" className="max-h-[70vh] w-auto rounded-lg shadow-lg" />
+              </>
             )}
           </div>
         </Modal.Body>
@@ -221,6 +349,12 @@ Template.propTypes = {
   currentStationId: PropTypes.number.isRequired,
   stations: PropTypes.array,
   onChange: PropTypes.func,
+  sbTop: PropTypes.array,
+  sbMid: PropTypes.array,
+  sbBelow: PropTypes.array,
+  nbTop: PropTypes.array,
+  nbMid: PropTypes.array,
+  nbBelow: PropTypes.array,
 };
 
 export default Template;

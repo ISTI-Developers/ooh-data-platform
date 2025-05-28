@@ -6,8 +6,9 @@ const Legend = () => {
       <div className="flex items-center space-x-1">
         <div className="w-4 h-4 rounded-full bg-blue-500"></div>
         <div className="w-4 h-4 rounded-full bg-pink-500"></div>
+        <div className="w-4 h-4 rounded-full bg-green-500"></div>
 
-        <span className="bg-gradient-to-r from-blue-700 via-purple-500 to-pink-700 bg-clip-text text-transparent">
+        <span className="bg-gradient-to-r from-blue-700 via-green-500 to-pink-700 bg-clip-text text-transparent">
           Available
         </span>
       </div>

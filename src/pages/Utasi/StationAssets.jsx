@@ -5,7 +5,14 @@ import { useStations } from "~config/LRTContext";
 import { FaArrowLeft } from "react-icons/fa";
 import PropTypes from "prop-types";
 import html2canvas from "html2canvas";
-
+import {
+  sb_ticketBooth_top,
+  sb_ticketBooth_mid,
+  sb_ticketBooth_bot,
+  nb_ticketBooth_top,
+  nb_ticketBooth_mid,
+  nb_ticketBooth_bot,
+} from "./utasi.const";
 const StationAssets = ({ onBackStations }) => {
   const { queryAllStationsData, querySpecs } = useStations();
   const [currentStationId, setCurrentStationId] = useState(null);
@@ -86,6 +93,12 @@ const StationAssets = ({ onBackStations }) => {
           stations={queryAllStationsData}
           currentStationId={currentStationId}
           onChange={setCurrentStationId}
+          sbTop={currentStation.ticketbooths?.filter((b) => b.row_category === sb_ticketBooth_top)}
+          sbMid={currentStation.ticketbooths?.filter((b) => b.row_category === sb_ticketBooth_mid)}
+          sbBelow={currentStation.ticketbooths?.filter((b) => b.row_category === sb_ticketBooth_bot)}
+          nbTop={currentStation.ticketbooths?.filter((b) => b.row_category === nb_ticketBooth_top)}
+          nbMid={currentStation.ticketbooths?.filter((b) => b.row_category === nb_ticketBooth_mid)}
+          nbBelow={currentStation.ticketbooths?.filter((b) => b.row_category === nb_ticketBooth_bot)}
         />
       </div>
 

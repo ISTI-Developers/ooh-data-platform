@@ -64,7 +64,29 @@ ParapetBookButton.propTypes = {
   widthLabel: PropTypes.string,
   heightLabel: PropTypes.string,
 };
+export const TicketBoothBookButton = ({ onClick, text, className, isDisabled }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        h-[2.875rem] w-[12.0625rem] px-4 relative overflow-hidden rounded-lg font-semibold transition-colors duration-200
+        ${
+          isDisabled ? "bg-gray-500 hover:bg-gray-600 cursor-not-allowed" : "bg-green-500 hover:bg-green-600 text-white"
+        }
+        ${className}
+      `}
+    >
+      {text}
+    </button>
+  );
+};
 
+TicketBoothBookButton.propTypes = {
+  onClick: PropTypes.func,
+  text: PropTypes.string,
+  className: PropTypes.string,
+  isDisabled: PropTypes.bool,
+};
 export const BacklitBookButton = ({ onClick, text, className, isDisabled }) => {
   const baseClasses = "h-[3.125rem] w-[12.0625rem] text-white font-bold rounded";
   const enabledClasses = "bg-pink-700 hover:bg-pink-800";
