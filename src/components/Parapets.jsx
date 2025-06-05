@@ -30,7 +30,7 @@ const Parapets = ({ direction = "SOUTH", parapetData = [], entryExitIndexes = []
               onClick={
                 (parapet.asset_status === STATUS.AVAILABLE || parapet.asset_status === STATUS.TAKEN) &&
                 parapet.asset_size === SIZE.SMALL
-                  ? onClick
+                  ? () => onClick(parapet)
                   : undefined
               }
             />
