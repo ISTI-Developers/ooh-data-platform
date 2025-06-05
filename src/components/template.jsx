@@ -7,6 +7,8 @@ import Legend from "./legend";
 import Backlits from "./Backlits";
 import Parapets from "./Parapets";
 import TicketBooth from "./TicketBooth.jsx";
+import Stairs from "./Stairs";
+import { SWS, NWS, SES, NES, SBS, NBS } from "../pages/Utasi/utasi.const";
 
 import parapet_pic from "../assets/parapet_pic.png";
 import backlit_pic from "../assets/backlit_pic.jpg";
@@ -34,6 +36,8 @@ const Template = ({
   nbTop,
   nbMid,
   nbBelow,
+  sbStairs,
+  nbStairs,
 }) => {
   const { queryAssetContracts, contracts, fetchContracts } = useStations();
   const [isParapet, setIsParapet] = useState(false);
@@ -44,6 +48,9 @@ const Template = ({
 
   const [isTB, setIsTB] = useState(false);
   const [selectedTB, setSelectedTB] = useState(null);
+
+  const [isStairs, setIsStairs] = useState(false);
+  const [selectedStairs, setSelectedStairs] = useState(null);
 
   const handleParapetClick = (pp) => {
     setIsParapet(true);
@@ -66,8 +73,15 @@ const Template = ({
     setSelectedTB(tb);
     setIsTB(true);
   };
+  const handleStairsClick = (tb) => {
+    setSelectedStairs(tb);
+    setIsStairs(true);
+  };
   const closeTB = () => {
     setIsTB(false);
+  };
+  const closeStairs = () => {
+    setIsStairs(false);
   };
   const matchedContract = queryAssetContracts?.find((contract) => contract.backlit_id === selectedBacklit?.asset_id);
   const matchedContractFinal = contracts?.find(
@@ -111,6 +125,13 @@ const Template = ({
 
       <hr className="h-[3px] bg-black border-none" />
       <h1 className="text-2xl font-bold text-center">SOUTH BOUND</h1>
+      <Stairs
+        direction="SOUTH"
+        stairsData={sbStairs}
+        activeSpots={sbStairs?.map((stair) => stair.position_index)}
+        onClick={handleStairsClick}
+        icon="▲"
+      />
       <TicketBooth
         direction="SOUTH"
         ticketBoothData={sbTop}
@@ -185,6 +206,13 @@ const Template = ({
         activeSpots={nbTop?.map((booth) => booth.position_index)}
         icon="▼"
         onClick={handleTicketBoothClick}
+      />
+      <Stairs
+        direction="NORTH"
+        stairsData={nbStairs}
+        activeSpots={nbStairs?.map((stair) => stair.position_index)}
+        onClick={handleStairsClick}
+        icon="▼"
       />
       <h1 className="text-2xl font-bold text-center">NORTH BOUND</h1>
       <hr className="h-[3px] bg-black border-none" />
@@ -328,6 +356,69 @@ const Template = ({
           </div>
         </Modal.Body>
       </Modal>
+
+      <Modal show={isStairs} onClose={closeStairs} size="xl" popup dismissible>
+        <Modal.Body>
+          <div className="w-full max-w-xl p-4 relative">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {station_name}
+                {!matchedContractFinalTB &&
+                  (() => {
+                    const labels = { SWS, NWS, SES, NES, SBS, NBS };
+                    const label = labels[selectedStairs?.asset_distinction];
+                    return label ? ` - ${label}` : "";
+                  })()}
+              </h2>
+            </div>
+            {matchedContractFinalTB ? (
+              <>
+                <h3 className="text-lg text-gray-600 mt-1">{selectedStairs?.asset_distinction} Stairs Details</h3>
+                <div className="space-y-3 text-sm text-gray-800">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Sales Order Code:</span>
+                    <span className="text-gray-900">{matchedContractFinalTB.SalesOrderCode}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Start Date:</span>
+                    <span className="text-gray-900">
+                      {format(new Date(matchedContractFinalTB.DateRef1), "MMMM dd, yyyy")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">End Date:</span>
+                    <span className="text-gray-900">
+                      {format(new Date(matchedContractFinalTB.DateRef2), "MMMM dd, yyyy")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-600">Owner:</span>
+                    <span className="text-gray-900">{matchedContractFinalTB.DebtorName} </span>
+                  </div>
+                  <div className="pt-4 text-right">
+                    <button
+                      onClick={closeStairs}
+                      className="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={closeStairs}
+                  className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+                  aria-label="Close"
+                >
+                  &times;
+                </button>
+              </>
+            )}
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
@@ -355,6 +446,8 @@ Template.propTypes = {
   nbTop: PropTypes.array,
   nbMid: PropTypes.array,
   nbBelow: PropTypes.array,
+  sbStairs: PropTypes.array,
+  nbStairs: PropTypes.array,
 };
 
 export default Template;

@@ -99,6 +99,8 @@ const StationAssets = ({ onBackStations }) => {
           nbTop={currentStation.ticketbooths?.filter((b) => b.row_category === nb_ticketBooth_top)}
           nbMid={currentStation.ticketbooths?.filter((b) => b.row_category === nb_ticketBooth_mid)}
           nbBelow={currentStation.ticketbooths?.filter((b) => b.row_category === nb_ticketBooth_bot)}
+          sbStairs={currentStation.stairs?.filter((s) => s.asset_distinction.includes("W") || s.asset_distinction === "SBS") || []}
+          nbStairs={currentStation.stairs?.filter((s) => s.asset_distinction.includes("E") || s.asset_distinction === "NBS") || []}
         />
       </div>
 

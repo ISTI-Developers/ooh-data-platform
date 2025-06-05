@@ -29,6 +29,8 @@ export function StationProvider({ children }) {
   const [contracts, setContracts] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, totalPages: 0 });
 
+  const [allContracts, setAllContracts] = useState([]);
+
   const [assetContracts, setAssetContracts] = useState([]);
   const [externalAssetSpecs, setExternalAssetSpecs] = useState([]);
   const [attachedContract, setAttachedContract] = useState(null);
@@ -49,7 +51,7 @@ export function StationProvider({ children }) {
     const normalizedQuery = toUnderscored(query.toLowerCase());
 
     const includesQuery = (item) =>
-      [item.asset_direction, item.viaduct_name]
+      [item.site ?? item.site_code, item.region, item.city, item?.address]
         .map((field) => toUnderscored(field?.toLowerCase() ?? ""))
         .some((field) => field.includes(normalizedQuery));
 
@@ -94,8 +96,14 @@ export function StationProvider({ children }) {
     setContracts(result.data);
     setPagination(result.pagination);
   };
+
+  const fetchAllContracts = async (page = 1, limit = 10000, search = "") => {
+    const result = await retrieveContracts(page, limit, search);
+    setAllContracts(result.data);
+  }
   useEffect(() => {
     const setup = async () => {
+      fetchAllContracts()
       const stationData = await retrieveAllStationDetails();
       const specsData = await retrieveSpecifications();
       const assetContract = await getContractFromAsset();
@@ -133,6 +141,7 @@ export function StationProvider({ children }) {
     queryAllStationsData,
     // queryContracts,
     contracts,
+    allContracts,
     fetchContracts,
     pagination,
     setPagination,

@@ -191,6 +191,22 @@ const retrieveBacklitsAvailability = async () => {
     console.error("Error retrieving parapets availability:", error.message);
   }
 };
+const retrieveTicketboothsAvailability = async () => {
+  try {
+    const response = await axios.get(devEndpoints.availability + "/ticketbooths", headers);
+    return response.data;
+  } catch (error) {
+    console.error("Error retrieving ticketbooths availability:", error.message);
+  }
+};
+const retrieveStairsAvailability = async () => {
+  try {
+    const response = await axios.get(devEndpoints.availability + "/stairs", headers);
+    return response.data;
+  } catch (error) {
+    console.error("Error retrieving stairs availability:", error.message);
+  }
+};
 
 const addViaduct = async (data) => {
   try {
@@ -228,6 +244,8 @@ export const useLRTapi = () => {
     unTagContract,
     retrieveParapetsAvailability,
     retrieveBacklitsAvailability,
+    retrieveTicketboothsAvailability,
+    retrieveStairsAvailability,
     updateAssetSpecs,
     addViaduct,
     deleteViaduct,
