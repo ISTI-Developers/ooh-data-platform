@@ -359,6 +359,7 @@ const AssetAvailability = () => {
             </Table.HeadCell>
             <Table.HeadCell className="text-center">Asset</Table.HeadCell>
             <Table.HeadCell className="text-center">Facing</Table.HeadCell>
+            <Table.HeadCell className="text-center">Owner</Table.HeadCell>
             <Table.HeadCell className="text-center">Available After</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y">
@@ -388,7 +389,7 @@ const AssetAvailability = () => {
                       })()
                     : data.asset_distinction || data.asset_direction}
                 </Table.Cell>
-
+                <Table.Cell className="text-center">{data.contracts?.[0]?.brand_owner ?? "N/A"}</Table.Cell>
                 <Table.Cell className="text-center">
                   {data.contracts?.[0]?.asset_date_end
                     ? formatDate(data.contracts[0].asset_date_end)
