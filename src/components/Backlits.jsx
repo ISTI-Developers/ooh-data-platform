@@ -1,6 +1,6 @@
+import PropTypes from "prop-types";
 import { BacklitBookButton } from "./buttons/bookButtons";
 import { STATUS } from "~misc/generalAssets";
-import PropTypes from "prop-types";
 
 const Backlits = ({ direction = "SOUTH", backlitData = [], onClick, icon = "▲" }) => {
   const isSouthBound = direction === "SOUTH";
@@ -16,7 +16,7 @@ const Backlits = ({ direction = "SOUTH", backlitData = [], onClick, icon = "▲"
           )}
 
           <BacklitBookButton
-            text={item.asset_sales_order_code === "" ? item.asset_id : item.asset_sales_order_code}
+            text={item.asset_text ? item.asset_text : null}
             isDisabled={item.asset_status === STATUS.TAKEN}
             onClick={
               item.asset_status === STATUS.AVAILABLE || item.asset_status === STATUS.TAKEN
