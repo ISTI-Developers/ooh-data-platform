@@ -32,7 +32,7 @@ function Tabs({ tabs, content, activeTab, setActiveTab }) {
             </Button>
           );
         })}
-        {tabs.length > 2 && (
+        {tabs.length > 3 && (
           <>
             <button
               className={classNames(

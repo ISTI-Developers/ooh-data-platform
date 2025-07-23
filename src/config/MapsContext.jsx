@@ -19,19 +19,10 @@ export default function MapProvider({ children }) {
   const [selectedSite, setSelectedSite] = useState(null);
   const [visibleLandmarks, setVisibleLandmarks] = useState(null);
   const [selectedLandmark, setSelectedLandmark] = useState(null);
-
+  const [filters, setFilters] = useState([]);
   const queryResults = useMemo(() => {
     if (!sites) return [];
-    // let hasUser = Cookies.get("role");
 
-    // if (hasUser) hasUser = JSON.parse(hasUser);
-
-    // const companyFilter = (item) => {
-    //   if (hasUser.role_id === "a39a3b04-5772-4743-af2f-c92c563afefa") {
-    //     return item.site_owner === "Nexus";
-    //   }
-    // };
-    
     if (query.length < 4) return sites;
     const normalizedQuery = toUnderscored(query.toLowerCase());
 
@@ -91,6 +82,7 @@ export default function MapProvider({ children }) {
   const value = {
     zoom,
     sites,
+    filters,
     landmarks,
     queryResults,
     selectedSite,
@@ -99,6 +91,7 @@ export default function MapProvider({ children }) {
     visibleLandmarks,
     setZoom,
     setQuery,
+    setFilters,
     setSelectedSite,
     setVisibleLandmarks,
     setSelectedLandmark,

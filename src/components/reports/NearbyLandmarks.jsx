@@ -1,10 +1,18 @@
 /* eslint-disable react/prop-types */
 import { Badge } from "flowbite-react";
+import { useEffect } from "react";
 import { useReport } from "~config/ReportContext";
 import { badge } from "~config/themes";
 
 const NearbyLandmarks = ({ nearbyLandmarks, site, asBadge = false }) => {
   const { selectedLandmarks, setLandmarks } = useReport();
+  useEffect(() => {
+    setLandmarks((prev) => {
+      // Site not found, add new entry with empty landmarks
+      return [...prev, { site, landmarks: nearbyLandmarks }];
+    });
+  }, [nearbyLandmarks, site]);
+
   return (
     nearbyLandmarks && (
       <div className="flex flex-1 gap-2 flex-wrap">

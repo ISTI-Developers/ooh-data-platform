@@ -52,7 +52,7 @@ function PlanningList({ category, data }) {
                   });
                 }}
               >
-                <p className="text-lg font-semibold text-main">
+                <p className="font-medium text-main">
                   {capitalize(toSpaced(item))}
                 </p>
                 <div className="text-xs text-slate-400">

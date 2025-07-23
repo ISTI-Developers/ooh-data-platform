@@ -19,7 +19,7 @@ function Results() {
   const navigate = useNavigate();
   const headers = [
     "site",
-    "city",
+    "region",
     "# fits profile",
     "% fits profile",
     "site owner",
@@ -138,19 +138,25 @@ function Results() {
                 >
                   <Table.Cell>
                     <p className="flex flex-col text-main whitespace-nowrap">
-                      <span className="font-semibold text-lg ">
+                      <span className="font-bold text-base">
                         {item.site_code}
                       </span>
-                      <span>
-                        Avg Monthly Impressions: {item.avg_monthly_impressions}
+                      <span className="text-slate-500 text-sm">
+                        AVG Monthly Impressions:{" "}
+                        {Intl.NumberFormat("en-PH", {
+                          style: "decimal",
+                        }).format(item.avg_monthly_impressions)}
                       </span>
                     </p>
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap">
-                    <p>{item.city}</p>
                     <p>{item.region}</p>
                   </Table.Cell>
-                  <Table.Cell>{item.fits_no}</Table.Cell>
+                  <Table.Cell>
+                    {Intl.NumberFormat("en-PH", {
+                      style: "decimal",
+                    }).format(item.fits_no)}
+                  </Table.Cell>
                   <Table.Cell>{item.fits_rate?.toFixed(2)}%</Table.Cell>
                   <Table.Cell>{item.site_owner}</Table.Cell>
                 </Table.Row>

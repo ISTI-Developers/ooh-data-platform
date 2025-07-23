@@ -374,10 +374,10 @@ const ProfileBody = ({
         </div>
       )}
       <p>Please choose from the options below:</p>
-      <section className="flex flex-wrap gap-4 pb-2 items-center">
+      <section className="flex flex-wrap flex-1 gap-4 items-center">
         {data.map((dmg) => {
           return (
-            <div key={dmg.key} className="py-1">
+            <div key={dmg.key}>
               <input
                 type="checkbox"
                 name={dmg.key}
@@ -399,7 +399,7 @@ const ProfileBody = ({
               <label
                 htmlFor={`${dmg.question}_${dmg.key}`}
                 className={classNames(
-                  "border-2 border-secondary-500 rounded-md text-secondary-hover font-medium",
+                  "border-2 border-secondary-500 rounded-md text-secondary-hover font-medium text-xs w-full",
                   "hover:bg-secondary-500 hover:text-white p-2.5 py-1",
                   "cursor-pointer peer-checked:border-green-300 peer-checked:bg-green-200 peer-checked:text-green-500"
                 )}

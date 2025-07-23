@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TbCircleCheck } from "react-icons/tb";
 // import useFixedImageCrop from "~config/ImageCropper";
 // import mockup from "~assets/mockup.png";
@@ -17,6 +17,13 @@ const DeckImageManager = ({
     return show ? images : images.slice(0, 5);
   }, [images, show]);
 
+  useEffect(() => {
+    if (images.length === 0) return;
+    // Set the first image as selected if none are selected
+    if (selectedImages.length === 0 && images.length > 0) {
+      setSelectedImages([images[0]]);
+    }
+  }, [images]);
   return (
     <section
       id={siteID}
@@ -121,16 +128,7 @@ const ImageItem = ({ setSelected, image, setSelectedImages, imageIndex }) => {
         alt=""
         className="h-full max-h-[125px]"
         onClick={() => {
-          setSelectedImages((prev) => {
-            const newItems = [...prev, image];
-
-            if (newItems.length <= 2) {
-              return newItems;
-            } else {
-              alert("You can only select 2 images");
-              return prev;
-            }
-          });
+          setSelectedImages([image]);
           setSelected(true);
         }}
       />

@@ -6,9 +6,10 @@ import banner from "~/assets/banner.png";
 import classNames from "classnames";
 import { useFunction } from "~config/functions";
 import { useMap } from "~config/MapsContext";
+import { useMemo } from "react";
 
 function Markers({ center, setCenter }) {
-  const { offsetCoordinate } = useFunction();
+  const { offsetCoordinate, haversineDistance } = useFunction();
   const {
     queryResults,
     setZoom,
@@ -16,9 +17,35 @@ function Markers({ center, setCenter }) {
     setSelectedLandmark,
     selectedSite,
     zoom,
+    filters,
+    landmarks,
   } = useMap();
 
-  return queryResults.map((item, index) => {
+  const sites = useMemo(() => {
+    if (filters.length === 0) return queryResults;
+    // Create a set of landmark types for fast look-up
+    const landmarkTypes = new Set(filters.map((lm) => lm.value));
+
+    // Filter landmarks based on the selected filters
+    const filteredLandmarks = landmarks.filter((landmark) =>
+      landmark.types.some((type) => landmarkTypes.has(type))
+    );
+
+    return queryResults.filter((site) => {
+      const { longitude, latitude } = site;
+
+      return filteredLandmarks.some((landmark) => {
+        const { latitude: landmarkLat, longitude: landmarkLng } = landmark;
+        const distance = haversineDistance(
+          { lat: latitude, lng: longitude },
+          { lat: landmarkLat, lng: landmarkLng }
+        );
+        return distance <= 100;
+      });
+    });
+  }, [queryResults, filters]);
+
+  return sites.map((item, index) => {
     const position = { lat: item.latitude, lng: item.longitude };
     const offsetPosition = offsetCoordinate(item.latitude, item.longitude, 20);
 

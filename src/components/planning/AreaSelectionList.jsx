@@ -3,13 +3,11 @@ import { Label } from "flowbite-react";
 import PlanningTable from "./PlanningTable";
 import { useFunction } from "~config/functions";
 import { format } from "date-fns";
-import { useState } from "react";
 import { usePlanning } from "~config/PlanningContext";
 
 function AreaSelectionList() {
   const { regionList } = useFunction();
-  const { dates, setDates } = usePlanning();
-  const [selectedRegion, setRegion] = useState("all");
+  const { dates, setDates, region, setRegion } = usePlanning();
 
   const updateDate = (event) => {
     setDates((current) => {
@@ -44,8 +42,12 @@ function AreaSelectionList() {
         </div>
         <div>
           <Label htmlFor="regions" value="Filter Region: " />
-          <select className="w-full rounded-lg border-gray-200 bg-gray-50 shadow" id="regions" onChange={(e) => setRegion(e.target.value)}>
-            <option value="all" selected={selectedRegion === null}>
+          <select
+            className="w-full rounded-lg border-gray-200 bg-gray-50 shadow"
+            id="regions"
+            onChange={(e) => setRegion(e.target.value)}
+          >
+            <option value="all" selected={region === null}>
               All Regions
             </option>
             {regionList.map((region) => {
@@ -59,7 +61,7 @@ function AreaSelectionList() {
         </div>
       </div>
       <div className="max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-secondary-500 scrollbar-thumb-rounded-full p-4 pt-0">
-        <PlanningTable filter={selectedRegion} />
+        <PlanningTable />
       </div>
     </div>
   );

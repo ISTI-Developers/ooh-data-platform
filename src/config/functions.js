@@ -161,6 +161,27 @@ function searchItems(array, query = "") {
 
   return matches;
 }
+const areConsecutiveMonths = (dates) => {
+  for (let i = 1; i < dates.length; i++) {
+    const prev = dates[i - 1];
+    const curr = dates[i];
+    const nextExpected = new Date(prev);
+    nextExpected.setMonth(nextExpected.getMonth() + 1);
+
+    if (
+      nextExpected.getMonth() !== curr.getMonth() ||
+      nextExpected.getFullYear() !== curr.getFullYear()
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const monthYearToDate = (monthYearStr) => {
+  const [month, year] = monthYearStr.split(" ");
+  return new Date(`${month} 1, ${year}`);
+};
 
 export const useFunction = () => {
   return {
@@ -175,5 +196,7 @@ export const useFunction = () => {
     searchItems,
     capitalizeFirst,
     haversineDistance,
+    areConsecutiveMonths,
+    monthYearToDate,
   };
 };

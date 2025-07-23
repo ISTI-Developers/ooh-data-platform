@@ -9,13 +9,13 @@ import Marker from "./Marker";
 import SelectedLandmarks from "./SelectedLandmarks";
 
 const LandmarkMap = ({ site }) => {
-  const { addMapImage, selectedLandmarks } = useReport();
+  const { addMapImage, selectedLandmarks, showLandmarks } = useReport();
   const [coordinates] = useState({
     lat: parseFloat(site.latitude),
     lng: parseFloat(site.longitude),
   });
   const mapRef = useRef(null);
-  const [zoom, setZoom] = useState(15);
+  const [zoom, setZoom] = useState(17);
 
   const selectedLandmark = useMemo(() => {
     return selectedLandmarks.find(
@@ -34,20 +34,22 @@ const LandmarkMap = ({ site }) => {
     // Add custom marker for `site`
     params.append(
       "markers",
-      `color:red|label:S|${site.latitude},${site.longitude}`
+      `color:red|icon:https://ooh.scmiph.com/assets/classic-sm.png|${site.latitude},${site.longitude}`
     );
 
-    // Add markers for each selected landmark
-    selectedLandmark?.landmarks.forEach((landmark, index) => {
-      const { latitude, longitude } = landmark;
-      params.append(
-        "markers",
-        `color:blue|label:${index + 1}|${latitude},${longitude}`
-      );
-    });
-
+    if (showLandmarks) {
+      // Add markers for each selected landmark
+      selectedLandmark?.landmarks.forEach((landmark, index) => {
+        const { latitude, longitude } = landmark;
+        params.append(
+          "markers",
+          `color:blue|label:${index + 1}|${latitude},${longitude}`
+        );
+      });
+    }
     // Full URL for the static map image
     const mapURL = `${baseURL}?${params.toString()}`;
+    console.log(mapURL);
     addMapImage(site.site_code, mapURL);
   };
 
@@ -70,7 +72,7 @@ const LandmarkMap = ({ site }) => {
               onZoomChanged={(event) => setZoom(event.detail.zoom)}
               onBoundsChanged={onMapGenerate}
             >
-              {selectedLandmark?.landmarks.length > 0 && (
+              {showLandmarks && selectedLandmark?.landmarks.length > 0 && (
                 <SelectedLandmarks landmarks={selectedLandmark?.landmarks} />
               )}
               <Marker site={site} position={coordinates} />

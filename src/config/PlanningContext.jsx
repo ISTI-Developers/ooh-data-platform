@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useService } from "./services";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { useFunction } from "./functions";
 import axios from "axios";
 import { devEndpoints as url } from "./endpoints";
@@ -23,6 +23,7 @@ export function PlanningProvider({ children }) {
   const [profile, setProfile] = useState(null); //specific profile
   const [siteResults, setSiteResults] = useState(null);
   const [allowedMultiple, toggleMultiple] = useState([]);
+  const [region, setRegion] = useState("all");
   const [impressions, setImpressions] = useState(null);
   const { toUnderscored } = useFunction();
   const { retrievePlanning } = useService();
@@ -57,12 +58,15 @@ export function PlanningProvider({ children }) {
   };
   const getImpressions = async (dates) => {
     try {
-      const response = await axios.get(url.impressions + `?dates=${JSON.stringify(dates)}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("token")}`,
-        },
-      });
+      const response = await axios.get(
+        url.impressions + `?dates=${JSON.stringify(dates)}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        }
+      );
       if (response.data) {
         return response.data;
       }
@@ -113,18 +117,21 @@ export function PlanningProvider({ children }) {
           from: format(new Date(dates.from), "MM-dd-yyyy"),
           to: format(new Date(dates.to), "MM-dd-yyyy"),
         },
+        region: region,
       };
       const response = await retrievePlanning("areas", options);
       setSiteResults(response);
     };
     setup();
-  }, [profiles, dates, allowedMultiple]);
+  }, [profiles, dates, allowedMultiple, region]);
 
   const value = {
     areas,
     dates,
     siteResults,
     profiles,
+    region,
+    setRegion,
     profile,
     allowedMultiple,
     setAreas,

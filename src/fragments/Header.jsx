@@ -6,9 +6,11 @@ import { useAuth } from "~config/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 import { MdLogout } from "react-icons/md";
 import { IoMdKey } from "react-icons/io";
+import { useFunction } from "~config/functions";
 
 function Header() {
   const location = useLocation();
+  const { capitalize } = useFunction();
   const { user, logoutUser, CheckPermission, role, retrieveRoleModules } =
     useAuth();
   const [modules, setModules] = useState(null);
@@ -17,7 +19,6 @@ function Header() {
     if (!role) return;
     const retrieve = async () => {
       const response = await retrieveRoleModules();
-      console.log(role);
       setModules(response);
     };
     retrieve();
@@ -59,11 +60,11 @@ function Header() {
                 <Link
                   to={index === 0 ? "/" : `/${pathName}`}
                   className={classNames(
-                    "capitalize font-semibold hover:text-secondary animate-fade",
+                    "font-semibold hover:text-secondary animate-fade",
                     isActive ? "text-secondary underline" : "text-main"
                   )}
                 >
-                  {pathName}
+                  {capitalize(item.name,"_")}
                 </Link>
               </CheckPermission>
             );

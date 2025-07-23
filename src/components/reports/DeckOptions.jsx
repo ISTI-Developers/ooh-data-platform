@@ -11,28 +11,24 @@ import Tabs from "~fragments/Tabs";
 import { FaMinusSquare } from "react-icons/fa";
 
 const DeckOptions = () => {
-  const { reports, priceDetails, setPriceDetails, addPriceAdjustment } =
-    useReport();
+  const { setPriceDetails } = useReport();
   const [open, setOpen] = useState();
   const [activeTab, setActiveTab] = useState("price_adjustment");
 
-  const canAddAnotherAdjustment = useMemo(() => {
-    if (priceDetails.length === 0 || reports.length === 0) return false;
-
-    if (priceDetails.some((details) => details.sites.length === 0))
-      return false;
-
-    if (priceDetails[0].sites.some((site) => site.value === "all")) {
-      return false;
-    }
-
-    const adjustedSites = priceDetails.flatMap((detail) => detail.sites);
-
-    if (adjustedSites.length < reports.length) return true;
-
-    return false;
-  }, [priceDetails, reports.length]);
-
+  const tabs = [
+    {
+      name: "price_adjustment",
+      content: PriceAdjustment,
+    },
+    {
+      name: "rate_generator",
+      content: RateGenerator,
+    },
+    {
+      name: "currency_change",
+      content: CurrencyChange,
+    },
+  ];
   return (
     <>
       <div className="relative">
@@ -80,50 +76,23 @@ const DeckOptions = () => {
           )}
         >
           <Tabs
-            tabs={["price_adjustment", "rate/duration"]}
+            tabs={tabs.map((tab) => tab.name)}
             setActiveTab={setActiveTab}
             activeTab={activeTab}
             content={
               <>
                 <section
                   className={classNames(
-                    activeTab === "price_adjustment"
-                      ? "block space-y-2"
+                    tabs.find((tab) => tab.name === activeTab) !== undefined
+                      ? "block space-y-2 p-2"
                       : "hidden"
                   )}
                 >
-                  {priceDetails.length > 0 && (
-                    <>
-                      {priceDetails.map((detail, index) => {
-                        return (
-                          <PriceAdjustmentItem
-                            details={detail}
-                            index={index}
-                            key={index}
-                          />
-                        );
-                      })}
-                      <button
-                        onClick={addPriceAdjustment}
-                        disabled={!canAddAnotherAdjustment}
-                        className={classNames(
-                          "ml-auto float-end w-fit px-2 py-1  rounded",
-                          canAddAnotherAdjustment
-                            ? "text-white bg-[#ec9912] cursor-pointer"
-                            : "text-gray-500 bg-gray-200 cursor-not-allowed"
-                        )}
-                      >
-                        Add new
-                      </button>
-                    </>
-                  )}
-                </section>
-                <section
-                  className={classNames(
-                    activeTab === "rate/duration" ? "block space-y-2" : "hidden"
-                  )}
-                >
-                  <RateGenerator />
+                  {tabs.map((tab) => {
+                    const Content = tab.content;
+
+                    return activeTab === tab.name && <Content key={tab.name} />;
+                  })}
                 </section>
               </>
             }
@@ -138,6 +107,49 @@ const DeckOptions = () => {
         )}
       />
     </>
+  );
+};
+
+const PriceAdjustment = () => {
+  const { reports, priceDetails, addPriceAdjustment } = useReport();
+  const canAddAnotherAdjustment = useMemo(() => {
+    if (priceDetails.length === 0 || reports.length === 0) return false;
+
+    if (priceDetails.some((details) => details.sites.length === 0))
+      return false;
+
+    if (priceDetails[0].sites.some((site) => site.value === "all")) {
+      return false;
+    }
+
+    const adjustedSites = priceDetails.flatMap((detail) => detail.sites);
+
+    if (adjustedSites.length < reports.length) return true;
+
+    return false;
+  }, [priceDetails, reports.length]);
+  return (
+    priceDetails.length > 0 && (
+      <>
+        {priceDetails.map((detail, index) => {
+          return (
+            <PriceAdjustmentItem details={detail} index={index} key={index} />
+          );
+        })}
+        <button
+          onClick={addPriceAdjustment}
+          disabled={!canAddAnotherAdjustment}
+          className={classNames(
+            "ml-auto float-end w-fit px-2 py-1  rounded",
+            canAddAnotherAdjustment
+              ? "text-white bg-[#ec9912] cursor-pointer"
+              : "text-gray-500 bg-gray-200 cursor-not-allowed"
+          )}
+        >
+          Add new
+        </button>
+      </>
+    )
   );
 };
 
@@ -215,6 +227,73 @@ const RateGenerator = () => {
     </>
   );
 };
+
+const CurrencyChange = () => {
+  const { curExchange, setCurExchange } = useReport();
+
+  const currencyOptions = [
+    { label: "PHP", value: "PHP" },
+    { label: "USD", value: "USD" },
+    { label: "EUR", value: "EUR" },
+    { label: "JPY", value: "JPY" },
+  ];
+
+  return (
+    <section className="flex flex-col gap-4">
+      <p>
+        Choose your preferred currency and its conversion rate to PHP. For
+        reference, see the{" "}
+        <a
+          className="underline text-sky-500"
+          href="https://www.bsp.gov.ph/sitepages/statistics/exchangerate.aspx"
+        >
+          BSP Exchange Rate
+        </a>{" "}
+        for up-to-date values.
+      </p>
+      <div className="grid grid-cols-[1fr_2fr] gap-4 items-center">
+        <Label htmlFor="currency" value="Currency: " />
+        <Select
+          id="currency"
+          options={currencyOptions}
+          value={currencyOptions.find(
+            (option) => option.value === curExchange.currency
+          )}
+          onChange={(newValue) => {
+            setCurExchange((prev) => {
+              if (newValue.value === "PHP") return { currency: "PHP", rate: 1 };
+
+              return {
+                ...prev,
+                currency: newValue.value,
+              };
+            });
+          }}
+          className="w-full"
+        />
+        <Label htmlFor="rate" value="Peso Equivalent: " />
+        <input
+          type="number"
+          min={1}
+          step={0.01}
+          value={curExchange.rate}
+          onChange={(e) => {
+            setCurExchange((prev) => {
+              if (prev.currency === "PHP") return { ...prev, rate: 1 };
+
+              return {
+                ...prev,
+                rate: e.target.valueAsNumber,
+              };
+            });
+          }}
+          className="border-gray-300 rounded"
+        />
+      </div>
+    </section>
+  );
+};
+
 const PriceAdjustmentItem = ({ details, index }) => {
   const { priceDetails, reports, setPriceDetails } = useReport();
 
@@ -267,8 +346,12 @@ const PriceAdjustmentItem = ({ details, index }) => {
             })
           }
         >
-          <option value="+" className="text-xs">+ (Add)</option>
-          <option value="-" className="text-xs">— (Minus)</option>
+          <option value="+" className="text-xs">
+            + (Add)
+          </option>
+          <option value="-" className="text-xs">
+            — (Minus)
+          </option>
         </select>
       </div>
       <div>

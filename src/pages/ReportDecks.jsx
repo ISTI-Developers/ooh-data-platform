@@ -13,7 +13,8 @@ import SiteOptions from "~components/reports/SiteOptions";
 import SiteList from "~components/reports/SiteList";
 import DeckOptions from "~components/reports/DeckOptions";
 function ReportDecks() {
-  const { removeReport, onGeneratePowerpoint } = useReport();
+  const { removeReport, onGeneratePowerpoint, setReports, setPriceDetails } =
+    useReport();
   const [query, setQuery] = useState("");
   const [selectedSites, setSites] = useState([]);
 
@@ -40,57 +41,70 @@ function ReportDecks() {
         </div>
         {selectedSites.length > 0 ? (
           <section className="space-y-4 mt-2">
-            {selectedSites.length > 0 && (
-              <div className="flex gap-4 items-center sticky top-6 bg-white max-w-[62vw] rounded-md shadow z-10">
-                <Label className="whitespace-nowrap p-2">
-                  Selected Sites:{" "}
-                </Label>
-                <div className="flex items-center gap-2 overflow-x-auto w-full p-2 scrollbar-thin rounded-md snap-x snap-mandatory">
-                  {selectedSites.map((site) => {
-                    return (
-                      <div
-                        key={site.site_code}
-                        className={classNames(
-                          "flex items-center gap-2",
-                          "p-2 py-0.5 text-white rounded-md whitespace-nowrap snap-start text-xs",
-                          hash === `#${site.site_code}`
-                            ? "bg-blue-900"
-                            : "bg-blue-500"
-                        )}
+            <div className="flex gap-4 items-center sticky top-6 bg-white rounded-md shadow z-10">
+              <Label className="whitespace-nowrap p-2">Selected Sites: </Label>
+              <div className="flex items-center gap-2 overflow-x-auto w-full p-2 scrollbar-thin rounded-md snap-x snap-mandatory max-w-[50vw]">
+                {selectedSites.map((site) => {
+                  return (
+                    <div
+                      key={site.site_code}
+                      className={classNames(
+                        "flex items-center gap-2",
+                        "p-2 py-0.5 text-white rounded-md whitespace-nowrap snap-start text-xs",
+                        hash === `#${site.site_code}`
+                          ? "bg-blue-900"
+                          : "bg-blue-500"
+                      )}
+                    >
+                      <a href={`#${site.site_code}`}>{site.site_code}</a>
+                      <button
+                        onClick={() => {
+                          setSites((prev) => {
+                            return prev.filter(
+                              (item) => item.site_code !== site.site_code
+                            );
+                          });
+                          removeReport(site.site_code);
+                        }}
                       >
-                        <a href={`#${site.site_code}`}>{site.site_code}</a>
-                        <button
-                          onClick={() => {
-                            setSites((prev) => {
-                              return prev.filter(
-                                (item) => item.site_code !== site.site_code
-                              );
-                            });
-                            removeReport(site.site_code);
-                          }}
-                        >
-                          <RiCloseLine />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-                <DeckOptions />
-                <Button
-                  type="button"
-                  color="warning"
-                  onClick={onGeneratePowerpoint}
-                  size="sm"
-                  processingSpinner={
-                    <AiOutlineLoading className="h-6 w-6 animate-spin" />
-                  }
-                  theme={mainButtonTheme}
-                  className="bg-[#ec9912] whitespace-nowrap m-2 rounded-md"
-                >
-                  Generate Deck
-                </Button>
+                        <RiCloseLine />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+              <Button
+                type="button"
+                color="warning"
+                onClick={() => {
+                  setSites([]);
+                  setReports([]);
+                  setPriceDetails([]);
+                }}
+                size="sm"
+                processingSpinner={
+                  <AiOutlineLoading className="h-6 w-6 animate-spin" />
+                }
+                theme={mainButtonTheme}
+                className="bg-white text-main whitespace-nowrap m-2 rounded-md"
+              >
+                Clear
+              </Button>
+              <DeckOptions />
+              <Button
+                type="button"
+                color="warning"
+                onClick={onGeneratePowerpoint}
+                size="sm"
+                processingSpinner={
+                  <AiOutlineLoading className="h-6 w-6 animate-spin" />
+                }
+                theme={mainButtonTheme}
+                className="bg-[#ec9912] whitespace-nowrap m-2 rounded-md"
+              >
+                Generate Deck
+              </Button>
+            </div>
             {selectedSites.map(({ area, imageURL, ...site }) => {
               return (
                 <DeckItem

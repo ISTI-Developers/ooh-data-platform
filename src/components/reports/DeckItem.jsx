@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import classNames from "classnames";
-import { Tooltip } from "flowbite-react";
+import { Checkbox, Label, Tooltip } from "flowbite-react";
 import { useEffect, useMemo, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { RxCaretDown, RxCaretUp } from "react-icons/rx";
@@ -16,7 +16,15 @@ import axios from "axios";
 import { MdOutlineArrowRightAlt } from "react-icons/md";
 
 const DeckItem = ({ site, onClose, ...props }) => {
-  const { addImages, priceDetails, rates, showRates } = useReport();
+  const {
+    addImages,
+    priceDetails,
+    rates,
+    showRates,
+    curExchange,
+    setShowLandmarks,
+    showLandmarks,
+  } = useReport();
   const { retrieveSiteImages } = useService();
   const [siteImages, setSiteImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
@@ -50,34 +58,43 @@ const DeckItem = ({ site, onClose, ...props }) => {
       console.error("Error fetching image:", error);
     }
   };
-
   useEffect(() => {
+    let isCancelled = false;
+    let objectUrls = []; // Track all created object URLs
+
     const setup = async () => {
       const response = await retrieveSiteImages(site.site_code);
-      if (response.status) {
-        return;
-      }
+      if (response.status) return;
 
-      const processedImages = [];
-
-      for (const image of response) {
+      const processedImagePromises = response.map(async (image) => {
         const upload_path =
           "https://unis.unitedneon.com/unis/" + image.upload_path;
-        const imageBlob = await fetchImage(upload_path);
-        processedImages.push({
+        const imgUrl = await fetchImage(upload_path); // returns object URL
+        objectUrls.push(imgUrl); // Track it for cleanup
+        return {
           ...image,
-          upload_path: upload_path,
-          blob: imageBlob,
-        });
+          upload_path,
+          blob: imgUrl,
+        };
+      });
+
+      const processedImages = await Promise.all(processedImagePromises);
+      if (!isCancelled) {
+        setSiteImages(processedImages);
       }
-      setSiteImages(processedImages);
     };
+
     setup();
-  }, [site]);
+
+    // 🔁 CLEANUP
+    return () => {
+      isCancelled = true;
+      objectUrls.forEach((url) => URL.revokeObjectURL(url)); // Clean up blob URLs
+    };
+  }, [site.site_code]);
 
   useEffect(() => {
     if (selectedImages.length <= 2) {
-      console.log();
       addImages(site.site_code, selectedImages);
     }
   }, [selectedImages, site.site_code]);
@@ -107,8 +124,12 @@ const DeckItem = ({ site, onClose, ...props }) => {
       }
     }
 
-    return { ...site, updatedPrice: price };
-  }, [priceDetails, site]);
+    if (curExchange.currency !== "PHP") {
+      price = price / curExchange.rate;
+    }
+
+    return { ...site, updatedPrice: price, ...curExchange };
+  }, [priceDetails, site, curExchange]);
 
   const siteRates = useMemo(() => {
     if (rates.every((rate) => rate.discount === 0)) return [];
@@ -118,14 +139,21 @@ const DeckItem = ({ site, onClose, ...props }) => {
       const price = detail.updatedPrice ?? detail.price;
 
       const less = type === "percent" ? discount / 100 : discount;
-      const finalPrice = type === "flat" ? price - less : price - price * less;
+      const lessAmount =
+        type === "flat"
+          ? curExchange.currency === "PHP"
+            ? less
+            : less / curExchange.rate
+          : less;
+      const finalPrice =
+        type === "flat" ? price - lessAmount : price - price * lessAmount;
 
       return {
         duration: duration,
         price: finalPrice,
       };
     });
-  }, [detail.price, detail.updatedPrice, rates]);
+  }, [curExchange, detail.price, detail.updatedPrice, rates]);
 
   const Icon = useMemo(() => {
     return showDetails ? RxCaretUp : RxCaretDown;
@@ -207,7 +235,7 @@ const DeckItem = ({ site, onClose, ...props }) => {
                           <td className="border text-center">
                             {Intl.NumberFormat("en-PH", {
                               style: "currency",
-                              currency: "PHP",
+                              currency: detail.currency,
                             }).format(rate.price)}
                           </td>
                         </tr>
@@ -242,7 +270,7 @@ const DeckItem = ({ site, onClose, ...props }) => {
                           <span className="text-green-500 font-semibold">
                             {Intl.NumberFormat("en-PH", {
                               style: "currency",
-                              currency: "PHP",
+                              currency: detail.currency,
                             }).format(detail.updatedPrice)}
                           </span>
                         </>
@@ -254,18 +282,34 @@ const DeckItem = ({ site, onClose, ...props }) => {
           </section>
           <section className="grid grid-cols-2 gap-4 bg-slate-50 rounded-md p-4">
             <div>
-              <div>
+              <div className="space-y-1 pb-4">
                 <p className="font-semibold">Nearby Landmarks</p>
                 <p className="text-sm text-gray-500">
-                  Select all the landmarks you want to show to the billboard
+                  Select the landmarks you want to include in the generated
                   deck.
                 </p>
+                {nearbyLandmarks.length > 0 && (
+                  <div className="space-x-2">
+                    <Checkbox
+                      id="show"
+                      checked={showLandmarks}
+                      onChange={(e) => setShowLandmarks(e.target.checked)}
+                    />
+                    <Label htmlFor="show" value="Show on map" />
+                  </div>
+                )}
               </div>
-              <NearbyLandmarks
-                nearbyLandmarks={nearbyLandmarks}
-                site={site.site_code}
-                asBadge
-              />
+              {nearbyLandmarks.length > 0 ? (
+                <NearbyLandmarks
+                  nearbyLandmarks={nearbyLandmarks}
+                  site={site.site_code}
+                  asBadge
+                />
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No nearby landmarks found.
+                </p>
+              )}
             </div>
             <div>
               <div>
@@ -321,11 +365,14 @@ const Availability = ({ site }) => {
           </span>
           {availableDate ? (
             <>
-             {endDate !== availableDate &&  <>
-              <MdOutlineArrowRightAlt className="text-gray-400" />
-              <span className="text-green-500 font-semibold">
-                {availableDate}
-              </span></>}
+              {endDate !== availableDate && (
+                <>
+                  <MdOutlineArrowRightAlt className="text-gray-400" />
+                  <span className="text-green-500 font-semibold">
+                    {availableDate}
+                  </span>
+                </>
+              )}
             </>
           ) : (
             "TBD"

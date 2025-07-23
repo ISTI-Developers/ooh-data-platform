@@ -44,7 +44,7 @@ export function ReportProvider({ children }) {
   const [sites, setSites] = useState(null);
   const [reports, setReports] = useState([]);
   const [priceDetails, setPriceDetails] = useState([]);
-  const [showAvailable, toggleAvailable] = useState("1");
+  const [showAvailable, toggleAvailable] = useState("0");
   const [rates, setRates] = useState([
     { duration: 3, discount: 0, type: "flat" },
     { duration: 6, discount: 0, type: "flat" },
@@ -53,6 +53,11 @@ export function ReportProvider({ children }) {
   const [charts, setChart] = useState([]);
   const [show, toggleModal] = useState(null);
   const [showRates, setShow] = useState(false);
+  const [curExchange, setCurExchange] = useState({
+    currency: "PHP",
+    rate: 1,
+  });
+  const [showLandmarks, setShowLandmarks] = useState(false);
   const [selectedLandmarks, setLandmarks] = useState([]);
   const [filters, setFilters] = useState({
     area: [],
@@ -93,7 +98,16 @@ export function ReportProvider({ children }) {
   };
 
   const addPriceAdjustment = () => {
-    setPriceDetails((prev) => [...prev, { id: v4(), price: 0, sites: [] }]);
+    setPriceDetails((prev) => [
+      ...prev,
+      {
+        id: v4(),
+        price: 0,
+        action: "+",
+        type: "--",
+        sites: [],
+      },
+    ]);
   };
   const addImages = (siteCode, image) => {
     setReports((prevReports) => {
@@ -594,7 +608,7 @@ export function ReportProvider({ children }) {
       };
 
       img.onerror = function () {
-        reject(new Error("Failed to load image."));
+        reject(new Error(`Failed to load image: ${imageURL}`));
       };
 
       img.src = imageURL;
@@ -642,6 +656,9 @@ export function ReportProvider({ children }) {
               ? price - finalPrice
               : price * (1 - finalPrice / 100);
         }
+      }
+      if (curExchange.currency !== "PHP") {
+        price = price / curExchange.rate;
       }
       const area = `Billboard Site in ${capitalizeFirst(site.city_name)}`;
       const headerHeight = Inches(1.93);
@@ -809,7 +826,10 @@ export function ReportProvider({ children }) {
         fontFace: "Aptos",
         fontSize: 8,
       });
-      slide.addText(site.traffic_count || "N/A", {
+      const match = site.traffic_count.match(/\d{1,3}(,\s?\d{3})*/);
+
+      const numberOnly = match ? match[0].replace(/\s/g, "") : null;
+      slide.addText(numberOnly ?? "N/A", {
         w: colWidth * 2,
         h: textHeight,
         x: detailsSection,
@@ -919,8 +939,14 @@ export function ReportProvider({ children }) {
           const { duration, discount, type } = rate;
 
           const less = type === "percent" ? discount / 100 : discount;
+          const lessAmount =
+            type === "flat"
+              ? curExchange.currency === "PHP"
+                ? less
+                : less / curExchange.rate
+              : less;
           const finalPrice =
-            type === "flat" ? price - less : price - price * less;
+            type === "flat" ? price - lessAmount : price - price * lessAmount;
 
           return [
             {
@@ -936,7 +962,7 @@ export function ReportProvider({ children }) {
             {
               text: `${Intl.NumberFormat("en-PH", {
                 style: "currency",
-                currency: "PHP",
+                currency: curExchange.currency,
               }).format(finalPrice)} + VAT`,
               options: {
                 align: "center",
@@ -999,7 +1025,8 @@ export function ReportProvider({ children }) {
         slide.addText(
           Intl.NumberFormat("en-PH", {
             style: "currency",
-            currency: "PHP",
+            currency:
+              curExchange.currency !== "PHP" ? curExchange.currency : "PHP",
           }).format(price) + " + VAT",
           {
             w: colWidth * 1.5,
@@ -1129,6 +1156,11 @@ export function ReportProvider({ children }) {
     rates,
     showRates,
     setShow,
+    curExchange,
+    setCurExchange,
+    setReports,
+    showLandmarks,
+    setShowLandmarks,
   };
 
   return (

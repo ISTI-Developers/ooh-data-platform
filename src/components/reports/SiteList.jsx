@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 import classNames from "classnames";
-import { differenceInDays, format, getMonth, getYear } from "date-fns";
-import { Badge, Button, Label } from "flowbite-react";
+import { differenceInDays, format, getYear } from "date-fns";
+import { Button, Dropdown, DropdownItem, Label } from "flowbite-react";
 import { useMemo, useState } from "react";
 import { AiOutlineLoading } from "react-icons/ai";
+import { MdCheck } from "react-icons/md";
 import { useFunction } from "~config/functions";
 import { useMap } from "~config/MapsContext";
 import { useReport } from "~config/ReportContext";
@@ -12,15 +13,19 @@ import { mainButtonTheme } from "~config/themes";
 const SiteList = ({ setSites, query }) => {
   const { reports, sites, addReport, filters, showAvailable, toggleAvailable } =
     useReport();
-  // const { retrieveAvailableSites } = useService();
 
-  const [month, setMonth] = useState(0);
+  const [month, setMonth] = useState([]);
 
   const { landmarks } = useMap();
-  const { haversineDistance, capitalizeFirst } = useFunction();
+  const {
+    haversineDistance,
+    capitalizeFirst,
+    areConsecutiveMonths,
+    monthYearToDate,
+  } = useFunction();
 
-  const months = Array.from({ length: 12 }, (_, index) =>
-    format(new Date(getYear(new Date()), index), "MMMM")
+  const options = Array.from({ length: 24 }, (_, index) =>
+    format(new Date(getYear(new Date()), index), "MMMM yyyy")
   );
 
   const onSelectAll = () => {
@@ -124,8 +129,9 @@ const SiteList = ({ setSites, query }) => {
     if (filteredSites.length === 0) return [];
 
     const choice = parseInt(showAvailable);
+
     // Return the filtered list based on showAvailable condition
-    return filteredSites.filter((site) => {
+    const finalSites = filteredSites.filter((site) => {
       const hasAvailable = site.availability ?? false;
       switch (choice) {
         case 0:
@@ -134,20 +140,101 @@ const SiteList = ({ setSites, query }) => {
         case 1:
           return hasAvailable
             ? differenceInDays(new Date(hasAvailable), new Date()) <= 60
-            : false;
+            : true;
         case 2:
           // console.log(site.site_code, hasAvailable, differenceInDays(new Date(hasAvailable), new Date()) < 60)
           return hasAvailable
             ? differenceInDays(new Date(hasAvailable), new Date()) > 60
-            : false;
-        case 3:
-          return hasAvailable
-            ? getMonth(new Date(hasAvailable.substring(0, 10))) === month
-            : false;
+            : true;
+        case 3: {
+          if (month.length === 0) return true;
+
+          if (!hasAvailable) return true;
+
+          return month.some((m) => {
+            const availableMonthYear = format(
+              new Date(
+                new Date(site.availability).setDate(
+                  new Date(site.availability).getDate() + 1
+                )
+              ),
+              "MMMM yyyy"
+            );
+            const isSameMonth = availableMonthYear === options[m];
+            return isSameMonth;
+          });
+        }
       }
     });
+    const sortedFinalSites = finalSites.sort((a, b) => {
+      const siteA = a.site_code;
+      const siteB = b.site_code;
+
+      const startsWithNumberA = /^\d/.test(siteA);
+      const startsWithNumberB = /^\d/.test(siteB);
+
+      // If both start with numbers, compare the numeric parts (or full string if you prefer)
+      if (startsWithNumberA && startsWithNumberB) {
+        return siteA.localeCompare(siteB, undefined, { numeric: true });
+      }
+
+      // If only one starts with a number, number comes first
+      if (startsWithNumberA) return -1;
+      if (startsWithNumberB) return 1;
+
+      // If neither starts with a number, sort alphabetically
+      return siteA.localeCompare(siteB);
+    });
+
+    return sortedFinalSites;
   }, [filteredSites, showAvailable, month]);
 
+  const selectedMonths = useMemo(() => {
+    return options
+      .filter((_, index) => month.includes(index))
+      .sort((a, b) => {
+        const [monthA, yearA] = a.split(" ");
+        const [monthB, yearB] = b.split(" ");
+        return (
+          new Date(`${monthA} 1, ${yearA}`) - new Date(`${monthB} 1, ${yearB}`)
+        );
+      });
+  }, [options, month]);
+
+  const displayLabel = useMemo(() => {
+    if (selectedMonths.length === 0) return "";
+    const dates = selectedMonths.map(monthYearToDate);
+
+    if (selectedMonths.length === 1) {
+      return selectedMonths[0];
+    }
+
+    if (areConsecutiveMonths(dates)) {
+      const startDate = monthYearToDate(selectedMonths[0]);
+      const endDate = monthYearToDate(
+        selectedMonths[selectedMonths.length - 1]
+      );
+
+      const startStr = startDate.toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      });
+      const endStrMonth = endDate.toLocaleString("default", { month: "long" });
+      const endStrYear = endDate.getFullYear();
+
+      // If year changed, include both years
+      if (startDate.getFullYear() !== endDate.getFullYear()) {
+        return `${startStr} to ${endStrMonth} ${endStrYear}`;
+      } else {
+        const startStrMonth = startDate.toLocaleString("default", {
+          month: "long",
+        });
+        return `${startStrMonth} to ${endStrMonth} ${endStrYear}`;
+      }
+    } else {
+      return selectedMonths.join(", ");
+    }
+  }, [selectedMonths]);
   return (
     <>
       <Button
@@ -167,9 +254,9 @@ const SiteList = ({ setSites, query }) => {
       >
         Select all
       </Button>
-      <div className="flex gap-4 px-2">
+      <div className="flex flex-col gap-4 px-2">
         <div className="flex gap-4 items-center">
-          <Label htmlFor="site_availability" value="Show: " />
+          <Label htmlFor="site_availability" value="Show Availability: " />
           <select
             id="site_availability"
             className={classNames(
@@ -178,35 +265,55 @@ const SiteList = ({ setSites, query }) => {
             )}
             onChange={(e) => toggleAvailable(e.target.value)}
           >
-            {["all", "available", "unavailable", "month"].map((value, idx) => {
-              return (
-                <option
-                  key={`opt_${value}`}
-                  value={idx}
-                  selected={showAvailable === idx}
-                >
-                  {capitalizeFirst(value, "_")}
-                </option>
-              );
-            })}
+            {["all", "available", "unavailable", "date range"].map(
+              (value, idx) => {
+                return (
+                  <option
+                    key={`opt_${value}`}
+                    value={idx}
+                    selected={showAvailable === idx}
+                  >
+                    {capitalizeFirst(value, "_")}
+                  </option>
+                );
+              }
+            )}
           </select>
         </div>
         {showAvailable == 3 && (
           <div className="flex items-center gap-4">
-            <select
-              id="sort"
-              value={month}
-              className="text-xs rounded-lg border-slate-300"
-              onChange={(e) => setMonth(parseInt(e.target.value))}
+            <Label htmlFor="months" value="Select month/s: " />
+            <Dropdown
+              label="Select months"
+              size="xs"
+              dismissOnClick={false}
+              className="max-h-[200px] overflow-y-auto"
+              renderTrigger={() => (
+                <button className="border border-gray-300 p-1.5 px-3 text-sm font-semibold rounded-lg">
+                  {month.length > 0 ? displayLabel : "Click to select"}
+                </button>
+              )}
             >
-              {months.map((key, index) => {
+              {options.map((key, index) => {
                 return (
-                  <option key={key} value={index}>
+                  <DropdownItem
+                    key={key}
+                    value={key}
+                    onClick={() =>
+                      setMonth((prev) =>
+                        prev.includes(index)
+                          ? prev.filter((m) => m !== index)
+                          : [...prev, index]
+                      )
+                    }
+                    className="grid grid-cols-[1fr_auto] gap-8"
+                  >
+                    <span>{month.includes(index) ? <MdCheck /> : ""}</span>
                     {capitalizeFirst(key, "_")}
-                  </option>
+                  </DropdownItem>
                 );
               })}
-            </select>
+            </Dropdown>
           </div>
         )}
       </div>
@@ -242,7 +349,7 @@ const SiteList = ({ setSites, query }) => {
                         ),
                         "MMMM d, yyyy"
                       )
-                    : null}
+                    : "N/A"}
                 </p>
               </div>
               <p className="text-xs">

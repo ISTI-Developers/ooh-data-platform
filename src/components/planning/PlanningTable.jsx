@@ -2,21 +2,13 @@ import PropTypes from "prop-types";
 import { Table } from "flowbite-react";
 import classNames from "classnames";
 import { FaCheck } from "react-icons/fa";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { usePlanning } from "~config/PlanningContext";
 import { MdAdd } from "react-icons/md";
 
-function PlanningTable({ filter }) {
+function PlanningTable() {
   // const [sites, setSites] = useState([]);
-  const {
-    dates,
-    profiles,
-    areas,
-    setAreas,
-    allowedMultiple,
-    siteResults,
-    impressions,
-  } = usePlanning();
+  const { areas, setAreas, siteResults, impressions } = usePlanning();
 
   const headers = [
     "Area",
@@ -86,6 +78,7 @@ function PlanningTable({ filter }) {
             })}
           </Table.Head>
           <Table.Body>
+            {console.log(sites)}
             {sites.length > 0 ? (
               sites.map((areaData, index) => {
                 const { city, sites } = areaData;
@@ -101,7 +94,9 @@ function PlanningTable({ filter }) {
                         <span className="text-xs">{siteCount} sites</span>
                       </p>
                     </Table.Cell>
-                    <Table.Cell align="center">{areaData.fits_no}</Table.Cell>
+                    <Table.Cell align="center"> {Intl.NumberFormat("en-PH", {
+                        style: "decimal",
+                      }).format(areaData.fits_no)}</Table.Cell>
                     <Table.Cell align="center">
                       {Intl.NumberFormat("en-PH", {
                         style: "decimal",
@@ -109,7 +104,9 @@ function PlanningTable({ filter }) {
                       %
                     </Table.Cell>
                     <Table.Cell align="center">
-                      {areaData.avg_monthly_impressions}
+                      {Intl.NumberFormat("en-PH", {
+                        style: "decimal",
+                      }).format(areaData.avg_monthly_impressions)}
                     </Table.Cell>
                     <Table.Cell align="center">
                       <button

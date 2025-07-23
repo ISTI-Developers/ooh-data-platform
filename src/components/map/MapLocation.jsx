@@ -1,16 +1,17 @@
 /* eslint-disable react/prop-types */
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
-import { lazy, Suspense, useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useMemo, useState } from "react";
 import Markers from "./Markers";
 import { Label, TextInput } from "flowbite-react";
-
+import Select from "react-select";
 import Loader from "~fragments/Loader";
 import { defaultTextTheme } from "~config/themes";
 import LandMarkers from "./LandMarkers";
 import { useMap } from "~config/MapsContext";
 import MapList from "./MapList";
-
+import { useFunction } from "~config/functions";
 const MapSiteOverview = lazy(() => import("./MapSiteOverview"));
+
 function MapLocation() {
   const {
     queryResults,
@@ -22,7 +23,11 @@ function MapLocation() {
     setZoom,
     landmarks,
     setSelectedLandmark,
+    filters,
+    setFilters,
   } = useMap();
+  const { toSpaced } = useFunction();
+
   const [center, setCenter] = useState({ lat: 12.8797, lng: 121.774 });
 
   const updateMapCenter = (coords, zoom) => {
@@ -60,17 +65,48 @@ function MapLocation() {
         marker.longitude >= sw.lng()
     );
   };
+  const landmarkTypes = useMemo(() => {
+    if (!landmarks) return [];
+    const types = landmarks
+      .map((lm) => {
+        return [...lm.types];
+      })
+      .flat();
+
+    const interestList = [...new Set(types)];
+
+    return interestList.map((item) => {
+      return {
+        value: item,
+        label: toSpaced(item),
+      };
+    });
+  }, [landmarks]);
 
   return queryResults ? (
     <div className="flex flex-col bg-white shadow p-4 pt-2 gap-4">
-      <span className="hidden" />
-      <div>
-        <Label value="Search site" />
-        <TextInput
-          type="search"
-          theme={defaultTextTheme}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+      <div className="flex gap-4">
+        <div className="w-full">
+          <Label value="Search site" />
+          <TextInput
+            type="search"
+            theme={defaultTextTheme}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        <div>
+          <Label value="Show landmarks near: " />
+          <Select
+            id="landmark"
+            value={filters}
+            options={landmarkTypes}
+            onChange={setFilters}
+            closeMenuOnSelect={false}
+            className="min-w-[300px] capitalize"
+            isMulti
+          />
+        </div>
       </div>
       <div className="relative flex gap-4 overflow-hidden">
         {/* LIST OF SITES */}
