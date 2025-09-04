@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { IoArrowForwardSharp, IoArrowBackSharp, IoArrowDownSharp, IoArrowUpSharp } from "react-icons/io5";
-
+import ticketBooht from "../../assets/ticketbooth.png";
 export const ParapetBookButton = ({
   onClick,
   text,
@@ -93,16 +93,17 @@ export const TicketBoothBookButton = ({ onClick, text, className, isDisabled }) 
   const displayText = text?.length > 15 ? `${text.slice(0, 15)}...` : text;
 
   return (
-    <button
+    <div
       onClick={onClick}
       className={`
-        h-[2.875rem] w-[12.0625rem] px-4 relative overflow-hidden rounded-lg font-semibold transition-colors duration-200
-        ${isDisabled ? "bg-neutral-600 hover:bg-neutral-700 cursor-not-allowed" : "bg-sky-600 hover:bg-sky-700 text-white"}
+        relative inline-flex items-center justify-center h-[5rem] w-[13rem] cursor-pointer
+        ${isDisabled ? "cursor-not-allowed opacity-60" : ""}
         ${className}
       `}
     >
-      {displayText}
-    </button>
+      <img src={ticketBooht} alt="Ticket Booth Button" className="h-full rounded-lg" />
+      <span className="relative z-10 font-semibold text-white">{displayText}</span>
+    </div>
   );
 };
 

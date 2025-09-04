@@ -148,8 +148,10 @@ const Template = ({
           {station_name} Station
         </h1>
       </div>
+      <Legend />
 
       <hr className="h-[3px] bg-black border-none" />
+
       <h1 className="text-2xl font-bold text-center">SOUTH BOUND</h1>
       <Stairs
         direction="SOUTH"
