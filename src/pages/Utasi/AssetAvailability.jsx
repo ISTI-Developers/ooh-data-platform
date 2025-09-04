@@ -35,33 +35,11 @@ const AssetAvailability = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
+
   // 4. Derived Data
   const parsedFromDate = parse(fromDate, "MMMM d, yyyy", new Date());
   const parsedToDate = parse(toDate, "MMMM d, yyyy", new Date());
-  // const enrichAssetsWithContracts = (assets, assetKey, contractKey) => {
-  //   return assets.map((asset) => {
-  //     const relatedContracts = queryAssetContracts.filter((contract) => contract[contractKey] === asset[assetKey]);
-  //     return {
-  //       ...asset,
-  //       contracts: relatedContracts,
-  //     };
-  //   });
-  // };
-  // const enrichAssetsWithContracts1 = (assets, contracts) => {
-  //   return assets.map((asset) => {
-  //     const relatedContracts = contracts.filter(
-  //       (contract) =>
-  //         contract.station_id === asset.station_id &&
-  //         contract.asset_id === asset.asset_id &&
-  //         contract.asset_facing === asset.asset_prefix
-  //     );
 
-  //     return {
-  //       ...asset,
-  //       contracts: relatedContracts,
-  //     };
-  //   });
-  // };
   const enrichAssetsWithContracts = (assets, contracts, matchKeys) => {
     return assets.map((asset) => {
       const relatedContracts = contracts.filter((contract) =>
@@ -74,14 +52,10 @@ const AssetAvailability = () => {
     });
   };
 
-  // const enrichedTrain = enrichAssetsWithContracts(trainAssets, "asset_id", "asset_id");
-  // const enrichedParapets = enrichAssetsWithContracts1(parapets, queryAssetContracts);
-  // const enrichedBacklits = enrichAssetsWithContracts(backlits, "id", "backlit_id");
-  // const enrichedExternalAssets = enrichAssetsWithContracts(queryExternalAssets, "id", "viaduct_id");
-  // const enrichedPillars = enrichAssetsWithContracts(pillars, "id", "pillar_id");
   const enrichedTrain = enrichAssetsWithContracts(trainAssets, queryAssetContracts, [
     { assetKey: "asset_id", contractKey: "asset_id" },
   ]);
+
   const enrichedParapets = enrichAssetsWithContracts(parapets, queryAssetContracts, [
     { assetKey: "station_id", contractKey: "station_id" },
     { assetKey: "asset_id", contractKey: "asset_id" },
@@ -166,6 +140,7 @@ const AssetAvailability = () => {
       enrichedTrain,
     ]
   );
+
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -176,6 +151,7 @@ const AssetAvailability = () => {
   const dataToPaginate = useMemo(() => {
     return assetMap[selectedAsset]?.data || [];
   }, [assetMap, selectedAsset]); // Memoize dataToPaginate based on assetMap and selectedAsset
+
   const filteredContracts = useMemo(() => {
     if (!search.trim()) return dataToPaginate;
 
@@ -205,7 +181,6 @@ const AssetAvailability = () => {
 
   const paginatedData = getPaginatedData(filteredData);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
   // 5. Effect Hook
   useEffect(() => {
     const fetchParapets = async () => {
@@ -235,7 +210,7 @@ const AssetAvailability = () => {
             From:
             <Datepicker
               value={fromDate}
-              // minDate={today}
+              minDate={today}
               onSelectedDateChanged={(date) => {
                 const formatted = formatDate(date);
                 setFromDate(formatted);
@@ -302,6 +277,7 @@ const AssetAvailability = () => {
         setItemsPerPage={setItemsPerPage}
         totalCount={trainAssetNames.includes(selectedAsset) ? paginatedData[0]?.contracts?.length : filteredData.length}
       />
+
       {dataToPaginate && dataToPaginate.length > 0 ? (
         <div className="space-y-8">
           {trainAssetNames.includes(selectedAsset)
@@ -389,18 +365,18 @@ const AssetAvailability = () => {
                       })()
                     : data.asset_distinction || data.asset_direction}
                 </Table.Cell>
-                <Table.Cell className="text-center">{data.contracts?.[0]?.brand_owner ?? "N/A"}</Table.Cell>
+
+                <Table.Cell className="text-center">
+                  {data.contracts?.[0]?.brand_owner ?? data.brand ?? "N/A"}
+                </Table.Cell>
                 <Table.Cell className="text-center">
                   {data.contracts?.[0]?.asset_date_end
                     ? formatDate(data.contracts[0].asset_date_end)
                     : data.asset_date_end
                     ? formatDate(data.asset_date_end)
-                    : (selectedAsset === "backlits" ||
-                        selectedAsset === "stairs" ||
-                        selectedAsset === "ticketbooths") &&
-                      data.asset_status === "TAKEN"
-                    ? "Currently Unavailable"
-                    : selectedAsset === "parapets" && data.availability_status === "Currently Unavailable"
+                    : (["backlits", "stairs", "ticketbooths"].includes(selectedAsset) &&
+                        data.asset_status === "TAKEN") ||
+                      (selectedAsset === "parapets" && data.availability_status === "Currently Unavailable")
                     ? "Currently Unavailable"
                     : "Available Now"}
                 </Table.Cell>
@@ -409,6 +385,7 @@ const AssetAvailability = () => {
           </Table.Body>
         </Table>
       )}
+
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
