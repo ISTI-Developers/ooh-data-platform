@@ -78,7 +78,6 @@ function PlanningTable() {
             })}
           </Table.Head>
           <Table.Body>
-            {console.log(sites)}
             {sites.length > 0 ? (
               sites.map((areaData, index) => {
                 const { city, sites } = areaData;

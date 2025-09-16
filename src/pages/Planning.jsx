@@ -15,6 +15,7 @@ function Planning() {
   const [onProfileFilters, toggleProfileFilters] = useState(false);
   const [onAreasSelected, toggleAreasSelected] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
 
   function PlanningContainer() {
     const {
@@ -90,7 +91,6 @@ function Planning() {
                       <AreaSelectionList allowedMultiple={allowedMultiple} />
                     </div>
                   </div>
-                  <Title name="Results" />
                   <Results />
                 </div>
                 <div className="w-[25%] h-full flex flex-col gap-4 sticky top-4">
