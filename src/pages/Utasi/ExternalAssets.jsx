@@ -2,12 +2,16 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { FaArrowLeft } from "react-icons/fa";
 import { useStations } from "~config/LRTContext";
-import { imageMap, imageMap2 } from "./utasi.const";
+import { useUtasiImages } from "./utasi.const";
 // import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import PillarMapLocation from "~components/pillarMap/PillarMapLocation";
 import { ViaductCard } from "~components/ViaductCard";
 import { Button } from "flowbite-react";
+import { useImageUrl } from "~/misc/useImageUrl";
 const ExternalAssets = ({ onBackExternal }) => {
+  const viad = useImageUrl("viad.jpg");
+  const { imageMap, imageMap2 } = useUtasiImages();
+
   const { queryExternalAssets, queryAssetContracts } = useStations();
   const [selectedViaduct, setSelectedViaduct] = useState(null);
   const [isViaduct, setIsViaduct] = useState(true);
@@ -66,7 +70,7 @@ const ExternalAssets = ({ onBackExternal }) => {
                 key={viaduct.id}
                 viaduct={{
                   ...viaduct,
-                  picture: imageMap[viaduct.id] || null,
+                  picture: imageMap[viaduct.id] || viad,
                   isBooked: contractedViaduct.includes(viaduct.id),
                 }}
                 onDetailsClick={handleDetailsClick}

@@ -1,11 +1,9 @@
-import { useMemo, useState } from "react";
 import { useStations } from "~config/LRTContext";
 import classNames from "classnames";
-import { Button } from "flowbite-react";
-import Pillar from "~assets/Pillar.jpg";
-
-function PillarMapSiteOverview(props) {
-  const { selectedPillar, attachedContract, queryAssetContracts } = useStations();
+import { useImageUrl } from "~/misc/useImageUrl";
+function PillarMapSiteOverview() {
+  const Pillar = useImageUrl("Pillar.jpg");
+  const { selectedPillar, queryAssetContracts } = useStations();
 
   const contractedPillar = queryAssetContracts
     .filter((cp) => cp.pillar_id !== null && cp.pillar_id !== undefined)

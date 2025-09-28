@@ -4,32 +4,23 @@ import PropTypes from "prop-types";
 import { Modal } from "flowbite-react";
 import { FaInfoCircle, FaArrowLeft } from "react-icons/fa";
 import { useStations } from "~config/LRTContext";
-import ContractTable from "~components/contractTable";
-import handgrips from "../../assets/handgrips.jpg";
-import overheadpanels from "../../assets/overheadpanels.png";
-import seatdividersticker from "../../assets/seatdividersticker.jpg";
-import seatdividersticker2 from "../../assets/seatdividersticker2.png";
-import trainwrap from "../../assets/trainwrap.jpg";
-import twoseaterwrap from "../../assets/twoseaterwrap.jpg";
-import { useLRTapi } from "~config/LRT.api";
+import { useImageUrl } from "~/misc/useImageUrl";
+
 const TrainAssets = ({ onBackTrain }) => {
-  const { getTrainAssets, getTrainAssetsSpecs, attachedContract } = useStations();
-  const { trainAssetBook, attachContract, updateTrainAsset } = useLRTapi();
+  const handgrips = useImageUrl("handgrips.jpg");
+  const overheadpanels = useImageUrl("overheadpanels.png");
+  const seatdividersticker = useImageUrl("seatdividersticker.jpg");
+  const seatdividersticker2 = useImageUrl("seatdividersticker2.png");
+  const trainwrap = useImageUrl("trainwrap.jpg");
+  const twoseaterwrap = useImageUrl("twoseaterwrap.jpg");
+
+  const { getTrainAssets, getTrainAssetsSpecs } = useStations();
   const [trainAssets, setTrainAssets] = useState([]);
   const [assetSpecs, setAssetSpecs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [detailModal, setDetailModal] = useState(false);
-  const [bookModal, setBookModal] = useState(false);
-  const [editModal, setEditModal] = useState(false);
-
-  const [qty, setQty] = useState(0);
-  const [avlbl, setAvlbl] = useState(0);
-  const [ood, setOod] = useState(0);
-  const [bkd, setBkd] = useState(0);
-
-  const [bookedAsset, setBookedAsset] = useState(null);
 
   const headers = ["Assets", "Available", "Out of Order", "Booked"];
 
@@ -165,116 +156,6 @@ const TrainAssets = ({ onBackTrain }) => {
           </button>
         </Modal.Footer>
       </Modal>
-      {bookModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <div className="flex justify-between items-center">
-              <h2 className="text-blue-600 font-bold text-lg capitalize">{selectedAsset.asset_name}</h2>
-              <button onClick={() => setBookModal(false)}>Exit</button>
-            </div>
-            <label className="block mt-4 font-medium">Set</label>
-            <div className="flex items-center mt-1">
-              <button className="px-3 py-1 border rounded-l bg-gray-200" onClick={() => setQty(qty > 0 ? qty - 1 : 0)}>
-                -
-              </button>
-              <span className="px-4 border-t border-b">{qty}</span>
-              <button
-                className="px-3 py-1 border rounded-r bg-gray-200"
-                onClick={() => setQty(qty < avlbl ? qty + 1 : avlbl)}
-              >
-                +
-              </button>
-            </div>
-            {attachedContract && (
-              <>
-                <h1 className="font-bold">Selected Contract</h1>
-                <ContractTable
-                  code={attachedContract.SalesOrderCode || "N/A"}
-                  reference={attachedContract.ReferenceNo || "N/A"}
-                  orderDate={attachedContract.SalesOrderDate || "N/A"}
-                  projDesc={attachedContract.ProjectDesc || "N/A"}
-                  dateStart={attachedContract.DateRef1 || "N/A"}
-                  dateEnd={attachedContract.DateRef2 || "N/A"}
-                />
-              </>
-            )}
-            <button
-              onClick={bookTrain}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-full mt-4 w-full"
-            >
-              Book
-            </button>
-          </div>
-        </div>
-      )}
-      {editModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <div className="flex justify-between items-center">
-              <h2 className="text-blue-600 font-bold text-lg capitalize">{selectedAsset.asset_name} (Edit Mode)</h2>
-              <button onClick={() => setEditModal(false)}>Exit</button>
-            </div>
-
-            {/* Total Trains Calculation */}
-            <label className="block mt-4 font-medium">
-              Total Trains with {selectedAsset.asset_name}: {avlbl + ood + bkd}
-            </label>
-
-            {/* Set Available Quantity */}
-            <label className="block mt-4 font-medium">Set Available</label>
-            <div className="flex items-center mt-1">
-              <button
-                className="px-3 py-1 border rounded-l bg-gray-200"
-                onClick={() => setAvlbl(avlbl > 0 ? avlbl - 1 : 0)} // Decrease freely
-              >
-                -
-              </button>
-              <span className="px-4 border-t border-b">{avlbl}</span>
-              <button
-                className="px-3 py-1 border rounded-r bg-gray-200"
-                onClick={() => setAvlbl(avlbl + 1)} // Increase freely
-              >
-                +
-              </button>
-            </div>
-
-            {/* Set Out of Order (Auto-Adjusts Available) */}
-            <label className="block mt-4 font-medium">Set Out of Order</label>
-            <div className="flex items-center mt-1">
-              <button
-                className="px-3 py-1 border rounded-l bg-gray-200"
-                onClick={() => {
-                  if (ood > 0) {
-                    setOod(ood - 1);
-                    setAvlbl(avlbl + 1); // Restore to Available when OOD decreases
-                  }
-                }}
-              >
-                -
-              </button>
-              <span className="px-4 border-t border-b">{ood}</span>
-              <button
-                className="px-3 py-1 border rounded-r bg-gray-200"
-                onClick={() => {
-                  setOod(ood + 1);
-                  if (avlbl > 0) {
-                    setAvlbl(avlbl - 1);
-                  } // Reduce Available when OOD increases
-                }}
-              >
-                +
-              </button>
-            </div>
-
-            <button
-              onClick={updateTrain}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-full mt-4 w-full"
-            >
-              Book
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

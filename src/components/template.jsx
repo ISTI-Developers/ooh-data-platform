@@ -9,12 +9,8 @@ import Parapets from "./Parapets";
 import TicketBooth from "./TicketBooth.jsx";
 import Stairs from "./Stairs";
 import { SWS, NWS, SES, NES, SBS, NBS } from "../pages/Utasi/utasi.const";
-
-import parapet_pic from "../assets/parapet_pic.png";
-import backlit_pic from "../assets/backlit_pic.jpg";
-import tb_pic from "../assets/tb_pic.png";
 import { useStations } from "~config/LRTContext";
-
+import { useImageUrl } from "~/misc/useImageUrl";
 const Template = ({
   station_name,
   backLitsSB,
@@ -39,6 +35,10 @@ const Template = ({
   sbStairs,
   nbStairs,
 }) => {
+  const parapet_pic = useImageUrl("parapet_pic.png");
+  const backlit_pic = useImageUrl("backlit_pic.jpg");
+  const tb_pic = useImageUrl("tb_pic.png");
+
   const { queryAssetContracts, fetchContracts } = useStations();
   const [isParapet, setIsParapet] = useState(false);
   const [selectedParapet, setSelectedParapet] = useState(null);
