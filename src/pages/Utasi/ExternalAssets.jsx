@@ -1,24 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { FaArrowLeft } from "react-icons/fa";
 import { useStations } from "~config/LRTContext";
-import { imageMap, imageMap2 } from "./utasi.const";
-// import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
+import { useUtasiImages } from "./utasi.const";
 import PillarMapLocation from "~components/pillarMap/PillarMapLocation";
 import { ViaductCard } from "~components/ViaductCard";
 import { Button } from "flowbite-react";
+import { useImageUrl } from "~/misc/useImageUrl";
 const ExternalAssets = ({ onBackExternal }) => {
-  const { queryExternalAssets, queryAssetContracts } = useStations();
+  const viad = useImageUrl("viad.jpg");
+  const { imageMap, imageMap2 } = useUtasiImages();
+
+  const { viaducts, refreshViaducts, refreshAssetContracts, refreshPillars } = useStations();
   const [selectedViaduct, setSelectedViaduct] = useState(null);
   const [isViaduct, setIsViaduct] = useState(true);
-  const contractedViaduct = queryAssetContracts
-    .filter((cv) => cv.viaduct_id !== null && cv.viaduct_id !== undefined)
-    .map((cv) => cv.viaduct_id);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleDetailsClick = (viaduct) => {
     setSelectedViaduct(viaduct);
   };
-  const externalAssetsWithImages = queryExternalAssets.map((asset) => ({
+  const externalAssetsWithImages = viaducts.map((asset) => ({
     ...asset,
     picture: imageMap[asset.id] || null,
     picture2: imageMap2[asset.id] || null,
@@ -26,6 +28,23 @@ const ExternalAssets = ({ onBackExternal }) => {
   const notes = selectedViaduct?.notes || "";
   const [firstPart, ...rest] = notes.split(",");
 
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      await refreshViaducts();
+      await refreshAssetContracts();
+      await refreshPillars();
+    } catch {
+      setError("Failed to load train assets data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  if (error) return <p>Error: {error}</p>;
   return (
     <div className="container p-6">
       <div className="flex justify-between mb-4">
@@ -53,10 +72,27 @@ const ExternalAssets = ({ onBackExternal }) => {
             Pillar
           </Button>
         </div>
-        <button onClick={onBackExternal} className="flex items-center px-4 py-2 rounded hover:bg-gray-400">
-          <FaArrowLeft />
-          Back
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={onBackExternal}
+            className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg shadow-sm hover:bg-gray-300 active:scale-95 transition"
+          >
+            <FaArrowLeft />
+            Back
+          </button>
+          {/* Refresh Button */}
+          <button
+            onClick={refresh}
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg font-semibold shadow-md transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : "bg-blue-600 hover:bg-blue-700 active:scale-95 text-white"
+            }`}
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
       </div>
       {isViaduct ? (
         <>
@@ -66,8 +102,7 @@ const ExternalAssets = ({ onBackExternal }) => {
                 key={viaduct.id}
                 viaduct={{
                   ...viaduct,
-                  picture: imageMap[viaduct.id] || null,
-                  isBooked: contractedViaduct.includes(viaduct.id),
+                  picture: imageMap[viaduct.id] || viad,
                 }}
                 onDetailsClick={handleDetailsClick}
               />

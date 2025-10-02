@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import { IoArrowForwardSharp, IoArrowBackSharp, IoArrowDownSharp, IoArrowUpSharp } from "react-icons/io5";
-
 export const ParapetBookButton = ({
   onClick,
   text,
@@ -96,8 +95,8 @@ export const TicketBoothBookButton = ({ onClick, text, className, isDisabled }) 
     <button
       onClick={onClick}
       className={`
-        h-[2.875rem] w-[12.0625rem] px-4 relative overflow-hidden rounded-lg font-semibold transition-colors duration-200
-        ${isDisabled ? "bg-neutral-600 hover:bg-neutral-700 cursor-not-allowed" : "bg-sky-600 hover:bg-sky-700 text-white"}
+        h-[2.875rem] w-[12.0625rem] px-4 relative overflow-hidden rounded-lg font-semibold transition-colors duration-200 text-white
+        ${isDisabled ? "bg-neutral-600 hover:bg-neutral-700 cursor-not-allowed" : "bg-sky-600 hover:bg-sky-700"}
         ${className}
       `}
     >

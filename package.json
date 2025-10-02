@@ -16,6 +16,7 @@
     "date-fns": "^3.0.6",
     "docx": "^9.0.3",
     "file-saver": "^2.0.5",
+    "firebase": "^12.2.1",
     "flowbite": "^2.2.1",
     "flowbite-react": "^0.7.2",
     "html-to-image": "^1.11.11",

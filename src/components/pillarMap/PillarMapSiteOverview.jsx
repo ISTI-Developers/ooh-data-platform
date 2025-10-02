@@ -1,16 +1,11 @@
-import { useMemo, useState } from "react";
 import { useStations } from "~config/LRTContext";
 import classNames from "classnames";
-import { Button } from "flowbite-react";
-import Pillar from "~assets/Pillar.jpg";
+import { useImageUrl } from "~/misc/useImageUrl";
+function PillarMapSiteOverview() {
+  const Pillar = useImageUrl("Pillar.jpg");
+  const { selectedPillar } = useStations();
 
-function PillarMapSiteOverview(props) {
-  const { selectedPillar, attachedContract, queryAssetContracts } = useStations();
-
-  const contractedPillar = queryAssetContracts
-    .filter((cp) => cp.pillar_id !== null && cp.pillar_id !== undefined)
-    .map((cp) => cp.pillar_id);
-  const isBooked = contractedPillar.includes(selectedPillar?.id);
+  const isBooked = Number(selectedPillar?.is_booked) === 1;
   return (
     <>
       <div
@@ -21,23 +16,22 @@ function PillarMapSiteOverview(props) {
         )}
       >
         {selectedPillar && (
-          <div
-            className={classNames("flex flex-col gap-4", {
-              "opacity-50 pointer-events-none": isBooked,
-            })}
-          >
+          <div className="flex flex-col gap-4">
             {isBooked && (
-              <div className="absolute top-3 right-3 bg-green-500 text-white font-bold text-lg px-4 py-1 rounded rotate-12">
-                BOOKED
+              <div className="absolute top-3 right-3 bg-green-500 text-white font-bold text-lg px-4 py-1 rounded rotate-12 z-10">
+                {selectedPillar.brand ? selectedPillar.brand : "BOOKED"}
               </div>
             )}
 
-            <div className="space-y-4">
+            <div
+              className={classNames("space-y-4", {
+                "opacity-50": isBooked,
+              })}
+            >
               <div>
                 <p className="text-lg font-semibold text-gray-800">Pillar Overview</p>
                 <hr className="border-gray-300" />
               </div>
-
               <div className="flex flex-col gap-3">
                 <img
                   src={selectedPillar.imageURL ? selectedPillar.imageURL : Pillar}

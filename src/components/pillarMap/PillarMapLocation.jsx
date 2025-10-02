@@ -1,26 +1,15 @@
 /* eslint-disable react/prop-types */
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import PillarMarkers from "./PillarMarkers";
 import { Label, TextInput } from "flowbite-react";
 import Loader from "~fragments/Loader";
 import { defaultTextTheme } from "~config/themes";
-import PillarLandMarkers from "./PillarLandMarkers";
 import { useStations } from "~config/LRTContext";
 import PillarMapList from "./PillarMapList";
 import PillarMapSiteOverview from "./PillarMapSiteOverview";
 function PillarMapLocation() {
-  const {
-    queryResults,
-    setQuery,
-    setSelectedPillar,
-    visibleLandmarks,
-    setVisibleLandmarks,
-    zoom,
-    setZoom,
-    landmarks,
-    setSelectedLandmark,
-  } = useStations();
+  const { pillars, setSelectedPillar, zoom, setZoom } = useStations();
   const [center, setCenter] = useState({ lat: 12.8797, lng: 121.774 });
 
   const updateMapCenter = (coords, zoom) => {
@@ -28,43 +17,12 @@ function PillarMapLocation() {
     setCenter(() => coords);
   };
 
-  const onBoundsChanged = useCallback(
-    (e) => {
-      if (zoom < 17) {
-        setVisibleLandmarks(null);
-        return;
-      }
-
-      const { map } = e;
-      const bounds = map.getBounds();
-      const ne = bounds.getNorthEast();
-      const sw = bounds.getSouthWest();
-
-      const visibleMarkers = getMarkersWithinBounds(ne, sw);
-      setVisibleLandmarks(visibleMarkers);
-    },
-    [zoom]
-  );
-
-  const getMarkersWithinBounds = (ne, sw) => {
-    // Implement logic to filter or fetch markers based on bounds
-    const allMarkers = [...landmarks];
-
-    return allMarkers.filter(
-      (marker) =>
-        marker.latitude <= ne.lat() &&
-        marker.latitude >= sw.lat() &&
-        marker.longitude <= ne.lng() &&
-        marker.longitude >= sw.lng()
-    );
-  };
-
-  return queryResults ? (
+  return pillars ? (
     <div className="flex flex-col bg-white shadow p-4 pt-2 gap-4">
       <span className="hidden" />
       <div>
-        <Label value="Search site" />
-        <TextInput type="search" theme={defaultTextTheme} onChange={(e) => setQuery(e.target.value)} />
+        <Label value="Search pillar" />
+        <TextInput disabled type="search" theme={defaultTextTheme} />
       </div>
       <div className="relative flex gap-4 overflow-hidden">
         {/* LIST OF SITES */}
@@ -82,12 +40,9 @@ function PillarMapLocation() {
               onZoomChanged={(e) => setZoom(e.detail.zoom)}
               onClick={() => {
                 setSelectedPillar(null);
-                setSelectedLandmark(null);
               }}
-              onBoundsChanged={onBoundsChanged}
             >
               <PillarMarkers center={center} setCenter={setCenter} />
-              {visibleLandmarks && <PillarLandMarkers />}
             </Map>
             <PillarMapSiteOverview />
           </div>
