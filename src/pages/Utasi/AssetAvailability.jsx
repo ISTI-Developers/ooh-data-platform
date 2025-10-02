@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Table, Select, Datepicker } from "flowbite-react";
 import { parse, isAfter, isBefore, format, addYears } from "date-fns";
 import { useLRTapi } from "~config/LRT.api";
-import { useStations } from "~/config/LRTContext";
+import { useStations } from "~config/LRTContext";
 import Pagination from "~components/Pagination";
 import { TextInput } from "flowbite-react";
 import { SWS, NWS, SES, NES, SBS, NBS } from "./utasi.const";
@@ -18,9 +18,17 @@ const AssetAvailability = () => {
     retrieveBacklitsAvailability,
     retrieveTicketboothsAvailability,
     retrieveStairsAvailability,
-    getTrainAssets,
   } = useLRTapi();
-  const { pillars, queryExternalAssets, queryAssetContracts } = useStations();
+  const {
+    pillars,
+    assetContracts,
+    refreshViaducts,
+    viaducts,
+    refreshPillars,
+    refreshAssetContracts,
+    refreshAllTrainAssets,
+    trainAssets,
+  } = useStations();
   // 3. State Initialization
   const today = new Date();
   const oneYearFromToday = addYears(today, 1);
@@ -31,11 +39,9 @@ const AssetAvailability = () => {
   const [backlits, setBacklits] = useState([]);
   const [ticketbooths, setTicketbooths] = useState([]);
   const [stairs, setStairs] = useState([]);
-  const [trainAssets, setTrainAssets] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
-
   // 4. Derived Data
   const parsedFromDate = parse(fromDate, "MMMM d, yyyy", new Date());
   const parsedToDate = parse(toDate, "MMMM d, yyyy", new Date());
@@ -51,34 +57,32 @@ const AssetAvailability = () => {
       };
     });
   };
-
-  const enrichedTrain = enrichAssetsWithContracts(trainAssets, queryAssetContracts, [
+  const enrichedTrain = enrichAssetsWithContracts(trainAssets, assetContracts, [
     { assetKey: "asset_id", contractKey: "asset_id" },
   ]);
 
-  const enrichedParapets = enrichAssetsWithContracts(parapets, queryAssetContracts, [
+  const enrichedParapets = enrichAssetsWithContracts(parapets, assetContracts, [
     { assetKey: "station_id", contractKey: "station_id" },
     { assetKey: "asset_id", contractKey: "asset_id" },
     { assetKey: "asset_prefix", contractKey: "asset_facing" },
   ]);
 
-  const enrichedBacklits = enrichAssetsWithContracts(backlits, queryAssetContracts, [
+  const enrichedBacklits = enrichAssetsWithContracts(backlits, assetContracts, [
     { assetKey: "id", contractKey: "backlit_id" },
   ]);
 
-  const enrichedTicketBooths = enrichAssetsWithContracts(ticketbooths, queryAssetContracts, [
+  const enrichedTicketBooths = enrichAssetsWithContracts(ticketbooths, assetContracts, [
     { assetKey: "id", contractKey: "ticketbooth_id" },
   ]);
 
-  const enrichedStairs = enrichAssetsWithContracts(stairs, queryAssetContracts, [
+  const enrichedStairs = enrichAssetsWithContracts(stairs, assetContracts, [
     { assetKey: "id", contractKey: "stairs_id" },
   ]);
 
-  const enrichedExternalAssets = enrichAssetsWithContracts(queryExternalAssets, queryAssetContracts, [
+  const enrichedExternalAssets = enrichAssetsWithContracts(viaducts, assetContracts, [
     { assetKey: "id", contractKey: "viaduct_id" },
   ]);
-
-  const enrichedPillars = enrichAssetsWithContracts(pillars, queryAssetContracts, [
+  const enrichedPillars = enrichAssetsWithContracts(pillars, assetContracts, [
     { assetKey: "id", contractKey: "pillar_id" },
   ]);
 
@@ -140,12 +144,10 @@ const AssetAvailability = () => {
       enrichedTrain,
     ]
   );
-
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearch(value);
   };
-
   const assetTypes = Object.keys(assetMap);
 
   const dataToPaginate = useMemo(() => {
@@ -183,7 +185,7 @@ const AssetAvailability = () => {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   // 5. Effect Hook
   useEffect(() => {
-    const fetchParapets = async () => {
+    const fetchAssets = async () => {
       const parapetRes = await retrieveParapetsAvailability();
       setParapets(parapetRes.data);
 
@@ -196,10 +198,12 @@ const AssetAvailability = () => {
       const stairsRes = await retrieveStairsAvailability();
       setStairs(stairsRes.data);
 
-      const trainAssetsRes = await getTrainAssets();
-      setTrainAssets(trainAssetsRes.data);
+      await refreshAllTrainAssets();
+      await refreshViaducts();
+      await refreshPillars();
+      await refreshAssetContracts();
     };
-    fetchParapets();
+    fetchAssets();
   }, []);
   return (
     <div className=" flex flex-col p-4 bg-white rounded-lg container gap-3">
@@ -210,7 +214,7 @@ const AssetAvailability = () => {
             From:
             <Datepicker
               value={fromDate}
-              minDate={today}
+              // minDate={today}
               onSelectedDateChanged={(date) => {
                 const formatted = formatDate(date);
                 setFromDate(formatted);
@@ -367,14 +371,17 @@ const AssetAvailability = () => {
                 </Table.Cell>
 
                 <Table.Cell className="text-center">
-                  {data.contracts?.[0]?.brand_owner ?? data.brand ?? "N/A"}
+                  {data.contracts?.[0]?.brand_owner ??
+                    data.remarks ??
+                    (data.brand && data.brand !== "" ? data.brand : "N/A")}
                 </Table.Cell>
                 <Table.Cell className="text-center">
                   {data.contracts?.[0]?.asset_date_end
                     ? formatDate(data.contracts[0].asset_date_end)
                     : data.asset_date_end
                     ? formatDate(data.asset_date_end)
-                    : (["backlits", "stairs", "ticketbooths"].includes(selectedAsset) &&
+                    : data.is_booked === 1 ||
+                      (["backlits", "stairs", "ticketbooths"].includes(selectedAsset) &&
                         data.asset_status === "TAKEN") ||
                       (selectedAsset === "parapets" && data.availability_status === "Currently Unavailable")
                     ? "Currently Unavailable"

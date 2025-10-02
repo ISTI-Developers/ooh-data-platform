@@ -4,13 +4,13 @@ export const ViaductCard = ({ viaduct, onDetailsClick }) => {
   return (
     <div
       className={`relative cursor-pointer bg-white rounded-lg shadow-md p-4 transition-opacity ${
-        viaduct.isBooked ? "opacity-50" : "hover:shadow-lg"
+        viaduct.is_booked ? "opacity-50" : "hover:shadow-lg"
       }`}
     >
       {/* "BOOKED" Stamp */}
-      {viaduct.isBooked && (
+      {viaduct.is_booked === 1 && (
         <div className="absolute top-3 right-3 bg-green-500 text-white font-bold text-lg px-4 py-1 rounded rotate-12">
-          BOOKED
+          {viaduct.brand ? viaduct.brand : "BOOKED"}
         </div>
       )}
 
@@ -29,8 +29,8 @@ export const ViaductCard = ({ viaduct, onDetailsClick }) => {
       {/* Details Button (Disabled if booked) */}
       <button
         onClick={() => onDetailsClick(viaduct)}
-        className={`text-blue-500 mt-2 inline-block ${viaduct.isBooked ? "opacity-50" : "hover:underline"}`}
-        // disabled={viaduct.isBooked}
+        className={`text-blue-500 mt-2 inline-block ${viaduct.is_booked ? "opacity-50" : "hover:underline"}`}
+        // disabled={viaduct.is_booked}
       >
         Details →
       </button>
@@ -43,7 +43,8 @@ ViaductCard.propTypes = {
     picture: PropTypes.string,
     viaduct_name: PropTypes.string,
     asset_direction: PropTypes.string,
-    isBooked: PropTypes.bool,
+    is_booked: PropTypes.number,
+    brand: PropTypes.string,
   }).isRequired,
   onDetailsClick: PropTypes.func,
 };

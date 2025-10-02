@@ -20,36 +20,7 @@ const retrieveSpecifications = async () => {
     throw error;
   }
 };
-const updateAsset = async (id, data) => {
-  try {
-    const response = await axios.put(`${devEndpoints.assets}/${id}`, data, headers);
-    return response.data;
-  } catch (e) {
-    console.error("Update failed:", e.response?.data || e.message);
-    throw e;
-  }
-};
-const updateParapetStatus = async (station_id, asset_distinction, asset_id, status) => {
-  try {
-    const response = await axios.put(
-      devEndpoints.parapets + "/status/update",
-      {
-        station_id,
-        asset_distinction,
-        asset_id,
-        status,
-      },
-      headers
-    );
-    console.log("Parapet status updated:", response.data.message);
-  } catch (error) {
-    if (error.response) {
-      console.error("Error response:", error.response.data.message);
-    } else {
-      console.error("Error message:", error.message);
-    }
-  }
-};
+
 const retrieveContracts = async (page = 1, limit = 10, search = "") => {
   try {
     const response = await axios.get(devEndpoints.contracts, {
@@ -59,17 +30,6 @@ const retrieveContracts = async (page = 1, limit = 10, search = "") => {
     return response.data;
   } catch (error) {
     console.error("Error retrieving contracts:", error.message);
-    throw error;
-  }
-};
-
-const attachContract = async (contractData) => {
-  try {
-    const response = await axios.post(`${devEndpoints.contracts}/attach`, contractData, headers);
-
-    return response.data;
-  } catch (error) {
-    console.error("Error attaching contract:", error.response?.data || error.message);
     throw error;
   }
 };
@@ -108,58 +68,6 @@ const getExternalAssetSpecs = async (asset_id) => {
   } catch (error) {
     console.error(
       "Error fetching external specs:",
-      error.response ? `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}` : error.message
-    );
-    throw error;
-  }
-};
-const trainAssetBook = async (id, qty) => {
-  try {
-    const response = await axios.put(`${devEndpoints.trains}/assets/book/${id}`, { qty }, { headers });
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error booking train asset:",
-      error.response ? `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}` : error.message
-    );
-    throw error;
-  }
-};
-
-const updateTrainAsset = async (id, avlbl, ood) => {
-  try {
-    const response = await axios.put(`${devEndpoints.trains}/assets/edit/${id}`, { avlbl, ood }, { headers });
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error booking train asset:",
-      error.response ? `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}` : error.message
-    );
-    throw error;
-  }
-};
-const updateAssetSpecs = async (id, payload) => {
-  try {
-    const response = await axios.put(`${devEndpoints.specs}/edit/${id}`, payload, { headers });
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error booking updating asset:",
-      error.response ? `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}` : error.message
-    );
-    throw error;
-  }
-};
-const unTagContract = async (id, backlitId, trainAssetId, qty) => {
-  try {
-    const response = await axios.delete(`${devEndpoints.contracts}/${id}`, {
-      data: { backlitId, trainAssetId, qty },
-      headers,
-    });
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error untagging contract:",
       error.response ? `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}` : error.message
     );
     throw error;
@@ -208,46 +116,19 @@ const retrieveStairsAvailability = async () => {
   }
 };
 
-const addViaduct = async (data) => {
-  try {
-    const response = await axios.post(`${devEndpoints.trains}/external/addViaduct`, data, headers);
-    return response.data;
-  } catch (error) {
-    console.error("Error adding viaduct:", error.message);
-    throw error;
-  }
-};
-const deleteViaduct = async (id, spec_id) => {
-  try {
-    const response = await axios.delete(`${devEndpoints.trains}/external/deleteViaduct/${id}/${spec_id}`, headers);
-    return response.data;
-  } catch (error) {
-    console.error("Error deleting viaduct:", error.message);
-    throw error;
-  }
-};
 export const useLRTapi = () => {
   return {
     retrieveAllStationDetails,
     retrieveSpecifications,
-    updateAsset,
-    updateParapetStatus,
     retrieveContracts,
-    attachContract,
     getContractFromAsset,
     getTrainAssets,
     getTrainAssetsSpecs,
     getExternalAssetSpecs,
-    trainAssetBook,
-    updateTrainAsset,
     retrieveLandmarks,
-    unTagContract,
     retrieveParapetsAvailability,
     retrieveBacklitsAvailability,
     retrieveTicketboothsAvailability,
     retrieveStairsAvailability,
-    updateAssetSpecs,
-    addViaduct,
-    deleteViaduct,
   };
 };

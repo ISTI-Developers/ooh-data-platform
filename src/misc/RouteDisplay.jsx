@@ -1,8 +1,7 @@
 import PropTypes from "prop-types";
 import { IoArrowForwardSharp, IoArrowBackSharp } from "react-icons/io5";
-import { useImageUrl } from "./useImageUrl";
+import railtrackts from "../assets/railtracks.png";
 export const RouteDisplay = ({ SouthBound, NorthBound, handleSouth, handleNorth }) => {
-  const railtracks = useImageUrl("railtracks.png");
   return (
     <div className="w-full">
       <div className="relative my-5 w-full">
@@ -10,7 +9,7 @@ export const RouteDisplay = ({ SouthBound, NorthBound, handleSouth, handleNorth 
         <div
           className="w-full h-24 bg-repeat-x"
           style={{
-            backgroundImage: `url(${railtracks})`,
+            backgroundImage: `url(${railtrackts})`,
             backgroundSize: "auto 100%", // keep height small; repeat along X
             backgroundPosition: "center",
           }}

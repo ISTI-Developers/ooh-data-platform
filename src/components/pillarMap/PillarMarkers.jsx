@@ -7,9 +7,9 @@ import { useStations } from "~config/LRTContext";
 
 function PillarMarkers({ center, setCenter }) {
   const { offsetCoordinate } = useFunction();
-  const { queryResults, setZoom, setSelectedPillar, setSelectedLandmark, selectedPillar, zoom, queryAssetContracts } =
+  const { pillars, setZoom, setSelectedPillar, setSelectedLandmark, selectedPillar, zoom, assetContracts } =
     useStations();
-  return queryResults.map((item, index) => {
+  return pillars.map((item, index) => {
     const position = { lat: item.latitude, lng: item.longitude };
     const offsetPosition = offsetCoordinate(item.latitude, item.longitude, 20);
 
@@ -21,10 +21,10 @@ function PillarMarkers({ center, setCenter }) {
     const assetDirection = item.asset_direction?.toLowerCase() || "";
     const isSouthbound = assetDirection.includes("south bound");
 
-    const contractedPillar = queryAssetContracts
+    const contractedPillar = assetContracts
       .filter((cp) => cp.pillar_id !== null && cp.pillar_id !== undefined)
       .map((cp) => cp.pillar_id);
-    const isBooked = contractedPillar.includes(item.id);
+    const isBooked = contractedPillar.includes(item.id) || item.is_booked === 1;
     return (
       <AdvancedMarker
         position={position}

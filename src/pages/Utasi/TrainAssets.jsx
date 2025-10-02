@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "flowbite-react";
 import { FaInfoCircle, FaArrowLeft } from "react-icons/fa";
-import { useStations } from "~config/LRTContext";
 import { useImageUrl } from "~/misc/useImageUrl";
+import { useStations } from "~config/LRTContext";
 
 const TrainAssets = ({ onBackTrain }) => {
   const handgrips = useImageUrl("handgrips.jpg");
@@ -14,9 +14,7 @@ const TrainAssets = ({ onBackTrain }) => {
   const trainwrap = useImageUrl("trainwrap.jpg");
   const twoseaterwrap = useImageUrl("twoseaterwrap.jpg");
 
-  const { getTrainAssets, getTrainAssetsSpecs } = useStations();
-  const [trainAssets, setTrainAssets] = useState([]);
-  const [assetSpecs, setAssetSpecs] = useState([]);
+  const { trainAssets, trainSpecs, refreshAllTrainAssets, refreshTrainSpecs } = useStations();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -25,36 +23,50 @@ const TrainAssets = ({ onBackTrain }) => {
   const headers = ["Assets", "Available", "Out of Order", "Booked"];
 
   const handleDetailModal = (asset) => {
-    const matchedSpec = assetSpecs.find((spec) => spec.asset_id === asset.asset_id);
+    const matchedSpec = trainSpecs.find((spec) => spec.asset_id === asset.asset_id);
     setSelectedAsset(matchedSpec || asset);
     setDetailModal(true);
   };
-
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      await refreshAllTrainAssets();
+      await refreshTrainSpecs();
+    } catch {
+      setError("Failed to load train assets data.");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [trainAssets, assetSpecs] = await Promise.all([getTrainAssets(), getTrainAssetsSpecs()]);
-        setTrainAssets(trainAssets.data);
-        setAssetSpecs(assetSpecs.data);
-      } catch (err) {
-        setError(err.response?.data || "Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
-    };
+    refresh();
+  }, []);
 
-    fetchData();
-  }, [getTrainAssets, getTrainAssetsSpecs]);
-
-  if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
   return (
     <div className="container rounded-lg">
-      <div className="mb-4">
-        <button onClick={onBackTrain} className="flex items-center px-4 py-2 rounded hover:bg-gray-400">
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={onBackTrain}
+          className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg shadow-sm hover:bg-gray-300 active:scale-95 transition"
+        >
           <FaArrowLeft />
           Back
         </button>
+        <div className="flex gap-3">
+          {/* Refresh Button */}
+          <button
+            onClick={refresh}
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg font-semibold shadow-md transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : "bg-blue-600 hover:bg-blue-700 active:scale-95 text-white"
+            }`}
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
       </div>
       <h2 className="text-xl font-bold text-blue-500 mb-4">TRAIN ASSETS</h2>
       <div className="overflow-x-auto">
