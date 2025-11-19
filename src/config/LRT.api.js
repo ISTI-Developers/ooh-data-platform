@@ -74,15 +74,6 @@ const getExternalAssetSpecs = async (asset_id) => {
   }
 };
 
-const retrieveLandmarks = async () => {
-  try {
-    const response = await axios.get(devEndpoints.landmarks, headers);
-    return response.data;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 const retrieveParapetsAvailability = async () => {
   try {
     const response = await axios.get(devEndpoints.availability + "/parapets", headers);
@@ -96,7 +87,7 @@ const retrieveBacklitsAvailability = async () => {
     const response = await axios.get(devEndpoints.availability + "/backlits", headers);
     return response.data;
   } catch (error) {
-    console.error("Error retrieving parapets availability:", error.message);
+    console.error("Error retrieving backlits availability:", error.message);
   }
 };
 const retrieveTicketboothsAvailability = async () => {
@@ -125,7 +116,6 @@ export const useLRTapi = () => {
     getTrainAssets,
     getTrainAssetsSpecs,
     getExternalAssetSpecs,
-    retrieveLandmarks,
     retrieveParapetsAvailability,
     retrieveBacklitsAvailability,
     retrieveTicketboothsAvailability,

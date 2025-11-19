@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { IoArrowForwardSharp, IoArrowBackSharp, IoArrowDownSharp, IoArrowUpSharp } from "react-icons/io5";
+import { useState } from "react";
 export const ParapetBookButton = ({
   onClick,
   text,
@@ -62,7 +63,9 @@ ParapetBookButton.propTypes = {
   heightLabel: PropTypes.string,
 };
 
-export const BacklitBookButton = ({ onClick, text, className, isDisabled }) => {
+export const BacklitBookButton = ({ onClick, text, className, isDisabled, previewImage }) => {
+  const [showPreview, setShowPreview] = useState(false);
+
   const baseClasses =
     "h-[3.125rem] w-[12.0625rem] px-4 relative overflow-hidden rounded-lg font-semibold transition-colors duration-200 text-white";
   const enabledClasses = "bg-indigo-600 hover:bg-indigo-700";
@@ -71,12 +74,24 @@ export const BacklitBookButton = ({ onClick, text, className, isDisabled }) => {
   const displayText = text?.length > 15 ? `${text.slice(0, 15)}...` : text;
 
   return (
-    <button
-      onClick={onClick}
-      className={`${baseClasses} ${isDisabled ? disabledClasses : enabledClasses} ${className}`}
+    <div
+      className="relative inline-block"
+      onMouseEnter={() => setShowPreview(true)}
+      onMouseLeave={() => setShowPreview(false)}
     >
-      {displayText}
-    </button>
+      <button
+        onClick={onClick}
+        className={`${baseClasses} ${isDisabled ? disabledClasses : enabledClasses} ${className}`}
+      >
+        {displayText}
+      </button>
+
+      {showPreview && previewImage && (
+        <div className="absolute left-1/2 top-0 z-50 -translate-x-1/2 -translate-y-full bg-white p-2 rounded-lg shadow-xl border">
+          <img src={previewImage} alt="preview" className="max-h-[200px] rounded-md" />
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -85,7 +100,7 @@ BacklitBookButton.propTypes = {
   text: PropTypes.string,
   className: PropTypes.string,
   isDisabled: PropTypes.bool,
-  isSelected: PropTypes.bool,
+  previewImage: PropTypes.string, // <-- new
 };
 
 export const TicketBoothBookButton = ({ onClick, text, className, isDisabled }) => {

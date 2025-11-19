@@ -50,7 +50,6 @@ export function StationProvider({ children }) {
     const res = await getTrainAssetsSpecs();
     setTrainSpecs(res?.data || []);
   };
-
   const refreshViaducts = async () => {
     const res = await getExternalAssetSpecs(8);
     setViaducts(res?.data || []);
@@ -89,7 +88,6 @@ export function StationProvider({ children }) {
     trainSpecs,
     refreshAllTrainAssets,
     refreshTrainSpecs,
-    contracts,
     fetchContracts,
     pagination,
     setPagination,

@@ -18,6 +18,7 @@ const StationAssets = ({ onBackStations }) => {
   const [currentStationId, setCurrentStationId] = useState(null);
   const componentRef = useRef();
   const [loading, setLoading] = useState(false);
+  const [layoutType, setLayoutType] = useState(true);
 
   const refresh = async () => {
     setLoading(true);
@@ -85,6 +86,16 @@ const StationAssets = ({ onBackStations }) => {
         </button>
         {/* Right Action Buttons */}
         <div className="flex gap-3">
+          <button
+            onClick={() => setLayoutType(!layoutType)}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 shadow-sm ${
+              layoutType
+                ? "bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300"
+                : "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+            }`}
+          >
+            {layoutType ? "Show Detailed Layout" : "Show Basic Layout"}
+          </button>
           {/* Refresh Button */}
           <button
             onClick={refresh}
@@ -110,6 +121,7 @@ const StationAssets = ({ onBackStations }) => {
 
       <div ref={componentRef}>
         <Template
+          layoutType={layoutType}
           key={currentStation.station_id}
           station_id={currentStation.station_id}
           station_name={currentStation?.station_name || "Sample Station"}

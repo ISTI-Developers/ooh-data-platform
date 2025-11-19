@@ -2,11 +2,7 @@ import { Button, TextInput } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  defaultTextTheme,
-  mainButtonTheme,
-  passwordFieldTheme,
-} from "~config/themes";
+import { defaultTextTheme, mainButtonTheme, passwordFieldTheme } from "~config/themes";
 import { useAuth } from "~config/AuthContext";
 
 function Login() {
@@ -40,11 +36,7 @@ function Login() {
   };
 
   useEffect(() => {
-    const adminURL =
-      window.location.hostname === "localhost"
-        ? "http://localhost:5174"
-        : "https://ooh-ad.scmiph.com";
-
+    const adminURL = window.location.hostname === "localhost" ? "http://localhost:5174" : "https://ooh-ad.scmiph.com";
     if (user && role) {
       if (role.admin) {
         console.log("navigating to role");
@@ -63,11 +55,7 @@ function Login() {
             {/* <p>Stay informed about your Out-of-Home Advertising </p> */}
           </header>
           <main className="w-full flex flex-col gap-4">
-            <form
-              method="POST"
-              className="flex flex-col gap-4"
-              onSubmit={handleLogin}
-            >
+            <form method="POST" className="flex flex-col gap-4" onSubmit={handleLogin}>
               <div>
                 <TextInput
                   id="username"
@@ -79,12 +67,7 @@ function Login() {
                   theme={defaultTextTheme}
                 />
               </div>
-              <div
-                className={classNames(
-                  "flex items-center border ",
-                  isFocus ? "border-cyan-500" : "border-gray-300"
-                )}
-              >
+              <div className={classNames("flex items-center border ", isFocus ? "border-cyan-500" : "border-gray-300")}>
                 <TextInput
                   id="password"
                   required
@@ -108,18 +91,10 @@ function Login() {
                   {show ? "hide" : "show"}
                 </button>
               </div>
-              <Link
-                to="/forgot-password"
-                className="text-sm font-semibold text-secondary w-fit"
-              >
+              <Link to="/forgot-password" className="text-sm font-semibold text-secondary w-fit">
                 Forgot Password?
               </Link>
-              <Button
-                type="submit"
-                color="light"
-                theme={mainButtonTheme}
-                disabled={isSending}
-              >
+              <Button type="submit" color="light" theme={mainButtonTheme} disabled={isSending}>
                 Log in
               </Button>
             </form>

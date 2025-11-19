@@ -13,8 +13,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const domain =
-    window.location.hostname == "localhost" ? "localhost" : "scmiph.com";
+  const domain = window.location.hostname == "localhost" ? "localhost" : "scmiph.com";
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -157,9 +156,7 @@ export function AuthProvider({ children }) {
     if (!modules) return null;
 
     // Find the module with the given path
-    const permission = modules.find(
-      (module) => module.name.toLowerCase() === path
-    );
+    const permission = modules.find((module) => module.name.toLowerCase() === path);
 
     // If permission exists and has view access, render children
     if (permission && permission.permissions[0]) {
@@ -177,9 +174,7 @@ export function AuthProvider({ children }) {
 
     // Check if any link in the array has view permission
     return array.some((link) => {
-      const permission = modules.find(
-        (module) => module.name.toLowerCase() === link
-      );
+      const permission = modules.find((module) => module.name.toLowerCase() === link);
 
       return permission && permission.permissions[0];
     });
@@ -205,8 +200,8 @@ export function AuthProvider({ children }) {
       setRoleID(Cookies.get("role"));
     } else {
       if (
-        !["/login", "/register", "/forgot-password", "/password-recovery"].some(
-          (path) => location.pathname.startsWith(path)
+        !["/login", "/register", "/forgot-password", "/password-recovery"].some((path) =>
+          location.pathname.startsWith(path)
         )
       ) {
         navigate("/login");

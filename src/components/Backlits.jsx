@@ -19,6 +19,7 @@ const Backlits = ({ direction = "SOUTH", backlitData = [], onClick, icon = "▲"
             text={item.brand || null}
             isDisabled={item.asset_status === STATUS.TAKEN}
             onClick={() => onClick(item)}
+            previewImage={item.backlit_pic}
           />
           {isSouthBound && (
             <>
