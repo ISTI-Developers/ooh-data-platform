@@ -131,9 +131,9 @@ export const BacklitSlot = ({
     label: "white",
   },
   className,
+  isHoverAll,
+  setIsHoverAll,
 }) => {
-  const [show, setShow] = useState(false);
-
   const isDisabled = item.asset_status === "TAKEN";
   const brand = item.brand ? (item.brand.length > 15 ? `${item.brand.slice(0, 15)}...` : item.brand) : "Backlit";
 
@@ -143,8 +143,8 @@ export const BacklitSlot = ({
       cursor={isDisabled ? "not-allowed" : "pointer"}
       onClick={() => onClick && onClick(item)}
       className={className}
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
+      onMouseEnter={() => setIsHoverAll(true)}
+      onMouseLeave={() => setIsHoverAll(false)}
     >
       {/* Base Rectangle */}
       <rect
@@ -168,7 +168,7 @@ export const BacklitSlot = ({
           width={size.width}
           height={size.height}
           fill={colors.hover}
-          opacity="0"
+          opacity={isHoverAll ? "1" : "0"} // 👈 GLOBAL HOVER CONTROL
           className="transition-opacity duration-200"
         />
       )}
@@ -188,7 +188,7 @@ export const BacklitSlot = ({
       </text>
 
       {/* Hover Image Preview (HTML floating box) */}
-      {show && item.backlit_pic && (
+      {isHoverAll && item.backlit_pic && (
         <foreignObject x={pos.x + size.width / 2 - 100} y={pos.y - 150} width="200" height="200">
           <div
             xmlns="http://www.w3.org/1999/xhtml"
@@ -224,4 +224,6 @@ BacklitSlot.propTypes = {
     label: PropTypes.string,
   }),
   className: PropTypes.string,
+  isHoverAll: PropTypes.bool,
+  setIsHoverAll: PropTypes.func,
 };

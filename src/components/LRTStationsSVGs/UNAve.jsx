@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { ParapetSlot, BacklitSlot } from "~components/assetSlot";
-const UNAve = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3 }) => {
+const UNAve = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3, isHoverAll, setIsHoverAll, }) => {
   const positionsP = [
     // === UPPER GROUP (~y = 277) ===
     { x: 498, y: 270 },
@@ -156,7 +156,16 @@ const UNAve = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], on
           {backlitData.slice(0, backlitData.length).map((item, index) => {
             const pos = positionsB[index];
             if (!pos) return null;
-            return <BacklitSlot key={item.asset_id} item={item} pos={pos} onClick={onClick1} />;
+            return (
+          <BacklitSlot
+            key={item.asset_id}
+            item={item}
+            pos={pos}
+            onClick={onClick1}
+            isHoverAll={isHoverAll}
+            setIsHoverAll={setIsHoverAll}
+          />
+        );
           })}
 
           <g className="TURNSTILE_SB_R">

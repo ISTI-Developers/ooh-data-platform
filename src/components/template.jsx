@@ -116,6 +116,7 @@ const Template = ({
 
   const SBbookable = parapetSB.filter((item) => item.asset_status === "AVAILABLE").length;
   const NBbookable = parapetNB.filter((item) => item.asset_status === "AVAILABLE").length;
+  const [isHoverAll, setIsHoverAll] = useState(false);
 
   useEffect(() => {
     fetchContracts(1, 10000);
@@ -159,13 +160,18 @@ const Template = ({
       onClick3: handleTicketBoothClick,
       handleSouthClick,
       handleNorthClick,
+      isHoverAll,
+      setIsHoverAll,
     };
 
     // Baclaran unique case
     if (station_id === 20) {
       return (
         <BaclaranSVG
-          backlitData={backLitsSB}
+          backlitData={backLitsSB.map((item) => ({
+            ...item,
+            backlit_pic: item.backlit_pic || backlit_pic,
+          }))}
           parapetData={parapetSB}
           sbStairsData={sbStairs}
           nbStairsData={nbStairs}
@@ -174,6 +180,8 @@ const Template = ({
           onClick3={handleStairsClick}
           handleSouthClick={handleSouthClick}
           handleNorthClick={handleNorthClick}
+          isHoverAll={isHoverAll}
+          setIsHoverAll={setIsHoverAll}
         />
       );
     }
