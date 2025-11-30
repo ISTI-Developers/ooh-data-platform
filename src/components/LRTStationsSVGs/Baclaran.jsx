@@ -13,6 +13,8 @@ const BaclaranSVG = ({
   handleNorthClick,
   isHoverAll,
   setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
 }) => {
   const positionsB = [
     { x: 216, y: 177 },
@@ -67,7 +69,16 @@ const BaclaranSVG = ({
       {parapetData.map((item, index) => {
         const pos = positionsP[index];
         if (!pos) return null;
-        return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
+        return (
+          <ParapetSlot
+            key={item.asset_id}
+            item={item}
+            pos={pos}
+            onClick={onClick2}
+            isHoverAllParapet={isHoverAllParapet}
+            setIsHoverAllParapet={setIsHoverAllParapet}
+          />
+        );
       })}
       {sbStairsData.slice(0, sbStairsData.length).map((item, index) => {
         const pos = positionsS[index];

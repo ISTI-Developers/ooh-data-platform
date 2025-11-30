@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 import { ParapetSlot, BacklitSlot } from "~components/assetSlot";
-const Blumentritt = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3, isHoverAll, setIsHoverAll, }) => {
+const Blumentritt = ({
+  backlitData = [],
+  SBparapetData = [],
+  ticketBoothsData = [],
+  onClick1,
+  onClick2,
+  onClick3,
+  isHoverAll,
+  setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
+}) => {
   const positionsP = [
     { x: 155, y: 513 },
     { x: 254, y: 513 },
@@ -122,21 +133,30 @@ const Blumentritt = ({ backlitData = [], SBparapetData = [], ticketBoothsData = 
           {SBparapetData.map((item, index) => {
             const pos = positionsP[index];
             if (!pos) return null;
-            return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
+            return (
+              <ParapetSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick2}
+                isHoverAllParapet={isHoverAllParapet}
+                setIsHoverAllParapet={setIsHoverAllParapet}
+              />
+            );
           })}
           {backlitData.slice(0, backlitData.length).map((item, index) => {
             const pos = positionsB[index];
             if (!pos) return null;
             return (
-          <BacklitSlot
-            key={item.asset_id}
-            item={item}
-            pos={pos}
-            onClick={onClick1}
-            isHoverAll={isHoverAll}
-            setIsHoverAll={setIsHoverAll}
-          />
-        );
+              <BacklitSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick1}
+                isHoverAll={isHoverAll}
+                setIsHoverAll={setIsHoverAll}
+              />
+            );
           })}
           <g className="Stairs">
             <path stroke="#000" d="M358.5 244.5h72v137h-72z" />

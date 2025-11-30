@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 import { ParapetSlot, BacklitSlot } from "~components/assetSlot";
-const Bambang = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3, isHoverAll, setIsHoverAll, }) => {
+const Bambang = ({
+  backlitData = [],
+  SBparapetData = [],
+  ticketBoothsData = [],
+  onClick1,
+  onClick2,
+  onClick3,
+  isHoverAll,
+  setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
+}) => {
   const positionsP = [
     // === y = 774 ===
 
@@ -111,7 +122,16 @@ const Bambang = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], 
           {SBparapetData.map((item, index) => {
             const pos = positionsP[index];
             if (!pos) return null;
-            return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
+            return (
+              <ParapetSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick2}
+                isHoverAllParapet={isHoverAllParapet}
+                setIsHoverAllParapet={setIsHoverAllParapet}
+              />
+            );
           })}
           <g className="ENTRY/EXIT_SB_R">
             <g className="ENTRY/EXIT_SB_R">

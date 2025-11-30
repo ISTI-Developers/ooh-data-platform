@@ -117,6 +117,7 @@ const Template = ({
   const SBbookable = parapetSB.filter((item) => item.asset_status === "AVAILABLE").length;
   const NBbookable = parapetNB.filter((item) => item.asset_status === "AVAILABLE").length;
   const [isHoverAll, setIsHoverAll] = useState(false);
+  const [isHoverAllParapet, setIsHoverAllParapet] = useState(false);
 
   useEffect(() => {
     fetchContracts(1, 10000);
@@ -152,7 +153,10 @@ const Template = ({
         ...item,
         backlit_pic: item.backlit_pic || backlit_pic,
       })),
-      SBparapetData: [...parapetSB, ...parapetNB],
+      SBparapetData: [...parapetSB, ...parapetNB].map((item) => ({
+        ...item,
+        parapet_pic: item.parapet_pic || parapet_pic,
+      })),
       sbStairsData: [sbStairs],
       nbStairsData: [nbStairs],
       onClick1: handleBacklitClick,
@@ -162,6 +166,8 @@ const Template = ({
       handleNorthClick,
       isHoverAll,
       setIsHoverAll,
+      isHoverAllParapet,
+      setIsHoverAllParapet,
     };
 
     // Baclaran unique case
@@ -172,7 +178,10 @@ const Template = ({
             ...item,
             backlit_pic: item.backlit_pic || backlit_pic,
           }))}
-          parapetData={parapetSB}
+          parapetData={parapetSB.map((item) => ({
+            ...item,
+            parapet_pic: item.parapet_pic || parapet_pic,
+          }))}
           sbStairsData={sbStairs}
           nbStairsData={nbStairs}
           onClick1={handleBacklitClick}
@@ -182,6 +191,8 @@ const Template = ({
           handleNorthClick={handleNorthClick}
           isHoverAll={isHoverAll}
           setIsHoverAll={setIsHoverAll}
+          isHoverAllParapet={isHoverAllParapet}
+          setIsHoverAllParapet={setIsHoverAllParapet}
         />
       );
     }

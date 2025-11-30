@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 import { ParapetSlot, BacklitSlot } from "~components/assetSlot";
-const Fifth = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3, isHoverAll, setIsHoverAll, }) => {
+const Fifth = ({
+  backlitData = [],
+  SBparapetData = [],
+  ticketBoothsData = [],
+  onClick1,
+  onClick2,
+  onClick3,
+  isHoverAll,
+  setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
+}) => {
   const positionsP = [
     // === Top row (y = 434–438) ===
     { x: 61, y: 438 },
@@ -145,7 +156,16 @@ const Fifth = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], on
           {SBparapetData.map((item, index) => {
             const pos = positionsP[index];
             if (!pos) return null;
-            return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
+            return (
+              <ParapetSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick2}
+                isHoverAllParapet={isHoverAllParapet}
+                setIsHoverAllParapet={setIsHoverAllParapet}
+              />
+            );
           })}
           <g id="TURNSTILE_SB_R">
             <path id="TURNSTILE_SB_R_2" stroke="currentColor" strokeWidth="3" d="M587.5 287.5h62v67h-62z" />

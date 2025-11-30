@@ -9,6 +9,8 @@ const AbadSantos = ({
   onClick3,
   isHoverAll,
   setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
 }) => {
   const positionsP = [
     { x: 195, y: 513 },
@@ -145,7 +147,16 @@ const AbadSantos = ({
           {SBparapetData.map((item, index) => {
             const pos = positionsP[index];
             if (!pos) return null;
-            return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
+            return (
+              <ParapetSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick2}
+                isHoverAllParapet={isHoverAllParapet}
+                setIsHoverAllParapet={setIsHoverAllParapet}
+              />
+            );
           })}
           {backlitData.slice(0, backlitData.length).map((item, index) => {
             const pos = positionsB[index];

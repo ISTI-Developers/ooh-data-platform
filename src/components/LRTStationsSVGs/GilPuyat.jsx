@@ -1,7 +1,18 @@
 import PropTypes from "prop-types";
 import { ParapetSlot, BacklitSlot } from "~components/assetSlot";
 
-const GilPuyat = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3, isHoverAll, setIsHoverAll, }) => {
+const GilPuyat = ({
+  backlitData = [],
+  SBparapetData = [],
+  ticketBoothsData = [],
+  onClick1,
+  onClick2,
+  onClick3,
+  isHoverAll,
+  setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
+}) => {
   const ticketBoothPositions = [
     { id: "TICKET_BOOTH_SB_L", d: "M369 512h-55v-42h55v42Z" },
     { id: "TICKET_BOOTH_SB_R", d: "M1877 474h-62v-62h62v62Z" },
@@ -131,25 +142,34 @@ const GilPuyat = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [],
           );
         })}
 
-         {SBparapetData.map((item, index) => {
-              const pos = positionsSB[index];
-              if (!pos) return null;
-              return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
-            })}
-            {backlitData.slice(0, backlitData.length).map((item, index) => {
-              const pos = positionsB[index];
-              if (!pos) return null;
-              return (
-          <BacklitSlot
-            key={item.asset_id}
-            item={item}
-            pos={pos}
-            onClick={onClick1}
-            isHoverAll={isHoverAll}
-            setIsHoverAll={setIsHoverAll}
-          />
-        );
-            })}
+        {SBparapetData.map((item, index) => {
+          const pos = positionsSB[index];
+          if (!pos) return null;
+          return (
+            <ParapetSlot
+              key={item.asset_id}
+              item={item}
+              pos={pos}
+              onClick={onClick2}
+              isHoverAllParapet={isHoverAllParapet}
+              setIsHoverAllParapet={setIsHoverAllParapet}
+            />
+          );
+        })}
+        {backlitData.slice(0, backlitData.length).map((item, index) => {
+          const pos = positionsB[index];
+          if (!pos) return null;
+          return (
+            <BacklitSlot
+              key={item.asset_id}
+              item={item}
+              pos={pos}
+              onClick={onClick1}
+              isHoverAll={isHoverAll}
+              setIsHoverAll={setIsHoverAll}
+            />
+          );
+        })}
 
         <g id="STR_SB_L">
           <path

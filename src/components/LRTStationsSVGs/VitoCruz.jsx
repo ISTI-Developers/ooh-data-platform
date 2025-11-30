@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 import { ParapetSlot, BacklitSlot } from "~components/assetSlot";
-const VitoCruz = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3, isHoverAll, setIsHoverAll, }) => {
+const VitoCruz = ({
+  backlitData = [],
+  SBparapetData = [],
+  ticketBoothsData = [],
+  onClick1,
+  onClick2,
+  onClick3,
+  isHoverAll,
+  setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
+}) => {
   const positionsB = [
     { x: 1329, y: 660 },
     { x: 1623, y: 660 },
@@ -91,21 +102,30 @@ const VitoCruz = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [],
           {SBparapetData.map((item, index) => {
             const pos = positionsP[index];
             if (!pos) return null;
-            return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
+            return (
+              <ParapetSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick2}
+                isHoverAllParapet={isHoverAllParapet}
+                setIsHoverAllParapet={setIsHoverAllParapet}
+              />
+            );
           })}
           {backlitData.slice(0, backlitData.length).map((item, index) => {
             const pos = positionsB[index];
             if (!pos) return null;
             return (
-          <BacklitSlot
-            key={item.asset_id}
-            item={item}
-            pos={pos}
-            onClick={onClick1}
-            isHoverAll={isHoverAll}
-            setIsHoverAll={setIsHoverAll}
-          />
-        );
+              <BacklitSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick1}
+                isHoverAll={isHoverAll}
+                setIsHoverAll={setIsHoverAll}
+              />
+            );
           })}
           <g id="TURNSTILE_SB_R">
             <path id="TURNSTILE_SB_R_2" stroke="currentColor" strokeWidth="3" d="M919.5 472.5h106v45h-106z" />

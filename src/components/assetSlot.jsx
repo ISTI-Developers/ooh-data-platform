@@ -18,6 +18,8 @@ export const ParapetSlot = ({
   },
   showBlockedCross = true,
   className,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
 }) => {
   const isLarge = item.asset_size === "LARGE";
   const isBlocked = item.asset_status === "BLOCKED";
@@ -46,6 +48,8 @@ export const ParapetSlot = ({
       cursor={isDisabled || isBlocked ? "not-allowed" : "pointer"}
       onClick={() => onClick && onClick(item)}
       className={className}
+      onMouseEnter={() => setIsHoverAllParapet(true)}
+      onMouseLeave={() => setIsHoverAllParapet(false)}
     >
       <rect
         x={pos.x}
@@ -81,6 +85,18 @@ export const ParapetSlot = ({
           {label}
         </text>
       )}
+      {/* Hover Image Preview (HTML floating box) */}
+      {isHoverAllParapet && item.parapet_pic && item.asset_status !== "BLOCKED" && item.asset_size !== "LARGE" && (
+        <foreignObject x={pos.x + sizeSmall.width / 2 - 100} y={pos.y - 150} width="200" height="200">
+          <div
+            xmlns="http://www.w3.org/1999/xhtml"
+            className="bg-white border shadow-xl rounded-lg p-2"
+            style={{ pointerEvents: "none" }}
+          >
+            <img src={item.parapet_pic} style={{ maxHeight: "180px", borderRadius: "8px" }} />
+          </div>
+        </foreignObject>
+      )}
     </g>
   );
 };
@@ -112,10 +128,9 @@ ParapetSlot.propTypes = {
   }),
   showBlockedCross: PropTypes.bool,
   className: PropTypes.string,
+  isHoverAllParapet: PropTypes.bool,
+  setIsHoverAllParapet: PropTypes.func,
 };
-
-// Reusable Backlit slot
-import { useState } from "react";
 
 export const BacklitSlot = ({
   item,
@@ -168,7 +183,7 @@ export const BacklitSlot = ({
           width={size.width}
           height={size.height}
           fill={colors.hover}
-          opacity={isHoverAll ? "1" : "0"} // 👈 GLOBAL HOVER CONTROL
+          opacity={isHoverAll ? "1" : "0"}
           className="transition-opacity duration-200"
         />
       )}

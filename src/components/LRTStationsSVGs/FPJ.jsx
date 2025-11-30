@@ -1,7 +1,18 @@
 import PropTypes from "prop-types";
 import { ParapetSlot, BacklitSlot } from "~components/assetSlot";
 import WIPWrapper from "~components/WIPWrapper";
-const FPJ = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3, isHoverAll, setIsHoverAll, }) => {
+const FPJ = ({
+  backlitData = [],
+  SBparapetData = [],
+  ticketBoothsData = [],
+  onClick1,
+  onClick2,
+  onClick3,
+  isHoverAll,
+  setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
+}) => {
   const positionsP = [
     // === Top row (y = 148) ===
     { x: 690, y: 148 },
@@ -85,21 +96,30 @@ const FPJ = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onCl
             {SBparapetData.map((item, index) => {
               const pos = positionsP[index];
               if (!pos) return null;
-              return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
+              return (
+                <ParapetSlot
+                  key={item.asset_id}
+                  item={item}
+                  pos={pos}
+                  onClick={onClick2}
+                  isHoverAllParapet={isHoverAllParapet}
+                  setIsHoverAllParapet={setIsHoverAllParapet}
+                />
+              );
             })}
             {backlitData.slice(0, backlitData.length).map((item, index) => {
               const pos = positionsB[index];
               if (!pos) return null;
               return (
-          <BacklitSlot
-            key={item.asset_id}
-            item={item}
-            pos={pos}
-            onClick={onClick1}
-            isHoverAll={isHoverAll}
-            setIsHoverAll={setIsHoverAll}
-          />
-        );
+                <BacklitSlot
+                  key={item.asset_id}
+                  item={item}
+                  pos={pos}
+                  onClick={onClick1}
+                  isHoverAll={isHoverAll}
+                  setIsHoverAll={setIsHoverAll}
+                />
+              );
             })}
           </g>
         </g>

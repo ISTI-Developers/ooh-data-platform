@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 import { ParapetSlot, BacklitSlot } from "~components/assetSlot";
-const PedroGil = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [], onClick1, onClick2, onClick3, isHoverAll, setIsHoverAll, }) => {
+const PedroGil = ({
+  backlitData = [],
+  SBparapetData = [],
+  ticketBoothsData = [],
+  onClick1,
+  onClick2,
+  onClick3,
+  isHoverAll,
+  setIsHoverAll,
+  isHoverAllParapet,
+  setIsHoverAllParapet,
+}) => {
   const positionsP = [
     // === UPPER GROUP ===
     { x: 273.005, y: 341 },
@@ -105,21 +116,30 @@ const PedroGil = ({ backlitData = [], SBparapetData = [], ticketBoothsData = [],
           {SBparapetData.map((item, index) => {
             const pos = positionsP[index];
             if (!pos) return null;
-            return <ParapetSlot key={item.asset_id} item={item} pos={pos} onClick={onClick2} />;
+            return (
+              <ParapetSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick2}
+                isHoverAllParapet={isHoverAllParapet}
+                setIsHoverAllParapet={setIsHoverAllParapet}
+              />
+            );
           })}
           {backlitData.slice(0, backlitData.length).map((item, index) => {
             const pos = positionsB[index];
             if (!pos) return null;
             return (
-          <BacklitSlot
-            key={item.asset_id}
-            item={item}
-            pos={pos}
-            onClick={onClick1}
-            isHoverAll={isHoverAll}
-            setIsHoverAll={setIsHoverAll}
-          />
-        );
+              <BacklitSlot
+                key={item.asset_id}
+                item={item}
+                pos={pos}
+                onClick={onClick1}
+                isHoverAll={isHoverAll}
+                setIsHoverAll={setIsHoverAll}
+              />
+            );
           })}
           <g className="Stairs">
             <path stroke="#000" d="M1797.5 869.5v-51h166v51z" />
