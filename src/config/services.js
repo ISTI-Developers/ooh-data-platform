@@ -6,12 +6,22 @@ import Cookies from "js-cookie";
 const retrievePlanning = async (get, options = null) => {
   try {
     if (!Cookies.get("token")) return;
+    const user = Cookies.get("user");
+    if (!Cookies.get("token")) return;
+    let params = {
+      get: get,
+      options: get === "areas" ? JSON.stringify(options) : null,
+    };
+
+    if (user) {
+      const userData = JSON.parse(user);
+      if (userData.company && userData.company === "Summit Media") {
+        params.owner = userData.company;
+      }
+    }
 
     const response = await axios.get(url.planning, {
-      params: {
-        get: get,
-        options: get === "areas" ? JSON.stringify(options) : null,
-      },
+      params: params,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${Cookies.get("token")}`,
@@ -43,13 +53,22 @@ const retrieveSiteAnalytics = async (id, option) => {
   }
 };
 const retrieveSites = async (type = null) => {
+  const user = Cookies.get("user");
   try {
     if (!Cookies.get("token")) return;
+    let params = {
+      type: type,
+    };
+
+    if (user) {
+      const userData = JSON.parse(user);
+      if (userData.company && userData.company === "Summit Media") {
+        params.owner = userData.company;
+      }
+    }
 
     const response = await axios.get(url.sites, {
-      params: {
-        type: type,
-      },
+      params: params,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${Cookies.get("token")}`,
