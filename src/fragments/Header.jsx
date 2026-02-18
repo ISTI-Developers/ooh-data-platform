@@ -27,7 +27,7 @@ function Header() {
   const pages = useMemo(() => {
     if (!modules) return [];
     return modules
-      .filter((module) => module.view === "client" && module.is_parent)
+      .filter((module) => module.view === "client" && module.is_parent && module.status)
       .filter((module) => {
         return CheckPermission({
           path: module.name.toLowerCase(),

@@ -46,10 +46,10 @@ function AppRoutes() {
     planning: Planning,
     maps: Map,
     audiences: Audience,
-    reports: ReportDecks,
+    // reports: ReportDecks,
     campaigns: Reports,
-    utasi_lrt: LandingPage,
-    asset_availability_client: AssetAvailability,
+    // utasi_lrt: LandingPage,
+    // asset_availability_client: AssetAvailability,
   };
 
   const [modules, setModules] = useState(null);
