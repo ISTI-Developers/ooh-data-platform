@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 const server = window.location.hostname.includes("localhost")
   ? "http://localhost:20601"
-  : "https://ooh.unmg.com.ph:8000";
+  : "https://oohbu.unmg.com.ph:20601";
 export const headers = {
   headers: {
     "Content-Type": "application/json",
